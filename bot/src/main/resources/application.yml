@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: bot
+
+app:
+  telegram-token: ${BOT_TOKEN}
+
+server:
+  port: 8080
