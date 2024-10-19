@@ -33,14 +33,21 @@ public class InMemoryUserDao implements UserDao {
     private final InMemoryExpenseDao expenseDao;
 
     /**
+     * Dao для управления балансом пользователей
+     */
+    private final InMemoryBalanceDao balanceDao;
+
+    /**
      * Конструктор класса InMemoryUserDao.
      *
      * @param incomeDao  DAO для работы с доходами пользователей.
      * @param expenseDao DAO для работы с расходами пользователей.
      */
-    public InMemoryUserDao(InMemoryIncomeDao incomeDao, InMemoryExpenseDao expenseDao) {
+    public InMemoryUserDao(InMemoryIncomeDao incomeDao,
+                           InMemoryExpenseDao expenseDao, InMemoryBalanceDao balanceDao) {
         this.incomeDao = incomeDao;
         this.expenseDao = expenseDao;
+        this.balanceDao = balanceDao;
     }
 
     /**
@@ -67,6 +74,7 @@ public class InMemoryUserDao implements UserDao {
             usersDataType.put(chatId, DataType.IN_MEMORY);
             incomeDao.createUserList(chatId);
             expenseDao.createUserList(chatId);
+            balanceDao.setBalance(chatId, 0.0);
         }
     }
 }

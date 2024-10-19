@@ -1,9 +1,11 @@
 package ru.naumen.bot.telegramBot.service.processor.impl;
 
+import com.pengrad.telegrambot.model.BotCommand;
 import com.pengrad.telegrambot.model.Update;
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.Income;
+import ru.naumen.bot.telegramBot.command.Commands;
 import ru.naumen.bot.telegramBot.service.BotService;
 import ru.naumen.bot.telegramBot.service.DataService;
 import ru.naumen.bot.telegramBot.service.processor.BotProcessor;
@@ -52,8 +54,33 @@ public class CommandBotProcessor implements BotProcessor {
             case START_COMMAND -> handleStart(update);
             case EXPENSES_COMMAND -> handleExpenses(update);
             case INCOME_COMMAND -> handleIncome(update);
+            case HELP_COMMAND -> handleHelp(update);
+            case BALANCE_COMMAND -> handleBalance(update);
             default -> handleOther(update);
         }
+    }
+
+    /**
+     * Обрабатывает команду "/balance" и отправляет текующий баланс пользователя
+     * @param update
+     */
+    private void handleBalance(Update update) {
+        botService.sendMessage("Ваш баланс: " + dataService.getBalance(update),update);
+    }
+
+    /**
+     * Обрабатывает команду "/help" и отправляет пользователю справку по командам
+     * @param update обновление от Telegram
+     */
+    private void handleHelp(Update update) {
+        Commands commands = new Commands();
+        BotCommand[] arrayOfCommand = commands.getCommands();
+        StringBuilder stringHelp = new StringBuilder("Справка по всем командам: \n");
+        for (BotCommand botCommand : arrayOfCommand) {
+            stringHelp.append(botCommand.command()).append(" - ")
+                    .append(botCommand.description()).append("\n");
+        }
+        botService.sendMessage(stringHelp.toString(),update);
     }
 
     /**

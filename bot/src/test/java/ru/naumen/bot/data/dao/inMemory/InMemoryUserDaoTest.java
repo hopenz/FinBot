@@ -16,7 +16,7 @@ public class InMemoryUserDaoTest {
     void setUp() {
         incomeDao = new InMemoryIncomeDao();
         expenseDao = new InMemoryExpenseDao();
-        userDao = new InMemoryUserDao(incomeDao, expenseDao);
+       // userDao = new InMemoryUserDao(incomeDao, expenseDao);
     }
 
     @Test

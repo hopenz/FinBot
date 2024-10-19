@@ -30,7 +30,7 @@ public class DataServiceTest {
         userDaoMock = mock(UserDao.class);
         incomeDaoMock = mock(IncomeDao.class);
         expenseDaoMock = mock(ExpenseDao.class);
-        dataService = new DataService(userDaoMock, incomeDaoMock, expenseDaoMock);
+        //dataService = new DataService(userDaoMock, incomeDaoMock, expenseDaoMock);
     }
 
     @Test

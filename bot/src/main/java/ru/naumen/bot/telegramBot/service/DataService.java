@@ -3,6 +3,7 @@ package ru.naumen.bot.telegramBot.service;
 import com.pengrad.telegrambot.model.Update;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.naumen.bot.data.dao.BalanceDao;
 import ru.naumen.bot.data.dao.ExpenseDao;
 import ru.naumen.bot.data.dao.IncomeDao;
 import ru.naumen.bot.data.dao.UserDao;
@@ -34,6 +35,11 @@ public class DataService {
     private final ExpenseDao expenseDao;
 
     /**
+     * Dao для работы с балансом.
+     */
+    private final BalanceDao balanceDao;
+
+    /**
      * Конструктор DataService. Инициализирует сервис с объектами DAO.
      *
      * @param userDao DAO для работы с пользователями.
@@ -41,10 +47,11 @@ public class DataService {
      * @param expenseDao DAO для работы с расходами.
      */
     @Autowired
-    public DataService(UserDao userDao, IncomeDao incomeDao, ExpenseDao expenseDao) {
+    public DataService(UserDao userDao, IncomeDao incomeDao, ExpenseDao expenseDao, BalanceDao balanceDao) {
         this.userDao = userDao;
         this.incomeDao = incomeDao;
         this.expenseDao = expenseDao;
+        this.balanceDao = balanceDao;
     }
 
     /**
@@ -86,5 +93,13 @@ public class DataService {
      */
     public List<Expense> getExpenses(Update update) {
         return expenseDao.getExpenses(update.message().chat().id());
+    }
+
+    /**
+     * Получает баланс пользователя на основе информации из обновления Telegram
+     * @return
+     */
+    public double getBalance(Update update) {
+        return balanceDao.getBalance(update.message().chat().id());
     }
 }
