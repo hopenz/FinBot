@@ -37,13 +37,24 @@ public class InMemoryExpenseDao implements ExpenseDao {
     }
 
     /**
+     * Добавляет расход для указанного идентификатора чата.
+     *
+     * @param chatId     идентификатор чата, для которого нужно добавить расход.
+     * @param newExpense новый расход.
+     */
+    @Override
+    public void addExpense(long chatId, Expense newExpense) {
+        usersExpenses.get(chatId).add(newExpense);
+    }
+
+    /**
      * Создает новый список расходов для указанного идентификатора чата.
      * Этот метод используется для инициализации хранилища расходов,
      * когда пользователь начинает с пустым списком расходов.
      *
      * @param chatId идентификатор чата, для которого необходимо создать список расходов.
      */
-    protected void createUserList(long chatId) {
+    public void createUserList(long chatId) {
         usersExpenses.put(chatId, new ArrayList<>());
     }
 }

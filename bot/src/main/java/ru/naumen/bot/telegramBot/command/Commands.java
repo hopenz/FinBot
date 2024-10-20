@@ -33,8 +33,8 @@ public class Commands {
      */
     public static final String HELP_COMMAND = COMMAND_PREFIX + "help";
 
-    /** Команда для получения текущего баланса пользователя
-     *
+    /**
+     * Команда для получения текущего баланса пользователя
      */
     public static final String BALANCE_COMMAND = COMMAND_PREFIX + "balance";
 
@@ -43,8 +43,8 @@ public class Commands {
      *
      * @return массив команд, каждая из которых описывает действие и текстовое описание.
      */
-    public  BotCommand[] getCommands() {
-        return new BotCommand[] {
+    public BotCommand[] getCommands() {
+        return new BotCommand[]{
                 new BotCommand(
                         START_COMMAND,
                         "Начать работу с ботом"

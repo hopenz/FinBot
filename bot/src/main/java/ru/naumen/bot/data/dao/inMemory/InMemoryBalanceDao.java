@@ -25,7 +25,7 @@ public class InMemoryBalanceDao implements BalanceDao {
     /**
      * Устанавливает баланс пользователя для указанного идентификатора.
      *
-     * @param chatId идентификатор чата, в котором необходимо установить баланс
+     * @param chatId     идентификатор чата, в котором необходимо установить баланс
      * @param newBalance сумма нового баланса
      */
     @Override

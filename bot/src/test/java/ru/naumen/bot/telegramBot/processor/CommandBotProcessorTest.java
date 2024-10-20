@@ -1,4 +1,4 @@
-package ru.naumen.bot.telegramBot.service.processor;
+package ru.naumen.bot.telegramBot.processor;
 
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
@@ -7,9 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.Income;
-import ru.naumen.bot.telegramBot.service.BotService;
-import ru.naumen.bot.telegramBot.service.DataService;
-import ru.naumen.bot.telegramBot.service.processor.impl.CommandBotProcessor;
+import ru.naumen.bot.telegramBot.processor.impl.CommandBotProcessor;
+import ru.naumen.bot.telegramBot.service.*;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -22,14 +21,21 @@ import static ru.naumen.bot.telegramBot.command.Commands.*;
 public class CommandBotProcessorTest {
 
     private BotService botServiceMock;
-    private DataService dataServiceMock;
+    private UserService userServiceMock;
+    private IncomeService incomeServiceMock;
+    private ExpenseService expenseServiceMock;
+    private BalanceService balanceServiceMock;
     private CommandBotProcessor commandBotProcessor;
 
     @BeforeEach
     void setUp() {
         botServiceMock = mock(BotService.class);
-        dataServiceMock = mock(DataService.class);
-        commandBotProcessor = new CommandBotProcessor(botServiceMock, dataServiceMock);
+        userServiceMock = mock(UserService.class);
+        incomeServiceMock = mock(IncomeService.class);
+        expenseServiceMock = mock(ExpenseService.class);
+        balanceServiceMock = mock(BalanceService.class);
+        commandBotProcessor = new CommandBotProcessor(botServiceMock, userServiceMock, balanceServiceMock,
+                incomeServiceMock, expenseServiceMock);
     }
 
     @Test
@@ -42,7 +48,7 @@ public class CommandBotProcessorTest {
 
         commandBotProcessor.process(update);
 
-        verify(dataServiceMock).openChat(update);
+        verify(userServiceMock).openChat(update);
         verify(botServiceMock).sendMessage("Давайте начнём", update);
     }
 
@@ -57,7 +63,7 @@ public class CommandBotProcessorTest {
         List<Income> incomeList = Arrays.asList(
                 new Income("income1", 100.0, LocalDate.of(2024, 1, 1)),
                 new Income("income2", 200.0, LocalDate.of(2024, 2, 2)));
-        when(dataServiceMock.getIncomes(update)).thenReturn(incomeList);
+        when(incomeServiceMock.getIncomes(update)).thenReturn(incomeList);
 
         commandBotProcessor.process(update);
 
@@ -79,7 +85,7 @@ public class CommandBotProcessorTest {
         List<Expense> expenseList = Arrays.asList(
                 new Expense("expense1", 100.0, LocalDate.of(2024, 1, 1)),
                 new Expense("expense2", 200.0, LocalDate.of(2024, 2, 2)));
-        when(dataServiceMock.getExpenses(update)).thenReturn(expenseList);
+        when(expenseServiceMock.getExpenses(update)).thenReturn(expenseList);
 
         commandBotProcessor.process(update);
 
@@ -88,6 +94,49 @@ public class CommandBotProcessorTest {
 
         String expectedMessage = "Ваши расходы:\n100.0 - expense1\n200.0 - expense2\n";
         assertThat(messageCaptor.getValue()).isEqualTo(expectedMessage);
+    }
+
+    @Test
+    void testProcessBalanceCommand() {
+        Update update = mock(Update.class);
+        Message message = mock(Message.class);
+
+        when(update.message()).thenReturn(message);
+        when(message.text()).thenReturn(BALANCE_COMMAND);
+
+        when(balanceServiceMock.getBalance(update)).thenReturn(100.0);
+
+        commandBotProcessor.process(update);
+
+        ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
+        verify(botServiceMock).sendMessage(messageCaptor.capture(), eq(update));
+
+        String expectedMessage = "Ваш баланс: 100.0";
+        assertThat(messageCaptor.getValue()).isEqualTo(expectedMessage);
+    }
+
+    @Test
+    void testProcessHelpCommand() {
+        Update update = mock(Update.class);
+        Message message = mock(Message.class);
+
+        when(update.message()).thenReturn(message);
+        when(message.text()).thenReturn("/help");
+
+        commandBotProcessor.process(update);
+
+        verify(botServiceMock).sendMessage("Справка по всем командам: \n" +
+                "/start - Начать работу с ботом\n" +
+                "/expenses - Получить расходы\n" +
+                "/income - Показать доходы\n" +
+                "/help - Справка по командам\n" +
+                "/balance - Текущий баланс\n" +
+                "\n" +
+                "Чтобы добавить доход введите:\n" +
+                "+ <сумма> <описание>\n" +
+                "\n" +
+                "Чтобы добавить расход введите:\n" +
+                "- <сумма> <описание>", update);
     }
 
     @Test

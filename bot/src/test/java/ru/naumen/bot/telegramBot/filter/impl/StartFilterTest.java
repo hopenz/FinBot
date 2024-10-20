@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import ru.naumen.bot.telegramBot.filter.ABotFilter;
 import ru.naumen.bot.telegramBot.filter.filterImpl.StartFilter;
 import ru.naumen.bot.telegramBot.service.BotService;
-import ru.naumen.bot.telegramBot.service.DataService;
+import ru.naumen.bot.telegramBot.service.UserService;
 
 import static org.mockito.Mockito.*;
 import static ru.naumen.bot.telegramBot.command.Commands.START_COMMAND;
@@ -15,27 +15,27 @@ import static ru.naumen.bot.telegramBot.command.Commands.START_COMMAND;
 public class StartFilterTest {
     private StartFilter startFilter;
     private BotService botService;
-    private DataService dataService;
+    private UserService userService;
     private Update update;
     private Message message;
 
     @BeforeEach
     void setUp() {
         botService = mock(BotService.class);
-        dataService = mock(DataService.class);
+        userService = mock(UserService.class);
         update = mock(Update.class);
         message = mock(Message.class);
 
         when(update.message()).thenReturn(message);
 
-        startFilter = new StartFilter(botService, dataService);
+        startFilter = new StartFilter(botService, userService);
     }
 
     @Test
     void testDoFilter_NotStartCommandAndChatNotOpened_ShouldSendMessage() {
         when(message.text()).thenReturn("hello");
 
-        when(dataService.isChatOpened(update)).thenReturn(false);
+        when(userService.isChatOpened(update)).thenReturn(false);
 
         startFilter.doFilter(update);
 
@@ -63,7 +63,7 @@ public class StartFilterTest {
     void testDoFilter_ChatOpened_ShouldCallNextFilter() {
         when(message.text()).thenReturn("hello");
 
-        when(dataService.isChatOpened(update)).thenReturn(true);
+        when(userService.isChatOpened(update)).thenReturn(true);
 
         ABotFilter nextFilter = mock(ABotFilter.class);
         startFilter.setNextFilter(nextFilter);
@@ -79,7 +79,7 @@ public class StartFilterTest {
     void testDoFilter_ChatNotOpenedAndNoNextFilter_ShouldSendMessage() {
         when(message.text()).thenReturn("hello");
 
-        when(dataService.isChatOpened(update)).thenReturn(false);
+        when(userService.isChatOpened(update)).thenReturn(false);
 
         startFilter.doFilter(update);
 

@@ -7,8 +7,8 @@ import java.time.LocalDate;
  * Содержит описание, сумму и дату дохода.
  *
  * @param description описание дохода.
- * @param amount сумма дохода.
- * @param date дата получения дохода.
+ * @param amount      сумма дохода.
+ * @param date        дата получения дохода.
  */
 public record Income(String description, Double amount, LocalDate date) {
 }

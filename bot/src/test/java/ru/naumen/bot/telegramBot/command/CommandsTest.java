@@ -13,7 +13,9 @@ public class CommandsTest {
         BotCommand[] expectedCommands = new BotCommand[]{
                 new BotCommand("/start", "Начать работу с ботом"),
                 new BotCommand("/expenses", "Получить расходы"),
-                new BotCommand("/income", "Показать доходы")
+                new BotCommand("/income", "Показать доходы"),
+                new BotCommand("/help", "Справка по командам"),
+                new BotCommand("/balance", "Текущий баланс")
         };
 
         BotCommand[] actualCommands = commands.getCommands();

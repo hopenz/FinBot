@@ -5,7 +5,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.telegramBot.filter.ABotFilter;
 import ru.naumen.bot.telegramBot.service.BotService;
-import ru.naumen.bot.telegramBot.service.DataService;
+import ru.naumen.bot.telegramBot.service.UserService;
 
 import static ru.naumen.bot.telegramBot.command.Commands.START_COMMAND;
 
@@ -25,18 +25,18 @@ public class StartFilter extends ABotFilter {
     /**
      * Сервис для взаимодействия с данными.
      */
-    private final DataService dataService;
+    private final UserService userService;
 
     /**
      * Конструктор StartFilter.
      * Инициализирует фильтр с сервисом {@link BotService}.
      *
      * @param botService  сервис для взаимодействия с ботом.
-     * @param dataService сервис для взаимодействия с данными.
+     * @param userService сервис для взаимодействия с данными.
      */
-    public StartFilter(BotService botService, DataService dataService) {
+    public StartFilter(BotService botService, UserService userService) {
         this.botService = botService;
-        this.dataService = dataService;
+        this.userService = userService;
     }
 
     /**
@@ -48,12 +48,12 @@ public class StartFilter extends ABotFilter {
      */
     @Override
     public void doFilter(Update update) {
-        if (!START_COMMAND.equals(update.message().text()) && !dataService.isChatOpened(update)) {
+        if (!START_COMMAND.equals(update.message().text()) && !userService.isChatOpened(update)) {
             botService.sendMessage(
                     "Чтобы начать работу, нажмите " + START_COMMAND,
                     update
             );
-        }else if (this.getNextFilter() != null) {
+        } else if (this.getNextFilter() != null) {
             this.getNextFilter().doFilter(update);
         }
     }

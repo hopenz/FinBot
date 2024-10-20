@@ -31,7 +31,7 @@ public class BotService {
      * Отправляет сообщение в чат Telegram.
      *
      * @param message текст сообщения для отправки.
-     * @param update обновление от Telegram, содержащее информацию о чате.
+     * @param update  обновление от Telegram, содержащее информацию о чате.
      */
     public void sendMessage(String message, Update update) {
         long chatId = update.message().chat().id();
