@@ -27,7 +27,6 @@ public class InMemoryIncomeDao implements IncomeDao {
 
     /**
      * Получает список доходов для указанного идентификатора чата.
-     * Если чата нет в хранилище, создается пустой список.
      *
      * @param chatId идентификатор чата, для которого нужно получить доходы.
      * @return список объектов {@link Income}, представляющих доходы пользователя.
@@ -38,13 +37,24 @@ public class InMemoryIncomeDao implements IncomeDao {
     }
 
     /**
+     * Добавляет доход для указанного идентификатора чата.
+     *
+     * @param chatId    идентификатор чата, для которого нужно добавить расход.
+     * @param newIncome новый доход.
+     */
+    @Override
+    public void addIncome(long chatId, Income newIncome) {
+        usersIncomes.get(chatId).add(newIncome);
+    }
+
+    /**
      * Создает новый список доходов для указанного идентификатора чата.
      * Этот метод используется для инициализации хранилища доходов,
      * когда пользователь начинает с пустым списком доходов.
      *
      * @param chatId идентификатор чата, для которого необходимо создать список доходов.
      */
-    protected void createUserList(long chatId) {
+    public void createUserList(long chatId) {
         usersIncomes.put(chatId, new ArrayList<>());
     }
 }

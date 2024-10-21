@@ -18,4 +18,12 @@ public interface ExpenseDao {
      * @return список объектов {@link Expense}, представляющих расходы пользователя.
      */
     List<Expense> getExpenses(long chatId);
+
+    /**
+     * Добавляет расход для указанного идентификатора чата.
+     *
+     * @param chatId     идентификатор чата, для которого нужно добавить расход.
+     * @param newExpense новый расход.
+     */
+    void addExpense(long chatId, Expense newExpense);
 }

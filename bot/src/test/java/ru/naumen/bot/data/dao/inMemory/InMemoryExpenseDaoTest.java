@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.naumen.bot.data.entity.Expense;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,6 +34,18 @@ public class InMemoryExpenseDaoTest {
         List<Expense> expenses = expenseDao.getExpenses(chatId);
         assertThat(expenses).isNotNull();
         assertThat(expenses).isEmpty();
+    }
+
+    @Test
+    void testAddExpense() {
+        long chatId = 12345L;
+        Expense expense = new Expense("мяу", 15.0, LocalDate.now());
+        expenseDao.createUserList(chatId);
+
+        expenseDao.addExpense(chatId, expense);
+
+        assertThat(expenseDao.getExpenses(chatId)).hasSize(1);
+        assertThat(expenseDao.getExpenses(chatId)).contains(expense);
     }
 
 }

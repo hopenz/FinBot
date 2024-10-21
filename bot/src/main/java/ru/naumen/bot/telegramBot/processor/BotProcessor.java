@@ -1,4 +1,4 @@
-package ru.naumen.bot.telegramBot.service.processor;
+package ru.naumen.bot.telegramBot.processor;
 
 import com.pengrad.telegrambot.model.Update;
 

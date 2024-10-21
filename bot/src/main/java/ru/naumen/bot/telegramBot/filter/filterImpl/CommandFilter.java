@@ -4,7 +4,7 @@ import com.pengrad.telegrambot.model.Update;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.telegramBot.filter.ABotFilter;
-import ru.naumen.bot.telegramBot.service.processor.impl.CommandBotProcessor;
+import ru.naumen.bot.telegramBot.processor.impl.CommandBotProcessor;
 
 import static ru.naumen.bot.telegramBot.command.Commands.COMMAND_PREFIX;
 
@@ -42,7 +42,7 @@ public class CommandFilter extends ABotFilter {
     public void doFilter(Update update) {
         if (update.message().text().startsWith(COMMAND_PREFIX)) {
             botProcessor.process(update);
-        }else if (this.getNextFilter() != null) {
+        } else if (this.getNextFilter() != null) {
             this.getNextFilter().doFilter(update);
         }
     }

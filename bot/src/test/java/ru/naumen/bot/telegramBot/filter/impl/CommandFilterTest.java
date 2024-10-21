@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.naumen.bot.telegramBot.filter.ABotFilter;
 import ru.naumen.bot.telegramBot.filter.filterImpl.CommandFilter;
-import ru.naumen.bot.telegramBot.service.processor.impl.CommandBotProcessor;
+import ru.naumen.bot.telegramBot.processor.impl.CommandBotProcessor;
 
 import static org.mockito.Mockito.*;
 
@@ -49,8 +49,7 @@ public class CommandFilterTest {
 
         commandFilter.doFilter(update);
 
-        verify(commandBotProcessor, never()).process(update);
-
+        verifyNoMoreInteractions(commandBotProcessor);
         verify(nextFilter).doFilter(update);
     }
 
@@ -59,8 +58,6 @@ public class CommandFilterTest {
         when(message.text()).thenReturn("hello");
 
         commandFilter.doFilter(update);
-
-        verify(commandBotProcessor, never()).process(update);
 
         verifyNoMoreInteractions(commandBotProcessor);
     }

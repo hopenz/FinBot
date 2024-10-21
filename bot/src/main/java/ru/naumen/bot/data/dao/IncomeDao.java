@@ -17,4 +17,12 @@ public interface IncomeDao {
      * @return список объектов {@link Income}, представляющих доходы пользователя.
      */
     List<Income> getIncomes(long chatId);
+
+    /**
+     * Добавляет доход для указанного идентификатора чата.
+     *
+     * @param chatId    идентификатор чата, для которого нужно добавить расход.
+     * @param newIncome новый доход.
+     */
+    void addIncome(long chatId, Income newIncome);
 }

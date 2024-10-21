@@ -1,12 +1,13 @@
-package ru.naumen.bot.telegramBot.service.processor.impl;
+package ru.naumen.bot.telegramBot.processor.impl;
 
+import com.pengrad.telegrambot.model.BotCommand;
 import com.pengrad.telegrambot.model.Update;
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.Income;
-import ru.naumen.bot.telegramBot.service.BotService;
-import ru.naumen.bot.telegramBot.service.DataService;
-import ru.naumen.bot.telegramBot.service.processor.BotProcessor;
+import ru.naumen.bot.telegramBot.command.Commands;
+import ru.naumen.bot.telegramBot.processor.BotProcessor;
+import ru.naumen.bot.telegramBot.service.*;
 
 import java.util.List;
 
@@ -25,19 +26,41 @@ public class CommandBotProcessor implements BotProcessor {
     private final BotService botService;
 
     /**
-     * Сервис для взаимодействия с данными.
+     * Сервис для взаимодействия с данными пользователя.
      */
-    private final DataService dataService;
+    private final UserService userService;
+
+    /**
+     * Сервис для взаимодействия с балансом.
+     */
+    public final BalanceService balanceService;
+
+    /**
+     * Сервис для взаимодействия с доходами.
+     */
+    public final IncomeService incomeService;
+
+    /**
+     * Сервис для взаимодействия с расходами.
+     */
+    public final ExpenseService expenseService;
 
     /**
      * Конструктор CommandBotProcessor. Инициализирует процессор с сервисом {@link BotService}.
      *
-     * @param botService  сервис для взаимодействия с ботом.
-     * @param dataService сервис для взаимодействия с данными.
+     * @param botService     сервис для взаимодействия с ботом.
+     * @param userService    сервис для взаимодействия с данными пользователя.
+     * @param balanceService сервис для взаимодействия с балансом.
+     * @param incomeService  сервис для взаимодействия с доходами.
+     * @param expenseService сервис для взаимодействия с расходами.
      */
-    public CommandBotProcessor(BotService botService, DataService dataService) {
+    public CommandBotProcessor(BotService botService, UserService userService, BalanceService balanceService,
+                               IncomeService incomeService, ExpenseService expenseService) {
         this.botService = botService;
-        this.dataService = dataService;
+        this.userService = userService;
+        this.balanceService = balanceService;
+        this.incomeService = incomeService;
+        this.expenseService = expenseService;
     }
 
     /**
@@ -52,8 +75,34 @@ public class CommandBotProcessor implements BotProcessor {
             case START_COMMAND -> handleStart(update);
             case EXPENSES_COMMAND -> handleExpenses(update);
             case INCOME_COMMAND -> handleIncome(update);
+            case HELP_COMMAND -> handleHelp(update);
+            case BALANCE_COMMAND -> handleBalance(update);
             default -> handleOther(update);
         }
+    }
+
+    /**
+     * Обрабатывает команду "/balance" и отправляет текующий баланс пользователя
+     */
+    private void handleBalance(Update update) {
+        botService.sendMessage("Ваш баланс: " + balanceService.getBalance(update), update);
+    }
+
+    /**
+     * Обрабатывает команду "/help" и отправляет пользователю справку по командам
+     *
+     * @param update обновление от Telegram
+     */
+    private void handleHelp(Update update) {
+        BotCommand[] arrayOfCommand = new Commands().getCommands();
+        StringBuilder stringHelp = new StringBuilder("Справка по всем командам: \n");
+        for (BotCommand botCommand : arrayOfCommand) {
+            stringHelp.append(botCommand.command()).append(" - ")
+                    .append(botCommand.description()).append("\n");
+        }
+        stringHelp.append("\nЧтобы добавить доход введите:\n+ <сумма> <описание>\n");
+        stringHelp.append("\nЧтобы добавить расход введите:\n- <сумма> <описание>");
+        botService.sendMessage(stringHelp.toString(), update);
     }
 
     /**
@@ -62,7 +111,7 @@ public class CommandBotProcessor implements BotProcessor {
      * @param update обновление от Telegram.
      */
     private void handleIncome(Update update) {
-        List<Income> incomeList = dataService.getIncomes(update);
+        List<Income> incomeList = incomeService.getIncomes(update);
         StringBuilder sb = new StringBuilder();
         sb.append("Ваши доходы:\n");
         for (Income income : incomeList) {
@@ -77,7 +126,7 @@ public class CommandBotProcessor implements BotProcessor {
      * @param update обновление от Telegram.
      */
     private void handleExpenses(Update update) {
-        List<Expense> expenseList = dataService.getExpenses(update);
+        List<Expense> expenseList = expenseService.getExpenses(update);
         StringBuilder sb = new StringBuilder();
         sb.append("Ваши расходы:\n");
         for (Expense expense : expenseList) {
@@ -92,7 +141,7 @@ public class CommandBotProcessor implements BotProcessor {
      * @param update обновление от Telegram.
      */
     private void handleStart(Update update) {
-        dataService.openChat(update);
+        userService.openChat(update);
         botService.sendMessage("Давайте начнём", update);
     }
 

@@ -29,12 +29,22 @@ public class Commands {
     public static final String INCOME_COMMAND = COMMAND_PREFIX + "income";
 
     /**
+     * Команда для получения информации про команды
+     */
+    public static final String HELP_COMMAND = COMMAND_PREFIX + "help";
+
+    /**
+     * Команда для получения текущего баланса пользователя
+     */
+    public static final String BALANCE_COMMAND = COMMAND_PREFIX + "balance";
+
+    /**
      * Метод возвращает массив доступных команд для бота.
      *
      * @return массив команд, каждая из которых описывает действие и текстовое описание.
      */
-    public  BotCommand[] getCommands() {
-        return new BotCommand[] {
+    public BotCommand[] getCommands() {
+        return new BotCommand[]{
                 new BotCommand(
                         START_COMMAND,
                         "Начать работу с ботом"
@@ -48,6 +58,14 @@ public class Commands {
                 new BotCommand(
                         INCOME_COMMAND,
                         "Показать доходы"
+                ),
+                new BotCommand(
+                        HELP_COMMAND,
+                        "Справка по командам"
+                ),
+                new BotCommand(
+                        BALANCE_COMMAND,
+                        "Текущий баланс"
                 )
         };
     }

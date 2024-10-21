@@ -22,26 +22,6 @@ public class InMemoryUserDao implements UserDao {
      */
     private final Map<Long, DataType> usersDataType = new HashMap<>();
 
-    /**
-     * DAO для управления доходами пользователей.
-     */
-    private final InMemoryIncomeDao incomeDao;
-
-    /**
-     * DAO для управления расходами пользователей.
-     */
-    private final InMemoryExpenseDao expenseDao;
-
-    /**
-     * Конструктор класса InMemoryUserDao.
-     *
-     * @param incomeDao  DAO для работы с доходами пользователей.
-     * @param expenseDao DAO для работы с расходами пользователей.
-     */
-    public InMemoryUserDao(InMemoryIncomeDao incomeDao, InMemoryExpenseDao expenseDao) {
-        this.incomeDao = incomeDao;
-        this.expenseDao = expenseDao;
-    }
 
     /**
      * Проверяет, открыт ли чат для данного идентификатора.
@@ -63,10 +43,6 @@ public class InMemoryUserDao implements UserDao {
      */
     @Override
     public void openChat(long chatId) {
-        if (!checkChat(chatId)) {
-            usersDataType.put(chatId, DataType.IN_MEMORY);
-            incomeDao.createUserList(chatId);
-            expenseDao.createUserList(chatId);
-        }
+        usersDataType.put(chatId, DataType.IN_MEMORY);
     }
 }

@@ -5,32 +5,29 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.naumen.bot.data.dao.ExpenseDao;
-import ru.naumen.bot.data.dao.IncomeDao;
+import ru.naumen.bot.data.dao.BalanceDao;
 import ru.naumen.bot.data.dao.UserDao;
-import ru.naumen.bot.data.entity.Expense;
-import ru.naumen.bot.data.entity.Income;
-
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
+import ru.naumen.bot.data.dao.inMemory.InMemoryExpenseDao;
+import ru.naumen.bot.data.dao.inMemory.InMemoryIncomeDao;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class DataServiceTest {
+public class UserServiceTest {
 
     private UserDao userDaoMock;
-    private IncomeDao incomeDaoMock;
-    private ExpenseDao expenseDaoMock;
-    private DataService dataService;
+    private InMemoryIncomeDao incomeDaoMock;
+    private InMemoryExpenseDao expenseDaoMock;
+    private UserService userService;
+    private BalanceDao balanceDaoMock;
 
     @BeforeEach
     void setUp() {
         userDaoMock = mock(UserDao.class);
-        incomeDaoMock = mock(IncomeDao.class);
-        expenseDaoMock = mock(ExpenseDao.class);
-        dataService = new DataService(userDaoMock, incomeDaoMock, expenseDaoMock);
+        incomeDaoMock = mock(InMemoryIncomeDao.class);
+        expenseDaoMock = mock(InMemoryExpenseDao.class);
+        balanceDaoMock = mock(BalanceDao.class);
+        userService = new UserService(userDaoMock, incomeDaoMock, expenseDaoMock, balanceDaoMock);
     }
 
     @Test
@@ -44,7 +41,7 @@ public class DataServiceTest {
         when(chat.id()).thenReturn(12345L);
         when(userDaoMock.checkChat(12345L)).thenReturn(true);
 
-        boolean isChatOpened = dataService.isChatOpened(update);
+        boolean isChatOpened = userService.isChatOpened(update);
 
         assertThat(isChatOpened).isTrue();
 
@@ -62,7 +59,7 @@ public class DataServiceTest {
         when(chat.id()).thenReturn(54321L);
         when(userDaoMock.checkChat(54321L)).thenReturn(false);
 
-        boolean isChatOpened = dataService.isChatOpened(update);
+        boolean isChatOpened = userService.isChatOpened(update);
 
         assertThat(isChatOpened).isFalse();
 
@@ -70,7 +67,7 @@ public class DataServiceTest {
     }
 
     @Test
-    void testOpenChat() {
+    void testOpenChat_whenChatIsNotOpened() {
         Update update = mock(Update.class);
         Message message = mock(Message.class);
         Chat chat = mock(Chat.class);
@@ -78,14 +75,15 @@ public class DataServiceTest {
         when(update.message()).thenReturn(message);
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(12345L);
+        when(userDaoMock.checkChat(12345L)).thenReturn(false);
+        userService.openChat(update);
 
-        dataService.openChat(update);
-
+        verify(userDaoMock).checkChat(12345L);
         verify(userDaoMock).openChat(12345L);
     }
 
     @Test
-    void testGetIncomes() {
+    void testOpenChat_whenChatIsOpened() {
         Update update = mock(Update.class);
         Message message = mock(Message.class);
         Chat chat = mock(Chat.class);
@@ -94,37 +92,10 @@ public class DataServiceTest {
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(12345L);
 
-        List<Income> expectedIncomes = Arrays.asList(
-                new Income("income1", 100.0, LocalDate.of(2024, 1, 1)),
-                new Income("income2", 200.0, LocalDate.of(2024, 2, 2)));
-        when(incomeDaoMock.getIncomes(12345L)).thenReturn(expectedIncomes);
+        when(userDaoMock.checkChat(12345L)).thenReturn(true);
+        userService.openChat(update);
 
-        List<Income> incomes = dataService.getIncomes(update);
-
-        assertThat(incomes).isEqualTo(expectedIncomes);
-
-        verify(incomeDaoMock).getIncomes(12345L);
-    }
-
-    @Test
-    void testGetExpenses() {
-        Update update = mock(Update.class);
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-
-        when(update.message()).thenReturn(message);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(12345L);
-
-        List<Expense> expectedExpenses = Arrays.asList(
-                new Expense("expense1", 100.0, LocalDate.of(2024, 1, 1)),
-                new Expense("expense2", 200.0, LocalDate.of(2024, 2, 2)));
-        when(expenseDaoMock.getExpenses(12345L)).thenReturn(expectedExpenses);
-
-        List<Expense> expenses = dataService.getExpenses(update);
-
-        assertThat(expenses).isEqualTo(expectedExpenses);
-
-        verify(expenseDaoMock).getExpenses(12345L);
+        verify(userDaoMock).checkChat(12345L);
+        verifyNoMoreInteractions(userDaoMock);
     }
 }

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.naumen.bot.data.entity.Income;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,4 +37,15 @@ public class InMemoryIncomeDaoTest {
         assertThat(incomes).isEmpty();
     }
 
+    @Test
+    void testAddIncome() {
+        long chatId = 12345L;
+        Income income = new Income("мяу", 15.0, LocalDate.now());
+        incomeDao.createUserList(chatId);
+
+        incomeDao.addIncome(chatId, income);
+
+        assertThat(incomeDao.getIncomes(chatId)).hasSize(1);
+        assertThat(incomeDao.getIncomes(chatId)).contains(income);
+    }
 }
