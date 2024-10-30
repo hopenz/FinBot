@@ -41,6 +41,6 @@ public class InMemoryBalanceDao implements BalanceDao {
      */
     @Override
     public Double getBalance(long chatId) {
-        return usersBalance.get(chatId);
+        return usersBalance.getOrDefault(chatId, 0.0);
     }
 }

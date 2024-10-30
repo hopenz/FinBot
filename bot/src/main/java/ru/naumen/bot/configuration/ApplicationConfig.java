@@ -13,7 +13,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @param telegramToken токен для аутентификации в Telegram API.
  */
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
-public record ApplicationConfig(
-        String telegramToken
-) {
+public record ApplicationConfig(String telegramToken) {
 }
