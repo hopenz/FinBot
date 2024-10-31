@@ -21,7 +21,7 @@ public class UpdateBotProcessor {
     private final MessageBotProcessor messageBotProcessor;
 
     /**
-     * Процессор для обработка команд от пользователей
+     * Процессор для обработки команд от пользователей
      */
     private final CommandBotProcessor commandBotProcessor;
 
@@ -39,7 +39,7 @@ public class UpdateBotProcessor {
      * Конструктор {@link UpdateBotProcessor}
      *
      * @param messageBotProcessor    процессор для обработки сообщений от пользователей
-     * @param commandBotProcessor    процессор для обработка команд от пользователей
+     * @param commandBotProcessor    процессор для обработки команд от пользователей
      * @param userService            сервис для взаимодействия с данными пользователя
      * @param telegramBotController1 контроллер для взаимодействия с ботом Телеграмм
      */
