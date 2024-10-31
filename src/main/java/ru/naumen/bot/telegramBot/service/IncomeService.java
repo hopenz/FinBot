@@ -1,6 +1,5 @@
 package ru.naumen.bot.telegramBot.service;
 
-import com.pengrad.telegrambot.model.Update;
 import org.springframework.stereotype.Service;
 import ru.naumen.bot.data.dao.BalanceDao;
 import ru.naumen.bot.data.dao.IncomeDao;
@@ -38,9 +37,9 @@ public class IncomeService {
     }
 
     /**
-     * Получает список доходов пользователя на основе информации из обновления Telegram.
+     * Получает список доходов пользователя на основе chatId пользователя.
      *
-     * @param update обновление от Telegram.
+     * @param chatId идентификатор чата, в котором было отправлено сообщение
      * @return список объектов {@link Income}, представляющих доходы пользователя.
      */
     public List<Income> getIncomes(long chatId) {
@@ -51,7 +50,7 @@ public class IncomeService {
      * Добавляет доходы в хранилище и обнавляет баланс.
      *
      * @param income сообщение от пользователя.
-     * @param update обновление от Telegrem.
+     * @param chatId идентификатор чата, в котором было отправлено сообщение
      */
     public void addIncome(String income, long chatId) {
         String[] arrayOfStringIncome = income.split(" ", 3);

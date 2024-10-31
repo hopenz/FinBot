@@ -12,13 +12,29 @@ import ru.naumen.bot.configuration.ApplicationConfig;
 import ru.naumen.bot.telegramBot.command.Commands;
 import ru.naumen.bot.telegramBot.processor.UpdateBotProcessor;
 
+/**
+ * Класс {@link  TelegramBotController} отвечает за управление ботом и взаимодействие с ним.
+ */
 @Component
 public class TelegramBotController {
 
+    /**
+     * Экземпляр бота Телеграмм
+     */
     private final TelegramBot telegramBot;
 
+    /**
+     * Логгер для записи сообщений об ошибках
+     */
     private final Logger logger = LoggerFactory.getLogger(TelegramBotController.class);
 
+    /**
+     * Конструктор {@link  TelegramBotController} инициализирует бота Telegram, устанавливает его команды
+     * и настраивает слушатель обновлений для обработки входящих обновлений.
+     *
+     * @param applicationConfig  конфигурация, содержащая токен бота Telegram
+     * @param applicationContext контекст приложения, используемый для получения бинов
+     */
     public TelegramBotController(ApplicationConfig applicationConfig, ApplicationContext applicationContext) {
         this.telegramBot = new TelegramBot(applicationConfig.telegramToken());
         this.telegramBot.execute(new SetMyCommands(
@@ -40,6 +56,12 @@ public class TelegramBotController {
         });
     }
 
+    /**
+     * Отправка сообщения в указанный чат
+     *
+     * @param message сообщение, которое будет отправлено
+     * @param chatId  дентификатор чата, в который будет отправлено сообщение
+     */
     public void sendMessage(String message, long chatId) {
         telegramBot.execute(new SendMessage(chatId, message));
     }

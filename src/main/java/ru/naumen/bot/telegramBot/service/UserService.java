@@ -1,7 +1,5 @@
 package ru.naumen.bot.telegramBot.service;
 
-import com.pengrad.telegrambot.model.Update;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.naumen.bot.data.dao.BalanceDao;
 import ru.naumen.bot.data.dao.UserDao;
@@ -43,7 +41,6 @@ public class UserService {
      * @param expenseDao DAO для работы с расходами.
      * @param balanceDao DAO для работы с балансом.
      */
-    @Autowired
     public UserService(UserDao userDao, InMemoryIncomeDao incomeDao, InMemoryExpenseDao expenseDao, BalanceDao balanceDao) {
         this.userDao = userDao;
         this.incomeDao = incomeDao;
@@ -54,7 +51,7 @@ public class UserService {
     /**
      * Проверяет, открыт ли чат для текущего пользователя.
      *
-     * @param update обновление от Telegram, содержащее информацию о чате.
+     * @param chatId идентификатор чата, в котором было отправлено сообщение
      * @return true, если чат открыт, иначе false.
      */
     public boolean isChatOpened(long chatId) {
@@ -64,7 +61,7 @@ public class UserService {
     /**
      * Открывает чат для текущего пользователя, если он еще не был открыт.
      *
-     * @param update обновление от Telegram.
+     * @param chatId идентификатор чата, в котором было отправлено сообщение
      */
     public void openChat(long chatId) {
         if (!userDao.checkChat(chatId)) {

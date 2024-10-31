@@ -1,6 +1,5 @@
 package ru.naumen.bot.telegramBot.service;
 
-import com.pengrad.telegrambot.model.Update;
 import org.springframework.stereotype.Service;
 import ru.naumen.bot.data.dao.BalanceDao;
 import ru.naumen.bot.data.dao.ExpenseDao;
@@ -35,13 +34,12 @@ public class ExpenseService {
     public ExpenseService(ExpenseDao expenseDao, BalanceDao balanceDao) {
         this.expenseDao = expenseDao;
         this.balanceDao = balanceDao;
-
     }
 
     /**
-     * Получает список расходов пользователя на основе информации из обновления Telegram.
+     * Получает список расходов пользователя на основе chatId пользователя.
      *
-     * @param update обновление от Telegram.
+     * @param chatId идентификатор чата, в котором было отправлено сообщение
      * @return список объектов {@link Expense}, представляющих расходы пользователя.
      */
     public List<Expense> getExpenses(long chatId) {
@@ -52,7 +50,7 @@ public class ExpenseService {
      * Добавляет расходы в хранилище и обнавляет баланс.
      *
      * @param expense сообщение от пользователя.
-     * @param update  обновление от Telegrem.
+     * @param chatId  идентификатор чата, в котором было отправлено сообщение
      */
     public void addExpense(String expense, long chatId) {
         String[] arrayOfStringExpense = expense.split(" ", 3);

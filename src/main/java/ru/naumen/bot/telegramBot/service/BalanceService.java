@@ -1,6 +1,5 @@
 package ru.naumen.bot.telegramBot.service;
 
-import com.pengrad.telegrambot.model.Update;
 import org.springframework.stereotype.Service;
 import ru.naumen.bot.data.dao.BalanceDao;
 
@@ -25,7 +24,7 @@ public class BalanceService {
     }
 
     /**
-     * Возвращает баланс пользователя на основе информации из обновления Telegram.
+     * Возвращает баланс пользователя на основе информации chatId пользователя.
      *
      * @return текущий баланс пользователя.
      */
