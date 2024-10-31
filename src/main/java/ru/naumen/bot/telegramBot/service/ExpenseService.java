@@ -44,8 +44,8 @@ public class ExpenseService {
      * @param update обновление от Telegram.
      * @return список объектов {@link Expense}, представляющих расходы пользователя.
      */
-    public List<Expense> getExpenses(Update update) {
-        return expenseDao.getExpenses(update.message().chat().id());
+    public List<Expense> getExpenses(long chatId) {
+        return expenseDao.getExpenses(chatId);
     }
 
     /**
@@ -54,9 +54,8 @@ public class ExpenseService {
      * @param expense сообщение от пользователя.
      * @param update  обновление от Telegrem.
      */
-    public void addExpense(String expense, Update update) {
+    public void addExpense(String expense, long chatId) {
         String[] arrayOfStringExpense = expense.split(" ", 3);
-        long chatId = update.message().chat().id();
         Expense newExpense = new Expense(
                 arrayOfStringExpense[2], Double.parseDouble(arrayOfStringExpense[1]), LocalDate.now());
         expenseDao.addExpense(chatId, newExpense);

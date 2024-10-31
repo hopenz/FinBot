@@ -43,8 +43,8 @@ public class IncomeService {
      * @param update обновление от Telegram.
      * @return список объектов {@link Income}, представляющих доходы пользователя.
      */
-    public List<Income> getIncomes(Update update) {
-        return incomeDao.getIncomes(update.message().chat().id());
+    public List<Income> getIncomes(long chatId) {
+        return incomeDao.getIncomes(chatId);
     }
 
     /**
@@ -53,9 +53,8 @@ public class IncomeService {
      * @param income сообщение от пользователя.
      * @param update обновление от Telegrem.
      */
-    public void addIncome(String income, Update update) {
+    public void addIncome(String income, long chatId) {
         String[] arrayOfStringIncome = income.split(" ", 3);
-        long chatId = update.message().chat().id();
         Income newIncome = new Income(
                 arrayOfStringIncome[2], Double.parseDouble(arrayOfStringIncome[1]), LocalDate.now());
         incomeDao.addIncome(chatId, newIncome);

@@ -29,7 +29,7 @@ public class BalanceService {
      *
      * @return текущий баланс пользователя.
      */
-    public Double getBalance(Update update) {
-        return balanceDao.getBalance(update.message().chat().id());
+    public Double getBalance(long chatId) {
+        return balanceDao.getBalance(chatId);
     }
 }

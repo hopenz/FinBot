@@ -46,7 +46,7 @@ public class CommandBotProcessorTest {
         when(update.message()).thenReturn(message);
         when(message.text()).thenReturn(START_COMMAND);
 
-        commandBotProcessor.process(update);
+        commandBotProcessor.processCommand(update);
 
         verify(userServiceMock).openChat(update);
         verify(botServiceMock).sendMessage("Давайте начнём", update);
@@ -65,7 +65,7 @@ public class CommandBotProcessorTest {
                 new Income("income2", 200.0, LocalDate.of(2024, 2, 2)));
         when(incomeServiceMock.getIncomes(update)).thenReturn(incomeList);
 
-        commandBotProcessor.process(update);
+        commandBotProcessor.processCommand(update);
 
         ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
         verify(botServiceMock).sendMessage(messageCaptor.capture(), eq(update));
@@ -87,7 +87,7 @@ public class CommandBotProcessorTest {
                 new Expense("expense2", 200.0, LocalDate.of(2024, 2, 2)));
         when(expenseServiceMock.getExpenses(update)).thenReturn(expenseList);
 
-        commandBotProcessor.process(update);
+        commandBotProcessor.processCommand(update);
 
         ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
         verify(botServiceMock).sendMessage(messageCaptor.capture(), eq(update));
@@ -106,7 +106,7 @@ public class CommandBotProcessorTest {
 
         when(balanceServiceMock.getBalance(update)).thenReturn(100.0);
 
-        commandBotProcessor.process(update);
+        commandBotProcessor.processCommand(update);
 
         ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
         verify(botServiceMock).sendMessage(messageCaptor.capture(), eq(update));
@@ -123,7 +123,7 @@ public class CommandBotProcessorTest {
         when(update.message()).thenReturn(message);
         when(message.text()).thenReturn("/help");
 
-        commandBotProcessor.process(update);
+        commandBotProcessor.processCommand(update);
 
         verify(botServiceMock).sendMessage("Справка по всем командам: \n" +
                 "/start - Начать работу с ботом\n" +
@@ -147,7 +147,7 @@ public class CommandBotProcessorTest {
         when(update.message()).thenReturn(message);
         when(message.text()).thenReturn("/UNKNOWN_COMMAND");
 
-        commandBotProcessor.process(update);
+        commandBotProcessor.processCommand(update);
 
         verify(botServiceMock).sendMessage("Неизвестная команда", update);
     }

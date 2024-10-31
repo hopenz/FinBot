@@ -35,7 +35,7 @@ public class MessageBotProcessorTest {
         when(update.message()).thenReturn(message);
         when(message.text()).thenReturn("+ 100 чаевые");
 
-        messageBotProcessor.process(update);
+        messageBotProcessor.processMessage(update);
 
         verify(incomeServiceMock).addIncome("+ 100 чаевые", update);
         verify(botServiceMock).sendMessage("Доход успешно добавлен!", update);
@@ -49,7 +49,7 @@ public class MessageBotProcessorTest {
         when(update.message()).thenReturn(message);
         when(message.text()).thenReturn("- 100 автобус");
 
-        messageBotProcessor.process(update);
+        messageBotProcessor.processMessage(update);
 
         verify(expenseServiceMock).addExpense("- 100 автобус", update);
         verify(botServiceMock).sendMessage("Расход успешно добавлен!", update);
@@ -63,7 +63,7 @@ public class MessageBotProcessorTest {
         when(update.message()).thenReturn(message);
         when(message.text()).thenReturn("- 123мяу");
 
-        messageBotProcessor.process(update);
+        messageBotProcessor.processMessage(update);
 
         verifyNoMoreInteractions(expenseServiceMock);
         verifyNoMoreInteractions(incomeServiceMock);

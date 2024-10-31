@@ -57,8 +57,7 @@ public class UserService {
      * @param update обновление от Telegram, содержащее информацию о чате.
      * @return true, если чат открыт, иначе false.
      */
-    public boolean isChatOpened(Update update) {
-        long chatId = update.message().chat().id();
+    public boolean isChatOpened(long chatId) {
         return userDao.checkChat(chatId);
     }
 
@@ -67,8 +66,7 @@ public class UserService {
      *
      * @param update обновление от Telegram.
      */
-    public void openChat(Update update) {
-        long chatId = update.message().chat().id();
+    public void openChat(long chatId) {
         if (!userDao.checkChat(chatId)) {
             userDao.openChat(chatId);
             incomeDao.createUserList(chatId);
