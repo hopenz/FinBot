@@ -1,8 +1,5 @@
 package ru.naumen.bot.telegramBot.service;
 
-import com.pengrad.telegrambot.model.Chat;
-import com.pengrad.telegrambot.model.Message;
-import com.pengrad.telegrambot.model.Update;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.naumen.bot.data.dao.BalanceDao;
@@ -10,17 +7,41 @@ import ru.naumen.bot.data.dao.UserDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryExpenseDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryIncomeDao;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+/**
+ * Тесты для класса {@link UserService}, проверяющие корректность обработки операций с пользователями.
+ */
 public class UserServiceTest {
 
+    /**
+     * Мок-объект для {@link UserDao}, используемый для работы с данными пользователями.
+     */
     private UserDao userDaoMock;
+
+    /**
+     * Мок-объект для {@link InMemoryIncomeDao}, используемый для работы с доходами пользователей.
+     */
     private InMemoryIncomeDao incomeDaoMock;
+
+    /**
+     * Мок-объект для {@link InMemoryExpenseDao}, используемый для работы с расходами пользователей.
+     */
     private InMemoryExpenseDao expenseDaoMock;
+
+    /**
+     * Тестируемый объект {@link UserService}, который проверяется в данном тестовом классе.
+     */
     private UserService userService;
+
+    /**
+     * Мок-объект для {@link BalanceDao}, используемый для управления балансом пользователей.
+     */
     private BalanceDao balanceDaoMock;
 
+    /**
+     * Инициализация всех зависимостей и {@link UserService} перед каждым тестом.
+     */
     @BeforeEach
     void setUp() {
         userDaoMock = mock(UserDao.class);
@@ -30,72 +51,35 @@ public class UserServiceTest {
         userService = new UserService(userDaoMock, incomeDaoMock, expenseDaoMock, balanceDaoMock);
     }
 
-    @Test
-    void testIsChatOpened_whenChatIsOpened() {
-        Update update = mock(Update.class);
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-
-        when(update.message()).thenReturn(message);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(12345L);
-        when(userDaoMock.checkChat(12345L)).thenReturn(true);
-
-        boolean isChatOpened = userService.isChatOpened(update);
-
-        assertThat(isChatOpened).isTrue();
-
-        verify(userDaoMock).checkChat(12345L);
-    }
-
-    @Test
-    void testIsChatOpened_whenChatIsNotOpened() {
-        Update update = mock(Update.class);
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-
-        when(update.message()).thenReturn(message);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(54321L);
-        when(userDaoMock.checkChat(54321L)).thenReturn(false);
-
-        boolean isChatOpened = userService.isChatOpened(update);
-
-        assertThat(isChatOpened).isFalse();
-
-        verify(userDaoMock).checkChat(54321L);
-    }
-
+    /**
+     * Тест для открытия чата, когда чат еще не открыт. Проверяет,
+     * что методы открытия чата и создания списков доходов и расходов вызываются.
+     */
     @Test
     void testOpenChat_whenChatIsNotOpened() {
-        Update update = mock(Update.class);
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-
-        when(update.message()).thenReturn(message);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(12345L);
         when(userDaoMock.checkChat(12345L)).thenReturn(false);
-        userService.openChat(update);
+        userService.openChat(12345L);
 
         verify(userDaoMock).checkChat(12345L);
         verify(userDaoMock).openChat(12345L);
+        verify(incomeDaoMock).createUserList(12345L);
+        verify(expenseDaoMock).createUserList(12345L);
+        verify(balanceDaoMock).setBalance(12345L, 0.0);
     }
 
+    /**
+     * Тест для открытия чата, когда чат уже открыт. Проверяет,
+     * что методы открытия чата не вызываются.
+     */
     @Test
     void testOpenChat_whenChatIsOpened() {
-        Update update = mock(Update.class);
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-
-        when(update.message()).thenReturn(message);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(12345L);
-
         when(userDaoMock.checkChat(12345L)).thenReturn(true);
-        userService.openChat(update);
+        userService.openChat(12345L);
 
         verify(userDaoMock).checkChat(12345L);
         verifyNoMoreInteractions(userDaoMock);
+        verifyNoMoreInteractions(incomeDaoMock);
+        verifyNoMoreInteractions(expenseDaoMock);
+        verifyNoMoreInteractions(balanceDaoMock);
     }
 }

@@ -9,15 +9,28 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Тесты для класса {@link InMemoryExpenseDao}, проверяющие функциональность управления расходами.
+ */
 public class InMemoryExpenseDaoTest {
 
+    /**
+     * Тестируемый объект {@link InMemoryExpenseDao}, который проверяется в данном тестовом классе.
+     */
     private InMemoryExpenseDao expenseDao;
 
+    /**
+     * Инициализация {@link InMemoryExpenseDao} перед каждым тестом.
+     */
     @BeforeEach
     void setUp() {
         expenseDao = new InMemoryExpenseDao();
     }
 
+    /**
+     * Тест для проверки, что метод {@link InMemoryExpenseDao#getExpenses(long)} возвращает null
+     * для нового чата, у которого еще нет расходов.
+     */
     @Test
     void testGetExpensesReturnsNullForNewChat() {
         long chatId = 12345L;
@@ -25,6 +38,10 @@ public class InMemoryExpenseDaoTest {
         assertThat(expenseDao.getExpenses(chatId)).isNull();
     }
 
+    /**
+     * Тест для проверки, что метод {@link InMemoryExpenseDao#createUserList(long)} инициализирует
+     * пустой список расходов для нового чата.
+     */
     @Test
     void testCreateUserListInitializesEmptyExpenseList() {
         long chatId = 12345L;
@@ -36,6 +53,9 @@ public class InMemoryExpenseDaoTest {
         assertThat(expenses).isEmpty();
     }
 
+    /**
+     * Тест для проверки добавления расхода с помощью метода {@link InMemoryExpenseDao#addExpense(long, Expense)}.
+     */
     @Test
     void testAddExpense() {
         long chatId = 12345L;

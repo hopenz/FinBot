@@ -9,16 +9,28 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Тесты для класса {@link InMemoryIncomeDao}, проверяющие функциональность управления доходами.
+ */
 public class InMemoryIncomeDaoTest {
 
-
+    /**
+     * Тестируемый объект {@link InMemoryIncomeDao}, который проверяется в данном тестовом классе.
+     */
     private InMemoryIncomeDao incomeDao;
 
+    /**
+     * Инициализация {@link InMemoryIncomeDao} перед каждым тестом.
+     */
     @BeforeEach
     void setUp() {
         incomeDao = new InMemoryIncomeDao();
     }
 
+    /**
+     * Тест для проверки, что метод {@link InMemoryIncomeDao#getIncomes(long)} возвращает null
+     * для нового чата, у которого еще нет доходов.
+     */
     @Test
     void testGetIncomesReturnsNullForNewChat() {
         long chatId = 12345L;
@@ -26,6 +38,10 @@ public class InMemoryIncomeDaoTest {
         assertThat(incomeDao.getIncomes(chatId)).isNull();
     }
 
+    /**
+     * Тест для проверки, что метод {@link InMemoryIncomeDao#createUserList(long)} инициализирует
+     * пустой список доходов для нового чата.
+     */
     @Test
     void testCreateUserListInitializesEmptyIncomeList() {
         long chatId = 12345L;
@@ -37,6 +53,9 @@ public class InMemoryIncomeDaoTest {
         assertThat(incomes).isEmpty();
     }
 
+    /**
+     * Тест для проверки добавления дохода с помощью метода {@link InMemoryIncomeDao#addIncome(long, Income)}.
+     */
     @Test
     void testAddIncome() {
         long chatId = 12345L;
