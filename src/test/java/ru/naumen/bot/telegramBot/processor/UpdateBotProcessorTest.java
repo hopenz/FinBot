@@ -5,8 +5,6 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.naumen.bot.telegramBot.controller.TelegramBotController;
-import ru.naumen.bot.telegramBot.service.UserService;
 
 import static org.mockito.Mockito.*;
 import static ru.naumen.bot.telegramBot.command.Commands.HELP_COMMAND;
@@ -29,16 +27,6 @@ public class UpdateBotProcessorTest {
     private CommandBotProcessor commandBotProcessor;
 
     /**
-     * Мок-объект для {@link UserService}, используемый для проверки статуса чата
-     */
-    private UserService userService;
-
-    /**
-     * Мок-объект для {@link TelegramBotController}, используемый для отправки сообщений пользователям.
-     */
-    private TelegramBotController telegramBotController;
-
-    /**
      * Тестируемый объект {@link UpdateBotProcessor}, который проверяется в данном тестовом классе.
      */
     private UpdateBotProcessor updateBotProcessor;
@@ -50,9 +38,7 @@ public class UpdateBotProcessorTest {
     public void setUp() {
         messageBotProcessor = mock(MessageBotProcessor.class);
         commandBotProcessor = mock(CommandBotProcessor.class);
-        userService = mock(UserService.class);
-        telegramBotController = mock(TelegramBotController.class);
-        updateBotProcessor = new UpdateBotProcessor(messageBotProcessor, commandBotProcessor, userService, telegramBotController);
+        updateBotProcessor = new UpdateBotProcessor(messageBotProcessor, commandBotProcessor);
     }
 
     /**
@@ -63,11 +49,11 @@ public class UpdateBotProcessorTest {
     @Test
     void testProcessUpdate_NotStartCommand_UserNotOpenedChat() {
         Update update = createUpdate(12345L, HELP_COMMAND);
-        when(userService.isChatOpened(12345L)).thenReturn(false);
+        when(commandBotProcessor.isChatActiveOrStarting(HELP_COMMAND, 12345L)).thenReturn(false);
 
         updateBotProcessor.processUpdate(update);
 
-        verify(telegramBotController).sendMessage("Чтобы начать работу, нажмите /start", 12345L);
+        verify(commandBotProcessor).isChatActiveOrStarting(HELP_COMMAND, 12345L);
         verifyNoMoreInteractions(messageBotProcessor);
         verifyNoMoreInteractions(commandBotProcessor);
     }
@@ -78,14 +64,14 @@ public class UpdateBotProcessorTest {
      * вызывается обработка команды без дополнительных сообщений.
      */
     @Test
-    void testProcessUpdate_StartCommand_UserNotOpenedChat() {
+    void testProcessUpdate_StartCommand_ChatActiveOrStarting() {
         Update update = createUpdate(12345L, START_COMMAND);
-        when(userService.isChatOpened(12345L)).thenReturn(false);
+        when(commandBotProcessor.isChatActiveOrStarting(START_COMMAND, 12345L)).thenReturn(true);
 
         updateBotProcessor.processUpdate(update);
 
+        verify(commandBotProcessor).isChatActiveOrStarting(START_COMMAND, 12345L);
         verify(commandBotProcessor).processCommand(START_COMMAND, 12345L);
-        verifyNoMoreInteractions(telegramBotController);
         verifyNoMoreInteractions(messageBotProcessor);
         verifyNoMoreInteractions(commandBotProcessor);
     }
@@ -95,14 +81,14 @@ public class UpdateBotProcessorTest {
      * Проверяет корректную обработку команды, если чат активен.
      */
     @Test
-    void testProcessUpdate_CommandMessage() {
+    void testProcessUpdate_CommandMessage_ChatActiveOrStarting() {
         Update update = createUpdate(12345L, "/command");
-        when(userService.isChatOpened(12345L)).thenReturn(true);
+        when(commandBotProcessor.isChatActiveOrStarting("/command", 12345L)).thenReturn(true);
 
         updateBotProcessor.processUpdate(update);
 
+        verify(commandBotProcessor).isChatActiveOrStarting("/command", 12345L);
         verify(commandBotProcessor).processCommand("/command", 12345L);
-        verifyNoMoreInteractions(telegramBotController);
         verifyNoMoreInteractions(messageBotProcessor);
         verifyNoMoreInteractions(commandBotProcessor);
     }
@@ -112,14 +98,14 @@ public class UpdateBotProcessorTest {
      * Проверяет корректную обработку текстового сообщения, если чат активен.
      */
     @Test
-    void testProcessUpdate_NormalMessage() {
+    void testProcessUpdate_NormalMessage_ChatActiveOrStarting() {
         Update update = createUpdate(12345L, "hello");
-        when(userService.isChatOpened(12345L)).thenReturn(true);
+        when(commandBotProcessor.isChatActiveOrStarting("hello", 12345L)).thenReturn(true);
 
         updateBotProcessor.processUpdate(update);
 
+        verify(commandBotProcessor).isChatActiveOrStarting("hello", 12345L);
         verify(messageBotProcessor).processMessage("hello", 12345L);
-        verifyNoMoreInteractions(telegramBotController);
         verifyNoMoreInteractions(messageBotProcessor);
         verifyNoMoreInteractions(commandBotProcessor);
     }
@@ -134,16 +120,14 @@ public class UpdateBotProcessorTest {
 
         updateBotProcessor.processUpdate(update);
 
-        verifyNoMoreInteractions(telegramBotController);
         verifyNoMoreInteractions(messageBotProcessor);
         verifyNoMoreInteractions(commandBotProcessor);
-        verifyNoMoreInteractions(userService);
     }
 
     /**
      * Вспомогательный метод для создания объекта {@link Update} с заданными параметрами.
      *
-     * @param chatId идентификатор чата
+     * @param chatId      идентификатор чата
      * @param messageText текст сообщения
      * @return объект {@link Update} с заданными параметрами
      */

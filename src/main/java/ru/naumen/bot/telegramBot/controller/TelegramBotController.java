@@ -60,7 +60,7 @@ public class TelegramBotController {
      * Отправка сообщения в указанный чат
      *
      * @param message сообщение, которое будет отправлено
-     * @param chatId  дентификатор чата, в который будет отправлено сообщение
+     * @param chatId  идентификатор чата, в который будет отправлено сообщение
      */
     public void sendMessage(String message, long chatId) {
         telegramBot.execute(new SendMessage(chatId, message));
