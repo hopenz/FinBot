@@ -159,4 +159,22 @@ public class CommandBotProcessor {
         telegramBotController.sendMessage("Неизвестная команда", chatId);
     }
 
+    /**
+     * Проверка, открыт ли чат с пользователем или будет открыт
+     * после обработки текущего сообщения(в случае, если сообщение является командой /start)
+     *
+     * @param message сообщение от пользователя
+     * @param chatId  идентификатор чата, в котором была отправлена команда
+     * @return {@code  true}, чат с пользователем открыт, либо текущее сообщение является командой /start,
+     * {@code false} в противном случае
+     */
+    public boolean isChatActiveOrStarting(String message, long chatId) {
+        if (!START_COMMAND.equals(message) && !userService.isChatOpened(chatId)) {
+            telegramBotController.sendMessage(
+                    "Чтобы начать работу, нажмите " + START_COMMAND, chatId
+            );
+            return false;
+        }
+        return true;
+    }
 }
