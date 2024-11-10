@@ -7,7 +7,7 @@ package ru.naumen.bot.data.dao;
 public interface BalanceDao {
 
     /**
-     * Установить баланс пользователя
+     * Установить баланс пользователя для указанного идентификатора.
      *
      * @param chatId     идентификатор чата, в котором необходимо установить баланс
      * @param newBalance сумма нового баланса
@@ -15,10 +15,10 @@ public interface BalanceDao {
     void setBalance(long chatId, double newBalance);
 
     /**
-     * Вернуть баланс пользователя
+     * Вернуть баланс пользователя для указанного идентификатора.
      *
      * @param chatId идентификатор чата, из которого необходимо вернуть баланс
-     * @return баланс double
+     * @return текущий баланс пользователя
      */
     Double getBalance(long chatId);
 }
