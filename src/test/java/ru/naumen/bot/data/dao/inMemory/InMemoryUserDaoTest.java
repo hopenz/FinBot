@@ -1,9 +1,8 @@
 package ru.naumen.bot.data.dao.inMemory;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Тесты для класса {@link InMemoryUserDao}, проверяющие функциональность управления пользователями.
@@ -31,7 +30,7 @@ public class InMemoryUserDaoTest {
     void testCheckChatReturnsFalseWhenChatIsNotOpened() {
         long chatId = 12345L;
 
-        assertThat(userDao.checkChat(chatId)).isFalse();
+        Assertions.assertThat(userDao.checkChat(chatId)).isFalse();
     }
 
     /**
@@ -43,7 +42,7 @@ public class InMemoryUserDaoTest {
         long chatId = 12345L;
         userDao.openChat(chatId);
 
-        assertThat(userDao.checkChat(chatId)).isTrue();
+        Assertions.assertThat(userDao.checkChat(chatId)).isTrue();
     }
 
 }

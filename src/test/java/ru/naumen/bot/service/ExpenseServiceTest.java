@@ -1,15 +1,13 @@
-package ru.naumen.bot.telegramBot.service;
+package ru.naumen.bot.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import ru.naumen.bot.data.dao.BalanceDao;
 import ru.naumen.bot.data.dao.ExpenseDao;
 import ru.naumen.bot.data.entity.Expense;
 
 import java.time.LocalDate;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 /**
  * Тесты для класса {@link ExpenseService}, проверяющие корректность обработки расходов.
@@ -36,8 +34,8 @@ public class ExpenseServiceTest {
      */
     @BeforeEach
     void setUp() {
-        expenseDaoMock = mock(ExpenseDao.class);
-        balanceDaoMock = mock(BalanceDao.class);
+        expenseDaoMock = Mockito.mock(ExpenseDao.class);
+        balanceDaoMock = Mockito.mock(BalanceDao.class);
         expenseService = new ExpenseService(expenseDaoMock, balanceDaoMock);
     }
 
@@ -50,8 +48,8 @@ public class ExpenseServiceTest {
         String expense = "- 100000 покупка сумки";
         expenseService.addExpense(expense, 12345L);
 
-        verify(expenseDaoMock).addExpense(12345L, new Expense("покупка сумки",
+        Mockito.verify(expenseDaoMock).addExpense(12345L, new Expense("покупка сумки",
                 100000.0, LocalDate.now()));
-        verify(balanceDaoMock).setBalance(12345L, -100000.0);
+        Mockito.verify(balanceDaoMock).setBalance(12345L, -100000.0);
     }
 }

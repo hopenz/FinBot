@@ -1,21 +1,20 @@
-package ru.naumen.bot.telegramBot.processor;
+package ru.naumen.bot.processor;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import ru.naumen.bot.command.Commands;
+import ru.naumen.bot.controller.BotController;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.Income;
-import ru.naumen.bot.telegramBot.controller.TelegramBotController;
-import ru.naumen.bot.telegramBot.service.BalanceService;
-import ru.naumen.bot.telegramBot.service.ExpenseService;
-import ru.naumen.bot.telegramBot.service.IncomeService;
-import ru.naumen.bot.telegramBot.service.UserService;
+import ru.naumen.bot.service.BalanceService;
+import ru.naumen.bot.service.ExpenseService;
+import ru.naumen.bot.service.IncomeService;
+import ru.naumen.bot.service.UserService;
 
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.mockito.Mockito.*;
-import static ru.naumen.bot.telegramBot.command.Commands.*;
 
 /**
  * Тесты для класса {@link CommandBotProcessor}, проверяющие корректность обработки команд.
@@ -23,9 +22,9 @@ import static ru.naumen.bot.telegramBot.command.Commands.*;
 public class CommandBotProcessorTest {
 
     /**
-     * Мок-объект для {@link TelegramBotController}, используемый для отправки сообщений пользователям.
+     * Мок-объект для {@link BotController}, используемый для отправки сообщений пользователям.
      */
-    private TelegramBotController botController;
+    private BotController botController;
 
     /**
      * Мок-объект для {@link UserService}, используемый для проверки статуса чата.
@@ -57,11 +56,11 @@ public class CommandBotProcessorTest {
      */
     @BeforeEach
     void setUp() {
-        botController = mock(TelegramBotController.class);
-        userServiceMock = mock(UserService.class);
-        incomeServiceMock = mock(IncomeService.class);
-        expenseServiceMock = mock(ExpenseService.class);
-        balanceServiceMock = mock(BalanceService.class);
+        botController = Mockito.mock(BotController.class);
+        userServiceMock = Mockito.mock(UserService.class);
+        incomeServiceMock = Mockito.mock(IncomeService.class);
+        expenseServiceMock = Mockito.mock(ExpenseService.class);
+        balanceServiceMock = Mockito.mock(BalanceService.class);
         commandBotProcessor = new CommandBotProcessor(botController, userServiceMock, balanceServiceMock,
                 incomeServiceMock, expenseServiceMock);
     }
@@ -72,10 +71,10 @@ public class CommandBotProcessorTest {
      */
     @Test
     void testProcessStartCommand() {
-        commandBotProcessor.processCommand(START_COMMAND, 12345L);
+        commandBotProcessor.processCommand(Commands.START_COMMAND.getCommand(), 12345L);
 
-        verify(userServiceMock).openChat(12345L);
-        verify(botController).sendMessage("Давайте начнём", 12345L);
+        Mockito.verify(userServiceMock).openChat(12345L);
+        Mockito.verify(botController).sendMessage("Давайте начнём", 12345L);
     }
 
     /**
@@ -86,11 +85,11 @@ public class CommandBotProcessorTest {
         List<Income> incomeList = Arrays.asList(
                 new Income("income1", 100.0, LocalDate.of(2024, 1, 1)),
                 new Income("income2", 200.0, LocalDate.of(2024, 2, 2)));
-        when(incomeServiceMock.getIncomes(12345L)).thenReturn(incomeList);
+        Mockito.when(incomeServiceMock.getIncomes(12345L)).thenReturn(incomeList);
 
-        commandBotProcessor.processCommand(INCOME_COMMAND, 12345L);
+        commandBotProcessor.processCommand(Commands.INCOME_COMMAND.getCommand(), 12345L);
 
-        verify(botController).sendMessage("Ваши доходы:\n100.0 - income1\n200.0 - income2\n", 12345L);
+        Mockito.verify(botController).sendMessage("Ваши доходы:\n100.0 - income1\n200.0 - income2\n", 12345L);
     }
 
     /**
@@ -101,11 +100,11 @@ public class CommandBotProcessorTest {
         List<Expense> expenseList = Arrays.asList(
                 new Expense("expense1", 100.0, LocalDate.of(2024, 1, 1)),
                 new Expense("expense2", 200.0, LocalDate.of(2024, 2, 2)));
-        when(expenseServiceMock.getExpenses(12345L)).thenReturn(expenseList);
+        Mockito.when(expenseServiceMock.getExpenses(12345L)).thenReturn(expenseList);
 
-        commandBotProcessor.processCommand(EXPENSES_COMMAND, 12345L);
+        commandBotProcessor.processCommand(Commands.EXPENSES_COMMAND.getCommand(), 12345L);
 
-        verify(botController).sendMessage("Ваши расходы:\n100.0 - expense1\n200.0 - expense2\n", 12345L);
+        Mockito.verify(botController).sendMessage("Ваши расходы:\n100.0 - expense1\n200.0 - expense2\n", 12345L);
     }
 
     /**
@@ -113,11 +112,11 @@ public class CommandBotProcessorTest {
      */
     @Test
     void testProcessBalanceCommand() {
-        when(balanceServiceMock.getBalance(12345L)).thenReturn(100.0);
+        Mockito.when(balanceServiceMock.getBalance(12345L)).thenReturn(100.0);
 
-        commandBotProcessor.processCommand(BALANCE_COMMAND, 12345L);
+        commandBotProcessor.processCommand(Commands.BALANCE_COMMAND.getCommand(), 12345L);
 
-        verify(botController).sendMessage("Ваш баланс: 100.0", 12345L);
+        Mockito.verify(botController).sendMessage("Ваш баланс: 100.0", 12345L);
     }
 
     /**
@@ -125,20 +124,21 @@ public class CommandBotProcessorTest {
      */
     @Test
     void testProcessHelpCommand() {
-        commandBotProcessor.processCommand(HELP_COMMAND, 12345L);
+        commandBotProcessor.processCommand(Commands.HELP_COMMAND.getCommand(), 12345L);
 
-        verify(botController).sendMessage("Справка по всем командам: \n" +
-                "/start - Начать работу с ботом\n" +
-                "/expenses - Получить расходы\n" +
-                "/income - Показать доходы\n" +
-                "/help - Справка по командам\n" +
-                "/balance - Текущий баланс\n" +
-                "\n" +
-                "Чтобы добавить доход введите:\n" +
-                "+ <сумма> <описание>\n" +
-                "\n" +
-                "Чтобы добавить расход введите:\n" +
-                "- <сумма> <описание>", 12345L);
+        Mockito.verify(botController).sendMessage("""
+                Справка по всем командам:
+                /start - Начать работу с ботом
+                /expenses - Получить информацию о расходах
+                /income - Получить информацию о доходах
+                /help - Справка по командам
+                /balance - Текущий баланс
+
+                Чтобы добавить доход введите:
+                + <сумма> <описание>
+
+                Чтобы добавить расход введите:
+                - <сумма> <описание>""", 12345L);
     }
 
     /**
@@ -148,6 +148,6 @@ public class CommandBotProcessorTest {
     void testProcessUnknownCommand() {
         commandBotProcessor.processCommand("/UNKNOWN_COMMAND", 12345L);
 
-        verify(botController).sendMessage("Неизвестная команда", 12345L);
+        Mockito.verify(botController).sendMessage("Неизвестная команда", 12345L);
     }
 }
