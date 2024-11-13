@@ -1,13 +1,12 @@
 package ru.naumen.bot.data.dao.inMemory;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.naumen.bot.data.entity.Income;
 
 import java.time.LocalDate;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Тесты для класса {@link InMemoryIncomeDao}, проверяющие функциональность управления доходами.
@@ -35,7 +34,7 @@ public class InMemoryIncomeDaoTest {
     void testGetIncomesReturnsNullForNewChat() {
         long chatId = 12345L;
 
-        assertThat(incomeDao.getIncomes(chatId)).isNull();
+        Assertions.assertThat(incomeDao.getIncomes(chatId)).isNull();
     }
 
     /**
@@ -49,8 +48,8 @@ public class InMemoryIncomeDaoTest {
         incomeDao.createUserList(chatId);
 
         List<Income> incomes = incomeDao.getIncomes(chatId);
-        assertThat(incomes).isNotNull();
-        assertThat(incomes).isEmpty();
+        Assertions.assertThat(incomes).isNotNull();
+        Assertions.assertThat(incomes).isEmpty();
     }
 
     /**
@@ -64,7 +63,7 @@ public class InMemoryIncomeDaoTest {
 
         incomeDao.addIncome(chatId, income);
 
-        assertThat(incomeDao.getIncomes(chatId)).hasSize(1);
-        assertThat(incomeDao.getIncomes(chatId)).contains(income);
+        Assertions.assertThat(incomeDao.getIncomes(chatId)).hasSize(1);
+        Assertions.assertThat(incomeDao.getIncomes(chatId)).contains(income);
     }
 }

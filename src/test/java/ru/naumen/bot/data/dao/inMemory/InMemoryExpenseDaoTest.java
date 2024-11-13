@@ -1,13 +1,12 @@
 package ru.naumen.bot.data.dao.inMemory;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.naumen.bot.data.entity.Expense;
 
 import java.time.LocalDate;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Тесты для класса {@link InMemoryExpenseDao}, проверяющие функциональность управления расходами.
@@ -35,7 +34,7 @@ public class InMemoryExpenseDaoTest {
     void testGetExpensesReturnsNullForNewChat() {
         long chatId = 12345L;
 
-        assertThat(expenseDao.getExpenses(chatId)).isNull();
+        Assertions.assertThat(expenseDao.getExpenses(chatId)).isNull();
     }
 
     /**
@@ -49,8 +48,8 @@ public class InMemoryExpenseDaoTest {
         expenseDao.createUserList(chatId);
 
         List<Expense> expenses = expenseDao.getExpenses(chatId);
-        assertThat(expenses).isNotNull();
-        assertThat(expenses).isEmpty();
+        Assertions.assertThat(expenses).isNotNull();
+        Assertions.assertThat(expenses).isEmpty();
     }
 
     /**
@@ -64,8 +63,8 @@ public class InMemoryExpenseDaoTest {
 
         expenseDao.addExpense(chatId, expense);
 
-        assertThat(expenseDao.getExpenses(chatId)).hasSize(1);
-        assertThat(expenseDao.getExpenses(chatId)).contains(expense);
+        Assertions.assertThat(expenseDao.getExpenses(chatId)).hasSize(1);
+        Assertions.assertThat(expenseDao.getExpenses(chatId)).contains(expense);
     }
 
 }

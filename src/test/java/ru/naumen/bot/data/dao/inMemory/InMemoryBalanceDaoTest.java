@@ -1,9 +1,8 @@
 package ru.naumen.bot.data.dao.inMemory;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Тесты для класса {@link InMemoryBalanceDao}, проверяющие корректность работы с балансом пользователей.
@@ -30,9 +29,9 @@ public class InMemoryBalanceDaoTest {
     void testSetBalanceAndGetBalance() {
         long chatId = 12345L;
 
-        assertThat(balanceDao.getBalance(chatId)).isEqualTo(0.0);
+        Assertions.assertThat(balanceDao.getBalance(chatId)).isEqualTo(0.0);
         balanceDao.setBalance(chatId, 1.1);
 
-        assertThat(balanceDao.getBalance(chatId)).isEqualTo(1.1);
+        Assertions.assertThat(balanceDao.getBalance(chatId)).isEqualTo(1.1);
     }
 }

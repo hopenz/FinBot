@@ -1,13 +1,12 @@
-package ru.naumen.bot.telegramBot.processor;
+package ru.naumen.bot.processor;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.naumen.bot.telegramBot.controller.TelegramBotController;
-import ru.naumen.bot.telegramBot.service.ExpenseService;
-import ru.naumen.bot.telegramBot.service.IncomeService;
-
-import static org.mockito.Mockito.*;
-import static ru.naumen.bot.telegramBot.command.Commands.HELP_COMMAND;
+import org.mockito.Mockito;
+import ru.naumen.bot.command.Commands;
+import ru.naumen.bot.controller.BotController;
+import ru.naumen.bot.service.ExpenseService;
+import ru.naumen.bot.service.IncomeService;
 
 /**
  * Тесты для класса {@link MessageBotProcessor}, проверяющие корректность обработки текстовых сообщений.
@@ -15,9 +14,9 @@ import static ru.naumen.bot.telegramBot.command.Commands.HELP_COMMAND;
 public class MessageBotProcessorTest {
 
     /**
-     * Мок-объект для {@link TelegramBotController}, используемый для отправки сообщений пользователям.
+     * Мок-объект для {@link BotController}, используемый для отправки сообщений пользователям.
      */
-    private TelegramBotController botController;
+    private BotController botController;
 
     /**
      * Мок-объект для {@link IncomeService}, используемый для работы с доходами пользователя.
@@ -39,9 +38,9 @@ public class MessageBotProcessorTest {
      */
     @BeforeEach
     void setUp() {
-        botController = mock(TelegramBotController.class);
-        incomeServiceMock = mock(IncomeService.class);
-        expenseServiceMock = mock(ExpenseService.class);
+        botController = Mockito.mock(BotController.class);
+        incomeServiceMock = Mockito.mock(IncomeService.class);
+        expenseServiceMock = Mockito.mock(ExpenseService.class);
         messageBotProcessor = new MessageBotProcessor(botController, incomeServiceMock, expenseServiceMock);
     }
 
@@ -53,8 +52,8 @@ public class MessageBotProcessorTest {
     void testProcessAddIncome() {
         messageBotProcessor.processMessage("+ 100 чаевые", 12345L);
 
-        verify(incomeServiceMock).addIncome("+ 100 чаевые", 12345L);
-        verify(botController).sendMessage("Доход успешно добавлен!", 12345L);
+        Mockito.verify(incomeServiceMock).addIncome("+ 100 чаевые", 12345L);
+        Mockito.verify(botController).sendMessage("Доход успешно добавлен!", 12345L);
     }
 
     /**
@@ -65,8 +64,8 @@ public class MessageBotProcessorTest {
     void testProcessAddExpense() {
         messageBotProcessor.processMessage("- 100 автобус", 12345L);
 
-        verify(expenseServiceMock).addExpense("- 100 автобус", 12345L);
-        verify(botController).sendMessage("Расход успешно добавлен!", 12345L);
+        Mockito.verify(expenseServiceMock).addExpense("- 100 автобус", 12345L);
+        Mockito.verify(botController).sendMessage("Расход успешно добавлен!", 12345L);
     }
 
     /**
@@ -78,10 +77,10 @@ public class MessageBotProcessorTest {
     void testProcessWhenTextNotMatchAnyPattern() {
         messageBotProcessor.processMessage("- 123мяу", 12345L);
 
-        verifyNoMoreInteractions(expenseServiceMock);
-        verifyNoMoreInteractions(incomeServiceMock);
+        Mockito.verifyNoMoreInteractions(expenseServiceMock);
+        Mockito.verifyNoMoreInteractions(incomeServiceMock);
 
-        verify(botController).sendMessage("Я вас не понял.\nЧтобы ознакомиться с командами - напишите "
-                + HELP_COMMAND, 12345L);
+        Mockito.verify(botController).sendMessage("Я вас не понял.\nЧтобы ознакомиться с командами - напишите "
+                + Commands.HELP_COMMAND.getCommand(), 12345L);
     }
 }

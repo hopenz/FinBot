@@ -1,13 +1,12 @@
-package ru.naumen.bot.telegramBot.service;
+package ru.naumen.bot.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import ru.naumen.bot.data.dao.BalanceDao;
 import ru.naumen.bot.data.dao.UserDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryExpenseDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryIncomeDao;
-
-import static org.mockito.Mockito.*;
 
 /**
  * Тесты для класса {@link UserService}, проверяющие корректность обработки операций с пользователями.
@@ -44,10 +43,10 @@ public class UserServiceTest {
      */
     @BeforeEach
     void setUp() {
-        userDaoMock = mock(UserDao.class);
-        incomeDaoMock = mock(InMemoryIncomeDao.class);
-        expenseDaoMock = mock(InMemoryExpenseDao.class);
-        balanceDaoMock = mock(BalanceDao.class);
+        userDaoMock = Mockito.mock(UserDao.class);
+        incomeDaoMock = Mockito.mock(InMemoryIncomeDao.class);
+        expenseDaoMock = Mockito.mock(InMemoryExpenseDao.class);
+        balanceDaoMock = Mockito.mock(BalanceDao.class);
         userService = new UserService(userDaoMock, incomeDaoMock, expenseDaoMock, balanceDaoMock);
     }
 
@@ -57,14 +56,14 @@ public class UserServiceTest {
      */
     @Test
     void testOpenChat_whenChatIsNotOpened() {
-        when(userDaoMock.checkChat(12345L)).thenReturn(false);
+        Mockito.when(userDaoMock.checkChat(12345L)).thenReturn(false);
         userService.openChat(12345L);
 
-        verify(userDaoMock).checkChat(12345L);
-        verify(userDaoMock).openChat(12345L);
-        verify(incomeDaoMock).createUserList(12345L);
-        verify(expenseDaoMock).createUserList(12345L);
-        verify(balanceDaoMock).setBalance(12345L, 0.0);
+        Mockito.verify(userDaoMock).checkChat(12345L);
+        Mockito.verify(userDaoMock).openChat(12345L);
+        Mockito.verify(incomeDaoMock).createUserList(12345L);
+        Mockito.verify(expenseDaoMock).createUserList(12345L);
+        Mockito.verify(balanceDaoMock).setBalance(12345L, 0.0);
     }
 
     /**
@@ -73,13 +72,13 @@ public class UserServiceTest {
      */
     @Test
     void testOpenChat_whenChatIsOpened() {
-        when(userDaoMock.checkChat(12345L)).thenReturn(true);
+        Mockito.when(userDaoMock.checkChat(12345L)).thenReturn(true);
         userService.openChat(12345L);
 
-        verify(userDaoMock).checkChat(12345L);
-        verifyNoMoreInteractions(userDaoMock);
-        verifyNoMoreInteractions(incomeDaoMock);
-        verifyNoMoreInteractions(expenseDaoMock);
-        verifyNoMoreInteractions(balanceDaoMock);
+        Mockito.verify(userDaoMock).checkChat(12345L);
+        Mockito.verifyNoMoreInteractions(userDaoMock);
+        Mockito.verifyNoMoreInteractions(incomeDaoMock);
+        Mockito.verifyNoMoreInteractions(expenseDaoMock);
+        Mockito.verifyNoMoreInteractions(balanceDaoMock);
     }
 }

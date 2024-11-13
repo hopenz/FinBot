@@ -34,17 +34,17 @@ public class CommandBotProcessor {
     /**
      * Сервис для взаимодействия с балансом.
      */
-    public final BalanceService balanceService;
+    private final BalanceService balanceService;
 
     /**
      * Сервис для взаимодействия с доходами.
      */
-    public final IncomeService incomeService;
+    private final IncomeService incomeService;
 
     /**
      * Сервис для взаимодействия с расходами.
      */
-    public final ExpenseService expenseService;
+    private final ExpenseService expenseService;
 
     /**
      * Конструктор CommandBotProcessor.
