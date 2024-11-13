@@ -1,11 +1,11 @@
-package ru.naumen.bot.telegramBot.processor;
+package ru.naumen.bot.processor;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import ru.naumen.bot.telegramBot.controller.TelegramBotController;
-import ru.naumen.bot.telegramBot.service.ExpenseService;
-import ru.naumen.bot.telegramBot.service.IncomeService;
-
-import static ru.naumen.bot.telegramBot.command.Commands.HELP_COMMAND;
+import ru.naumen.bot.command.Commands;
+import ru.naumen.bot.controller.BotController;
+import ru.naumen.bot.service.ExpenseService;
+import ru.naumen.bot.service.IncomeService;
 
 /**
  * Класс  {@link  MessageBotProcessor}, в котором происходит
@@ -25,9 +25,9 @@ public class MessageBotProcessor {
     private static final String EXPENSES_PATTERN = "^\\-\\s\\d{1,8}(\\.\\d{1,2})?\\s.{0,100}$";
 
     /**
-     * Сервис для взаимодействия с Telegram ботом.
+     * Сервис для взаимодействия с ботом.
      */
-    private final TelegramBotController telegramBotController;
+    private final BotController botController;
 
     /**
      * Сервис для взаимодействия с доходами.
@@ -42,13 +42,13 @@ public class MessageBotProcessor {
     /**
      * Конструктор MessageBotProcessor.
      *
-     * @param telegramBotController сервис для взаимодействия с ботом.
-     * @param incomeService         сервис для взаимодействия с доходами.
-     * @param expenseService        сервис для взаимодействия с расходами.
+     * @param botController  сервис для взаимодействия с ботом.
+     * @param incomeService  сервис для взаимодействия с доходами.
+     * @param expenseService сервис для взаимодействия с расходами.
      */
-    public MessageBotProcessor(TelegramBotController telegramBotController, IncomeService incomeService,
+    public MessageBotProcessor(@Lazy BotController botController, IncomeService incomeService,
                                ExpenseService expenseService) {
-        this.telegramBotController = telegramBotController;
+        this.botController = botController;
         this.incomeService = incomeService;
         this.expenseService = expenseService;
     }
@@ -62,13 +62,13 @@ public class MessageBotProcessor {
     public void processMessage(String message, long chatId) {
         if (message.matches(EXPENSES_PATTERN)) {
             expenseService.addExpense(message, chatId);
-            telegramBotController.sendMessage("Расход успешно добавлен!", chatId);
+            botController.sendMessage("Расход успешно добавлен!", chatId);
         } else if (message.matches(INCOMES_PATTERN)) {
             incomeService.addIncome(message, chatId);
-            telegramBotController.sendMessage("Доход успешно добавлен!", chatId);
+            botController.sendMessage("Доход успешно добавлен!", chatId);
         } else {
-            telegramBotController.sendMessage("Я вас не понял.\nЧтобы ознакомиться с командами - напишите "
-                    + HELP_COMMAND, chatId);
+            botController.sendMessage("Я вас не понял.\nЧтобы ознакомиться с командами - напишите "
+                    + Commands.HELP_COMMAND.getCommand(), chatId);
         }
     }
 

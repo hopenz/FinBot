@@ -1,4 +1,4 @@
-package ru.naumen.bot.telegramBot.service;
+package ru.naumen.bot.service;
 
 import org.springframework.stereotype.Service;
 import ru.naumen.bot.data.dao.BalanceDao;

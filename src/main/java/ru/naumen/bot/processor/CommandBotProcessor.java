@@ -1,32 +1,30 @@
-package ru.naumen.bot.telegramBot.processor;
+package ru.naumen.bot.processor;
 
-import com.pengrad.telegrambot.model.BotCommand;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import ru.naumen.bot.command.Commands;
+import ru.naumen.bot.controller.BotController;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.Income;
-import ru.naumen.bot.telegramBot.command.Commands;
-import ru.naumen.bot.telegramBot.controller.TelegramBotController;
-import ru.naumen.bot.telegramBot.service.BalanceService;
-import ru.naumen.bot.telegramBot.service.ExpenseService;
-import ru.naumen.bot.telegramBot.service.IncomeService;
-import ru.naumen.bot.telegramBot.service.UserService;
+import ru.naumen.bot.service.BalanceService;
+import ru.naumen.bot.service.ExpenseService;
+import ru.naumen.bot.service.IncomeService;
+import ru.naumen.bot.service.UserService;
 
+import java.util.Arrays;
 import java.util.List;
-
-import static ru.naumen.bot.telegramBot.command.Commands.*;
 
 /**
  * Класс {@link  CommandBotProcessor}, в котором происходит
- * обработка команд, полученных от пользователей
- * через бота Telegram.
+ * обработка команд, полученных от пользователей через бот.
  */
 @Component
 public class CommandBotProcessor {
 
     /**
-     * Контроллер для взаимодействия с ботом Телеграмм.
+     * Контроллер для взаимодействия с ботом.
      */
-    private final TelegramBotController telegramBotController;
+    private final BotController botController;
 
     /**
      * Сервис для взаимодействия с данными пользователя.
@@ -51,15 +49,15 @@ public class CommandBotProcessor {
     /**
      * Конструктор CommandBotProcessor.
      *
-     * @param telegramBotController сервис для взаимодействия с ботом.
-     * @param userService           сервис для взаимодействия с данными пользователя.
-     * @param balanceService        сервис для взаимодействия с балансом.
-     * @param incomeService         сервис для взаимодействия с доходами.
-     * @param expenseService        сервис для взаимодействия с расходами.
+     * @param botController  сервис для взаимодействия с ботом.
+     * @param userService    сервис для взаимодействия с данными пользователя.
+     * @param balanceService сервис для взаимодействия с балансом.
+     * @param incomeService  сервис для взаимодействия с доходами.
+     * @param expenseService сервис для взаимодействия с расходами.
      */
-    public CommandBotProcessor(TelegramBotController telegramBotController, UserService userService, BalanceService balanceService,
+    public CommandBotProcessor(@Lazy BotController botController, UserService userService, BalanceService balanceService,
                                IncomeService incomeService, ExpenseService expenseService) {
-        this.telegramBotController = telegramBotController;
+        this.botController = botController;
         this.userService = userService;
         this.balanceService = balanceService;
         this.incomeService = incomeService;
@@ -74,13 +72,28 @@ public class CommandBotProcessor {
      * @param chatId  идентификатор чата, в котором была отправлена команда
      */
     public void processCommand(String message, long chatId) {
-        switch (message) {
+        Arrays.stream(Commands.values())
+                .filter(command -> command.getCommand().equals(message))
+                .findFirst()
+                .ifPresentOrElse(
+                        command -> executeCommand(command, chatId),
+                        () -> handleOther(chatId)
+                );
+    }
+
+    /**
+     * Выполнение команды
+     *
+     * @param command команда, которую необходимо выполнить
+     * @param chatId  идентификатор чата, в котором была отправлена команда
+     */
+    private void executeCommand(Commands command, long chatId) {
+        switch (command) {
             case START_COMMAND -> handleStart(chatId);
             case EXPENSES_COMMAND -> handleExpenses(chatId);
             case INCOME_COMMAND -> handleIncome(chatId);
             case HELP_COMMAND -> handleHelp(chatId);
             case BALANCE_COMMAND -> handleBalance(chatId);
-            default -> handleOther(chatId);
         }
     }
 
@@ -90,7 +103,7 @@ public class CommandBotProcessor {
      * @param chatId идентификатор чата, в котором была отправлена команда
      */
     private void handleBalance(long chatId) {
-        telegramBotController.sendMessage("Ваш баланс: " + balanceService.getBalance(chatId), chatId);
+        botController.sendMessage("Ваш баланс: " + balanceService.getBalance(chatId), chatId);
     }
 
     /**
@@ -99,15 +112,15 @@ public class CommandBotProcessor {
      * @param chatId идентификатор чата, в котором была отправлена команда
      */
     private void handleHelp(long chatId) {
-        BotCommand[] arrayOfCommand = new Commands().getCommands();
-        StringBuilder stringHelp = new StringBuilder("Справка по всем командам: \n");
-        for (BotCommand botCommand : arrayOfCommand) {
-            stringHelp.append(botCommand.command()).append(" - ")
-                    .append(botCommand.description()).append("\n");
+        Commands[] arrayOfCommand = Commands.values();
+        StringBuilder stringHelp = new StringBuilder("Справка по всем командам:\n");
+        for (Commands command : arrayOfCommand) {
+            stringHelp.append(command.getCommand()).append(" - ")
+                    .append(command.getDescription()).append("\n");
         }
         stringHelp.append("\nЧтобы добавить доход введите:\n+ <сумма> <описание>\n");
         stringHelp.append("\nЧтобы добавить расход введите:\n- <сумма> <описание>");
-        telegramBotController.sendMessage(stringHelp.toString(), chatId);
+        botController.sendMessage(stringHelp.toString(), chatId);
     }
 
     /**
@@ -122,7 +135,7 @@ public class CommandBotProcessor {
         for (Income income : incomeList) {
             sb.append(income.amount()).append(" - ").append(income.description()).append("\n");
         }
-        telegramBotController.sendMessage(sb.toString(), chatId);
+        botController.sendMessage(sb.toString(), chatId);
     }
 
     /**
@@ -137,7 +150,7 @@ public class CommandBotProcessor {
         for (Expense expense : expenseList) {
             sb.append(expense.amount()).append(" - ").append(expense.description()).append("\n");
         }
-        telegramBotController.sendMessage(sb.toString(), chatId);
+        botController.sendMessage(sb.toString(), chatId);
     }
 
     /**
@@ -147,7 +160,7 @@ public class CommandBotProcessor {
      */
     private void handleStart(long chatId) {
         userService.openChat(chatId);
-        telegramBotController.sendMessage("Давайте начнём", chatId);
+        botController.sendMessage("Давайте начнём", chatId);
     }
 
     /**
@@ -156,7 +169,7 @@ public class CommandBotProcessor {
      * @param chatId идентификатор чата, в котором была отправлена команда
      */
     private void handleOther(long chatId) {
-        telegramBotController.sendMessage("Неизвестная команда", chatId);
+        botController.sendMessage("Неизвестная команда", chatId);
     }
 
     /**
@@ -169,9 +182,9 @@ public class CommandBotProcessor {
      * {@code false} в противном случае
      */
     public boolean isChatActiveOrStarting(String message, long chatId) {
-        if (!START_COMMAND.equals(message) && !userService.isChatOpened(chatId)) {
-            telegramBotController.sendMessage(
-                    "Чтобы начать работу, нажмите " + START_COMMAND, chatId
+        if (!Commands.START_COMMAND.getCommand().equals(message) && !userService.isChatOpened(chatId)) {
+            botController.sendMessage(
+                    "Чтобы начать работу, нажмите " + Commands.START_COMMAND.getCommand(), chatId
             );
             return false;
         }
