@@ -11,8 +11,7 @@ import ru.naumen.bot.service.ExpenseService;
 import ru.naumen.bot.service.IncomeService;
 import ru.naumen.bot.service.UserService;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Класс {@link  CommandBotProcessor}, в котором происходит
@@ -47,6 +46,11 @@ public class CommandBotProcessor {
     private final ExpenseService expenseService;
 
     /**
+     * Map для хранения команд, где ключ это текст команды, а значение соответствующий экземпляр {@link Commands}
+     */
+    private final Map<String, Commands> commandsMap = new Hashtable<>();
+
+    /**
      * Конструктор CommandBotProcessor.
      *
      * @param botController  сервис для взаимодействия с ботом.
@@ -62,8 +66,11 @@ public class CommandBotProcessor {
         this.balanceService = balanceService;
         this.incomeService = incomeService;
         this.expenseService = expenseService;
-    }
 
+        for (Commands command : Commands.values()) {
+            commandsMap.put(command.getCommand(), command);
+        }
+    }
 
     /**
      * Обработка команды, полученной от пользователя
@@ -72,13 +79,11 @@ public class CommandBotProcessor {
      * @param chatId  идентификатор чата, в котором была отправлена команда
      */
     public void processCommand(String message, long chatId) {
-        Arrays.stream(Commands.values())
-                .filter(command -> command.getCommand().equals(message))
-                .findFirst()
-                .ifPresentOrElse(
-                        command -> executeCommand(command, chatId),
-                        () -> handleOther(chatId)
-                );
+        if(commandsMap.containsKey(message)){
+            executeCommand(commandsMap.get(message), chatId);
+        }else {
+            handleOther(chatId);
+        }
     }
 
     /**
