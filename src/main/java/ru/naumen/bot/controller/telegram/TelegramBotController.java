@@ -3,19 +3,25 @@ package ru.naumen.bot.controller.telegram;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.BotCommand;
+import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
+import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SetMyCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import ru.naumen.bot.command.Commands;
 import ru.naumen.bot.configuration.ApplicationConfig;
 import ru.naumen.bot.controller.BotController;
+import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.processor.CallbackQueryProcessor;
 import ru.naumen.bot.processor.CommandBotProcessor;
 import ru.naumen.bot.processor.MessageBotProcessor;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Класс {@link  TelegramBotController} отвечает за управление телеграмм-ботом и взаимодействие с ним.
@@ -39,6 +45,11 @@ public class TelegramBotController implements BotController {
     private final CommandBotProcessor commandBotProcessor;
 
     /**
+     * Процессор для обработки callback-запросов от пользователей
+     */
+    private final CallbackQueryProcessor callbackQueryProcessor;
+
+    /**
      * Логгер для записи сообщений об ошибках
      */
     private final Logger logger = LoggerFactory.getLogger(TelegramBotController.class);
@@ -47,15 +58,17 @@ public class TelegramBotController implements BotController {
      * Конструктор {@link  TelegramBotController} инициализирует бота Telegram, устанавливает его команды
      * и настраивает слушатель обновлений для обработки входящих обновлений.
      *
-     * @param applicationConfig   конфигурация, содержащая токен бота Telegram
-     * @param messageBotProcessor процессор для обработки сообщений от пользователей
-     * @param commandBotProcessor процессор для обработки команд от пользователей
+     * @param applicationConfig      конфигурация, содержащая токен бота Telegram
+     * @param messageBotProcessor    процессор для обработки сообщений от пользователей
+     * @param commandBotProcessor    процессор для обработки команд от пользователей
+     * @param callbackQueryProcessor процессор для обработки callback-запросов от пользователей
      */
     public TelegramBotController(ApplicationConfig applicationConfig, MessageBotProcessor messageBotProcessor,
-                                 CommandBotProcessor commandBotProcessor) {
+                                 CommandBotProcessor commandBotProcessor, CallbackQueryProcessor callbackQueryProcessor) {
         this.telegramBot = new TelegramBot(applicationConfig.telegramToken());
         this.messageBotProcessor = messageBotProcessor;
         this.commandBotProcessor = commandBotProcessor;
+        this.callbackQueryProcessor = callbackQueryProcessor;
 
         this.telegramBot.execute(new SetMyCommands(createCommandsMenu()));
         this.telegramBot.setUpdatesListener(updates -> {
@@ -91,29 +104,43 @@ public class TelegramBotController implements BotController {
      * @param update обновление, содержащее информацию о сообщении от пользователя
      */
     private void processUpdate(Update update) {
+        if (update.callbackQuery() != null) {
+            CallbackQuery callbackQuery = update.callbackQuery();
+            callbackQueryProcessor.processCallbackQuery(callbackQuery.data(),
+                    callbackQuery.from().id(), callbackQuery.id());
+            return;
+        }
+
         long chatId = update.message().chat().id();
         String message = update.message().text();
-        if (message != null) {
-            if (!commandBotProcessor.isChatActiveOrStarting(message, chatId)) {
-                return;
-            }
-            if (message.startsWith("/")) {
-                commandBotProcessor.processCommand(message, chatId);
-            } else {
-                messageBotProcessor.processMessage(message, chatId);
-            }
+
+        if (message == null) {
+            return;
+        }
+        if (message.startsWith("/")) {
+            commandBotProcessor.processCommand(message, chatId);
+        } else {
+            messageBotProcessor.processMessage(message, chatId);
         }
     }
 
-    /**
-     * Отправка сообщения в указанный чат
-     *
-     * @param message сообщение, которое будет отправлено
-     * @param chatId  идентификатор чата, в который будет отправлено сообщение
-     */
     @Override
     public void sendMessage(String message, long chatId) {
         telegramBot.execute(new SendMessage(chatId, message));
     }
 
+    @Override
+    public void sendMessageWithInlineKeyboard(String message, long chatId, List<String> buttons) {
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup(
+                buttons.stream()
+                        .map(button -> new InlineKeyboardButton(button).callbackData(button))
+                        .toArray(InlineKeyboardButton[]::new)
+        );
+        telegramBot.execute(new SendMessage(chatId, message).replyMarkup(keyboardMarkup));
+    }
+
+    @Override
+    public void sendAnswerCallbackQuery(String message, String callbackQueryId) {
+        telegramBot.execute(new AnswerCallbackQuery(callbackQueryId).text(message));
+    }
 }

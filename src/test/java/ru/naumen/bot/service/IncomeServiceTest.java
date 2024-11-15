@@ -1,13 +1,16 @@
 package ru.naumen.bot.service;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.naumen.bot.data.dao.BalanceDao;
+import ru.naumen.bot.data.dao.DaoProvider;
 import ru.naumen.bot.data.dao.IncomeDao;
 import ru.naumen.bot.data.entity.Income;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Тесты для класса {@link IncomeService}, проверяющие корректность обработки доходов.
@@ -30,25 +33,81 @@ public class IncomeServiceTest {
     private IncomeService incomeService;
 
     /**
+     * Идентификатор чата, в котором происходит тестирование.
+     */
+    private final long chatId = 12345L;
+
+    /**
      * Инициализация всех зависимостей и {@link IncomeService} перед каждым тестом.
      */
     @BeforeEach
     void setUp() {
+        DaoProvider daoProviderMock = Mockito.mock(DaoProvider.class);
         incomeDaoMock = Mockito.mock(IncomeDao.class);
         balanceDaoMock = Mockito.mock(BalanceDao.class);
-        incomeService = new IncomeService(incomeDaoMock, balanceDaoMock);
+        Mockito.when(daoProviderMock.getIncomeDaoForUser(chatId)).thenReturn(incomeDaoMock);
+        Mockito.when(daoProviderMock.getBalanceDaoForUser(chatId)).thenReturn(balanceDaoMock);
+        incomeService = new IncomeService(daoProviderMock);
     }
 
     /**
-     * Тест для добавления дохода. Проверяет, что метод {@link IncomeDao#addIncome(long, Income)}
-     * вызывается с правильными параметрами, и что баланс обновляется корректно.
+     * Тест для проверки метода {@link IncomeService#getIncomes}.
+     * Проверяет, что метод возвращает корректный список доходов.
+     */
+    @Test
+    void testGetIncomes() {
+        List<Income> expectedIncomes = List.of(
+                new Income("Доход 1", 50.0, LocalDate.now()),
+                new Income("Доход 2", 20.0, LocalDate.now())
+        );
+        Mockito.when(incomeService.getIncomes(chatId)).thenReturn(expectedIncomes);
+
+        List<Income> actualIncomes = incomeService.getIncomes(chatId);
+
+        Mockito.verify(incomeDaoMock).getIncomes(chatId);
+        Assertions.assertThat(expectedIncomes).isEqualTo(actualIncomes);
+    }
+
+    /**
+     * Тест для проверки метода {@link IncomeService#addIncome}.
+     * Проверяет, что доход добавляется в хранилище и баланс обновляется корректно.
      */
     @Test
     void testAddIncome() {
-        String income = "+ 100000 зарплата";
-        incomeService.addIncome(income, 12345L);
+        String incomeMessage = "+ 30 Доход 1";
+        Mockito.when(balanceDaoMock.getBalance(chatId)).thenReturn(100.0);
 
-        Mockito.verify(incomeDaoMock).addIncome(12345L, new Income("зарплата", 100000.0, LocalDate.now()));
-        Mockito.verify(balanceDaoMock).setBalance(12345L, 100000.0);
+        incomeService.addIncome(incomeMessage, chatId);
+
+        Income expectedIncome = new Income("Доход 1", 30.0, LocalDate.now());
+        Mockito.verify(incomeDaoMock).addIncome(chatId, expectedIncome);
+        Mockito.verify(balanceDaoMock).setBalance(chatId, 130.0);
+    }
+
+    /**
+     * Тест для проверки метода {@link IncomeService#addIncomes}.
+     * Проверяет, что список доходов добавляется в хранилище.
+     */
+    @Test
+    void testAddIncomes() {
+        List<Income> incomes = List.of(
+                new Income("Доход 1", 50.0, LocalDate.now()),
+                new Income("Доход 2", 20.0, LocalDate.now())
+        );
+
+        incomeService.addIncomes(chatId, incomes);
+
+        Mockito.verify(incomeDaoMock).addIncomes(chatId, incomes);
+    }
+
+    /**
+     * Тест для проверки метода {@link ExpenseService#removeExpenses}.
+     * Проверяет, что доходы удаляются из хранилища.
+     */
+    @Test
+    void testRemoveIncomes() {
+        incomeService.removeIncomes(chatId);
+
+        Mockito.verify(incomeDaoMock).removeIncomes(chatId);
     }
 }

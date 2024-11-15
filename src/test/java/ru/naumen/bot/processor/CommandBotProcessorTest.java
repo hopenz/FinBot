@@ -3,10 +3,12 @@ package ru.naumen.bot.processor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import ru.naumen.bot.command.Commands;
 import ru.naumen.bot.controller.BotController;
+import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.Income;
+import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.interaction.InlineKeyboards;
 import ru.naumen.bot.service.BalanceService;
 import ru.naumen.bot.service.ExpenseService;
 import ru.naumen.bot.service.IncomeService;
@@ -52,6 +54,11 @@ public class CommandBotProcessorTest {
     private CommandBotProcessor commandBotProcessor;
 
     /**
+     * Идентификатор чата, в котором происходит тестирование.
+     */
+    private final long chatId = 12345L;
+
+    /**
      * Инициализация всех зависимостей и commandBotProcessor перед каждым тестом
      */
     @BeforeEach
@@ -71,10 +78,13 @@ public class CommandBotProcessorTest {
      */
     @Test
     void testProcessStartCommand() {
-        commandBotProcessor.processCommand(Commands.START_COMMAND.getCommand(), 12345L);
+        Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(false);
 
-        Mockito.verify(userServiceMock).openChat(12345L);
-        Mockito.verify(botController).sendMessage("Давайте начнём", 12345L);
+        commandBotProcessor.processCommand(Commands.START_COMMAND.getCommand(), chatId);
+
+        Mockito.verify(userServiceMock).openChat(chatId);
+        Mockito.verify(botController).sendMessageWithInlineKeyboard(
+                "Здравствуйте! Как вы хотите хранить данные?", chatId, InlineKeyboards.TYPE_DB_KEYBOARD);
     }
 
     /**
@@ -82,14 +92,15 @@ public class CommandBotProcessorTest {
      */
     @Test
     void testProcessIncomeCommand() {
+        Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(true);
         List<Income> incomeList = Arrays.asList(
                 new Income("income1", 100.0, LocalDate.of(2024, 1, 1)),
                 new Income("income2", 200.0, LocalDate.of(2024, 2, 2)));
-        Mockito.when(incomeServiceMock.getIncomes(12345L)).thenReturn(incomeList);
+        Mockito.when(incomeServiceMock.getIncomes(chatId)).thenReturn(incomeList);
 
-        commandBotProcessor.processCommand(Commands.INCOME_COMMAND.getCommand(), 12345L);
+        commandBotProcessor.processCommand(Commands.INCOMES_COMMAND.getCommand(), chatId);
 
-        Mockito.verify(botController).sendMessage("Ваши доходы:\n100.0 - income1\n200.0 - income2\n", 12345L);
+        Mockito.verify(botController).sendMessage("Ваши доходы:\n100.0 - income1\n200.0 - income2\n", chatId);
     }
 
     /**
@@ -97,14 +108,16 @@ public class CommandBotProcessorTest {
      */
     @Test
     void testProcessExpensesCommand() {
+        Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(true);
         List<Expense> expenseList = Arrays.asList(
                 new Expense("expense1", 100.0, LocalDate.of(2024, 1, 1)),
                 new Expense("expense2", 200.0, LocalDate.of(2024, 2, 2)));
-        Mockito.when(expenseServiceMock.getExpenses(12345L)).thenReturn(expenseList);
+        Mockito.when(expenseServiceMock.getExpenses(chatId)).thenReturn(expenseList);
 
-        commandBotProcessor.processCommand(Commands.EXPENSES_COMMAND.getCommand(), 12345L);
+        commandBotProcessor.processCommand(Commands.EXPENSES_COMMAND.getCommand(), chatId);
 
-        Mockito.verify(botController).sendMessage("Ваши расходы:\n100.0 - expense1\n200.0 - expense2\n", 12345L);
+        Mockito.verify(botController).sendMessage("Ваши расходы:\n100.0 - expense1\n200.0 - expense2\n",
+                chatId);
     }
 
     /**
@@ -112,33 +125,28 @@ public class CommandBotProcessorTest {
      */
     @Test
     void testProcessBalanceCommand() {
-        Mockito.when(balanceServiceMock.getBalance(12345L)).thenReturn(100.0);
+        Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(true);
+        Mockito.when(balanceServiceMock.getBalance(chatId)).thenReturn(100.0);
 
-        commandBotProcessor.processCommand(Commands.BALANCE_COMMAND.getCommand(), 12345L);
+        commandBotProcessor.processCommand(Commands.BALANCE_COMMAND.getCommand(), chatId);
 
-        Mockito.verify(botController).sendMessage("Ваш баланс: 100.0", 12345L);
+        Mockito.verify(botController).sendMessage("Ваш баланс: 100.0", chatId);
     }
 
     /**
-     * Тест для обработки команды HELP_COMMAND. Проверяет, что бот отправляет справочную информацию по доступным командам.
+     * Тест для проверки обработки команды CHANGE_DB_COMMAND.
+     * Проверяет, что состояние пользователя изменяется на WAITING_FOR_TYPE_DB_FOR_CHANGE_DB,
+     * и отправляется сообщение с клавиатурой выбора базы данных.
      */
     @Test
-    void testProcessHelpCommand() {
-        commandBotProcessor.processCommand(Commands.HELP_COMMAND.getCommand(), 12345L);
+    void testProcessCommand_changeDbCommand() {
+        Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(true);
 
-        Mockito.verify(botController).sendMessage("""
-                Справка по всем командам:
-                /start - Начать работу с ботом
-                /expenses - Получить информацию о расходах
-                /income - Получить информацию о доходах
-                /help - Справка по командам
-                /balance - Текущий баланс
+        commandBotProcessor.processCommand(Commands.CHANGE_DB_COMMAND.getCommand(), chatId);
 
-                Чтобы добавить доход введите:
-                + <сумма> <описание>
-
-                Чтобы добавить расход введите:
-                - <сумма> <описание>""", 12345L);
+        Mockito.verify(userServiceMock).setUserState(chatId, ChatState.WAITING_FOR_TYPE_DB_FOR_CHANGE_DB);
+        Mockito.verify(botController).sendMessageWithInlineKeyboard("Выберите базу данных", chatId,
+                InlineKeyboards.TYPE_DB_KEYBOARD);
     }
 
     /**
@@ -146,8 +154,9 @@ public class CommandBotProcessorTest {
      */
     @Test
     void testProcessUnknownCommand() {
-        commandBotProcessor.processCommand("/UNKNOWN_COMMAND", 12345L);
+        Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(true);
+        commandBotProcessor.processCommand("/UNKNOWN_COMMAND", chatId);
 
-        Mockito.verify(botController).sendMessage("Неизвестная команда", 12345L);
+        Mockito.verify(botController).sendMessage("Неизвестная команда", chatId);
     }
 }
