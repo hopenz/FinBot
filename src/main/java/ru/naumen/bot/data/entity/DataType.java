@@ -1,4 +1,4 @@
-package ru.naumen.bot.data.dao;
+package ru.naumen.bot.data.entity;
 
 /**
  * Перечисление DataType определяет типы хранилищ данных,
@@ -9,5 +9,10 @@ public enum DataType {
     /**
      * Данные хранятся в памяти.
      */
-    IN_MEMORY
+    IN_MEMORY,
+
+    /**
+     * Данные хранятся в Google Sheet.
+     */
+    IN_GOOGLE_SHEET
 }

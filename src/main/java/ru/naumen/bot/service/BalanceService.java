@@ -2,6 +2,7 @@ package ru.naumen.bot.service;
 
 import org.springframework.stereotype.Service;
 import ru.naumen.bot.data.dao.BalanceDao;
+import ru.naumen.bot.data.dao.DaoProvider;
 
 /**
  * Сервис BalanceService предоставляет методы для работы с балансом.
@@ -10,17 +11,17 @@ import ru.naumen.bot.data.dao.BalanceDao;
 public class BalanceService {
 
     /**
-     * Dao для работы с балансом.
+     * Класс, предоставляющий доступ к DAO-объектам для работы с данными пользователей.
      */
-    private final BalanceDao balanceDao;
+    private final DaoProvider daoProvider;
 
     /**
-     * Конструктор BalanceService. Реализует сервис с объектами DAO.
+     * Конструктор класса BalanceService.
      *
-     * @param balanceDao DAO для работы с балансом.
+     * @param daoProvider объект, предоставляющий доступ к DAO-объектам для работы с данными пользователей.
      */
-    public BalanceService(BalanceDao balanceDao) {
-        this.balanceDao = balanceDao;
+    public BalanceService(DaoProvider daoProvider) {
+        this.daoProvider = daoProvider;
     }
 
     /**
@@ -29,6 +30,28 @@ public class BalanceService {
      * @return текущий баланс пользователя.
      */
     public Double getBalance(long chatId) {
+        BalanceDao balanceDao = daoProvider.getBalanceDaoForUser(chatId);
         return balanceDao.getBalance(chatId);
+    }
+
+    /**
+     * Устанавливает баланс пользователя на основе информации chatId пользователя.
+     *
+     * @param chatId  идентификатор чата
+     * @param balance сумма установленного баланса
+     */
+    public void setBalance(long chatId, Double balance) {
+        BalanceDao balanceDao = daoProvider.getBalanceDaoForUser(chatId);
+        balanceDao.setBalance(chatId, balance);
+    }
+
+    /**
+     * Удаляет баланс пользователя на основе информации chatId пользователя.
+     *
+     * @param chatId идентификатор чата
+     */
+    public void removeBalance(long chatId) {
+        BalanceDao balanceDao = daoProvider.getBalanceDaoForUser(chatId);
+        balanceDao.removeBalance(chatId);
     }
 }
