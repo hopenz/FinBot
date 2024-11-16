@@ -3,6 +3,7 @@ package ru.naumen.bot.service;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import ru.naumen.bot.data.dao.DaoProvider;
+import ru.naumen.bot.data.dao.googleSheets.GoogleSheetsDao;
 import ru.naumen.bot.data.entity.DataType;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.Income;
@@ -40,6 +41,8 @@ public class DatabaseService {
      */
     private final BalanceService balanceService;
 
+    private final GoogleSheetsDao googleSheetsDao;
+
     /**
      * Конструктор класса DatabaseService.
      *
@@ -50,12 +53,13 @@ public class DatabaseService {
      * @param balanceService сервис для работы с балансом пользователей
      */
     public DatabaseService(DaoProvider daoProvider, @Lazy UserService userService, IncomeService incomeService,
-                           ExpenseService expenseService, BalanceService balanceService) {
+                           ExpenseService expenseService, BalanceService balanceService, GoogleSheetsDao googleSheetsDao) {
         this.daoProvider = daoProvider;
         this.userService = userService;
         this.incomeService = incomeService;
         this.expenseService = expenseService;
         this.balanceService = balanceService;
+        this.googleSheetsDao = googleSheetsDao;
     }
 
     /**
@@ -77,6 +81,8 @@ public class DatabaseService {
 
         if (newDataType.equals(DataType.IN_MEMORY)) {
             createInMemoryDB(chatId);
+        }else {
+            createGoogleSheetsDB(chatId);
         }
 
         incomeService.addIncomes(chatId, incomes);
@@ -93,5 +99,9 @@ public class DatabaseService {
         daoProvider.getInMemoryBalanceDao().setBalance(chatId, 0.0);
         daoProvider.getInMemoryIncomeDao().createUserList(chatId);
         daoProvider.getInMemoryExpenseDao().createUserList(chatId);
+    }
+
+    public void createGoogleSheetsDB(long chatId) {
+        googleSheetsDao.initGoogleSheets(chatId);
     }
 }

@@ -63,7 +63,7 @@ public class User {
      *
      * @param googleSheetLink новая ссылка на Google Sheet.
      */
-    public void setGoogleSheetLink(String googleSheetLink) {
+    public void setGoogleSheetId(String googleSheetLink) {
         this.googleSheetLink = googleSheetLink;
     }
 

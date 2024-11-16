@@ -106,7 +106,7 @@ public class InMemoryUserDaoTest {
         String googleSheetLink = "https://docs.google.com/spreadsheets/d/123456789";
 
         userDao.openChat(chatId);
-        userDao.setGoogleSheetLink(chatId, googleSheetLink);
+        userDao.setGoogleSheetId(chatId, googleSheetLink);
 
         Assertions.assertThat(userDao.getGoogleSheetLink(chatId)).isEqualTo(googleSheetLink);
     }

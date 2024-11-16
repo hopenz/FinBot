@@ -92,7 +92,7 @@ public class MessageBotProcessorTest {
         String googleSheetLink = "https://docs.google.com/spreadsheets/d/validSheetID";
         messageBotProcessor.processMessage(googleSheetLink, chatId);
 
-        Mockito.verify(userServiceMock).setGoogleSheetLink(chatId, googleSheetLink);
+        Mockito.verify(userServiceMock).setGoogleSheetId(chatId, googleSheetLink);
         Mockito.verify(botController).sendMessage("Создаю страницы документа, подготавливаю к работе …\n", chatId);
         Mockito.verify(userServiceMock).setDataType(chatId, DataType.IN_GOOGLE_SHEET);
         Mockito.verify(databaseServiceMock).changeDB(chatId, DataType.IN_GOOGLE_SHEET);

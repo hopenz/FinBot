@@ -92,8 +92,8 @@ public class InMemoryUserDao {
      * @param chatId          идентификатор чата, для которого необходимо установить ссылку
      * @param googleSheetLink ссылка на Google Sheet
      */
-    public void setGoogleSheetLink(long chatId, String googleSheetLink) {
-        users.get(chatId).setGoogleSheetLink(googleSheetLink);
+    public void setGoogleSheetId(long chatId, String googleSheetLink) {
+        users.get(chatId).setGoogleSheetId(googleSheetLink);
     }
 
     /**

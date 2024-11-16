@@ -1,11 +1,15 @@
 package ru.naumen.bot.data.dao;
 
 import org.springframework.stereotype.Component;
+import ru.naumen.bot.data.dao.googleSheets.GoogleSheetsBalanceDao;
+import ru.naumen.bot.data.dao.googleSheets.GoogleSheetsExpenseDao;
+import ru.naumen.bot.data.dao.googleSheets.GoogleSheetsIncomeDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryBalanceDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryExpenseDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryIncomeDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryUserDao;
 import ru.naumen.bot.data.entity.DataType;
+import ru.naumen.bot.service.BalanceService;
 
 /**
  * Класс DaoProvider предоставляет доступ к DAO-объектам для работы с данными пользователей.
@@ -33,6 +37,12 @@ public class DaoProvider {
      */
     private final InMemoryIncomeDao inMemoryIncomeDao;
 
+    private final GoogleSheetsIncomeDao googleSheetsIncomeDao;
+
+    private final GoogleSheetsExpenseDao googleSheetsExpenseDao;
+
+    private final GoogleSheetsBalanceDao googleSheetsBalanceDao;
+
     /**
      * Конструктор для инициализации всех зависимостей DAO.
      *
@@ -42,11 +52,14 @@ public class DaoProvider {
      * @param inMemoryIncomeDao  DAO для управления доходами.
      */
     public DaoProvider(InMemoryUserDao inMemoryUserDao, InMemoryBalanceDao inMemoryBalanceDao,
-                       InMemoryExpenseDao inMemoryExpenseDao, InMemoryIncomeDao inMemoryIncomeDao) {
+                       InMemoryExpenseDao inMemoryExpenseDao, InMemoryIncomeDao inMemoryIncomeDao, GoogleSheetsIncomeDao googleSheetsIncomeDao, GoogleSheetsExpenseDao googleSheetsExpenseDao, GoogleSheetsBalanceDao googleSheetsBalanceDao) {
         this.inMemoryUserDao = inMemoryUserDao;
         this.inMemoryBalanceDao = inMemoryBalanceDao;
         this.inMemoryExpenseDao = inMemoryExpenseDao;
         this.inMemoryIncomeDao = inMemoryIncomeDao;
+        this.googleSheetsIncomeDao = googleSheetsIncomeDao;
+        this.googleSheetsExpenseDao = googleSheetsExpenseDao;
+        this.googleSheetsBalanceDao = googleSheetsBalanceDao;
     }
 
     /**
@@ -58,7 +71,7 @@ public class DaoProvider {
     public BalanceDao getBalanceDaoForUser(long chatId) {
         return inMemoryUserDao.getDataType(chatId).equals(DataType.IN_MEMORY)
                 ? inMemoryBalanceDao
-                : null;
+                : googleSheetsBalanceDao;
 
     }
 
@@ -71,7 +84,7 @@ public class DaoProvider {
     public IncomeDao getIncomeDaoForUser(long chatId) {
         return inMemoryUserDao.getDataType(chatId).equals(DataType.IN_MEMORY)
                 ? inMemoryIncomeDao
-                : null;
+                : googleSheetsIncomeDao;
     }
 
     /**
@@ -83,7 +96,7 @@ public class DaoProvider {
     public ExpenseDao getExpenseDaoForUser(long chatId) {
         return inMemoryUserDao.getDataType(chatId).equals(DataType.IN_MEMORY)
                 ? inMemoryExpenseDao
-                : null;
+                : googleSheetsExpenseDao;
     }
 
     /**
@@ -111,5 +124,17 @@ public class DaoProvider {
      */
     public InMemoryIncomeDao getInMemoryIncomeDao() {
         return inMemoryIncomeDao;
+    }
+
+    public GoogleSheetsBalanceDao getGoogleSheetsBalanceDao() {
+        return googleSheetsBalanceDao;
+    }
+
+    public GoogleSheetsIncomeDao getGoogleSheetsIncomeDao() {
+        return googleSheetsIncomeDao;
+    }
+
+    public GoogleSheetsExpenseDao getGoogleSheetsExpenseDao() {
+        return googleSheetsExpenseDao;
     }
 }
