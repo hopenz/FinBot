@@ -6,6 +6,7 @@ import ru.naumen.bot.controller.BotController;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.DataType;
 import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.interaction.keyboards.TypeDBKeyboard;
 import ru.naumen.bot.service.DatabaseService;
 import ru.naumen.bot.service.UserService;
 
@@ -69,7 +70,7 @@ public class CallbackQueryProcessor {
      * @param chatId идентификатор чата.
      */
     private void processTypeDBForChangeDB(String data, Long chatId) {
-        DataType dataType = data.equals("Гугл-таблица")
+        DataType dataType = data.equals(TypeDBKeyboard.GOOGLE_SHEETS.getData())
                 ? DataType.IN_GOOGLE_SHEET
                 : DataType.IN_MEMORY;
 
@@ -94,7 +95,7 @@ public class CallbackQueryProcessor {
      * @param chatId идентификатор чата.
      */
     private void processTypeDBAfterStartCommand(String data, Long chatId) {
-        if (data.equals("Гугл-таблица")) {
+        if (data.equals(TypeDBKeyboard.GOOGLE_SHEETS.getData())) {
             requestGoogleSheetId(chatId);
         } else {
             botController.sendMessage("Теперь ваши данные хранятся в оперативной памяти!", chatId);

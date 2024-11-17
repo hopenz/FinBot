@@ -8,7 +8,7 @@ import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.Income;
 import ru.naumen.bot.interaction.Commands;
-import ru.naumen.bot.interaction.InlineKeyboards;
+import ru.naumen.bot.interaction.keyboards.TypeDBKeyboard;
 import ru.naumen.bot.service.BalanceService;
 import ru.naumen.bot.service.ExpenseService;
 import ru.naumen.bot.service.IncomeService;
@@ -84,7 +84,10 @@ public class CommandBotProcessorTest {
 
         Mockito.verify(userServiceMock).openChat(chatId);
         Mockito.verify(botController).sendMessageWithInlineKeyboard(
-                "Здравствуйте! Как вы хотите хранить данные?", chatId, InlineKeyboards.TYPE_DB_KEYBOARD);
+                "Здравствуйте! Как вы хотите хранить данные?", chatId,
+                Arrays.stream(TypeDBKeyboard.values())
+                        .map(TypeDBKeyboard::getData)
+                        .toList());
     }
 
     /**
@@ -146,7 +149,9 @@ public class CommandBotProcessorTest {
 
         Mockito.verify(userServiceMock).setUserState(chatId, ChatState.WAITING_FOR_TYPE_DB_FOR_CHANGE_DB);
         Mockito.verify(botController).sendMessageWithInlineKeyboard("Выберите базу данных", chatId,
-                InlineKeyboards.TYPE_DB_KEYBOARD);
+                Arrays.stream(TypeDBKeyboard.values())
+                        .map(TypeDBKeyboard::getData)
+                        .toList());
     }
 
     /**

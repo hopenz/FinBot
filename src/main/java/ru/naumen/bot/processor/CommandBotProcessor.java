@@ -7,12 +7,13 @@ import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.Income;
 import ru.naumen.bot.interaction.Commands;
-import ru.naumen.bot.interaction.InlineKeyboards;
+import ru.naumen.bot.interaction.keyboards.TypeDBKeyboard;
 import ru.naumen.bot.service.BalanceService;
 import ru.naumen.bot.service.ExpenseService;
 import ru.naumen.bot.service.IncomeService;
 import ru.naumen.bot.service.UserService;
 
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +127,9 @@ public class CommandBotProcessor {
     private void processChangeDbCommand(long chatId) {
         userService.setUserState(chatId, ChatState.WAITING_FOR_TYPE_DB_FOR_CHANGE_DB);
         botController.sendMessageWithInlineKeyboard("Выберите базу данных", chatId,
-                InlineKeyboards.TYPE_DB_KEYBOARD);
+                Arrays.stream(TypeDBKeyboard.values())
+                        .map(TypeDBKeyboard::getData)
+                        .toList());
     }
 
     /**
@@ -200,7 +203,9 @@ public class CommandBotProcessor {
             userService.openChat(chatId);
             botController.sendMessageWithInlineKeyboard(
                     "Здравствуйте! Как вы хотите хранить данные?",
-                    chatId, InlineKeyboards.TYPE_DB_KEYBOARD);
+                    chatId, Arrays.stream(TypeDBKeyboard.values())
+                            .map(TypeDBKeyboard::getData)
+                            .toList());
         }
     }
 

@@ -1,10 +1,11 @@
-package ru.naumen.bot.exception;
+package ru.naumen.bot.advice;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.controller.BotController;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.DataType;
+import ru.naumen.bot.exception.GoogleSheetsException;
 import ru.naumen.bot.service.UserService;
 
 /**
@@ -47,7 +48,7 @@ public class BotControllerAdvice {
                         С вашей гугл-таблицей что-то не так \uD83E\uDEE3
                         Проверьте, что ваша таблица соответствует требованиям:
                         1. Она должна быть открыта
-                        2. У телеграмм бота права редактора
+                        2. У бота должны быть права редактора
                         3. В таблице должно быть 3 листа "Общая информация", "Расходы", "Доходы"
                         """,
                 exception.getChatId());
