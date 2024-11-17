@@ -1,5 +1,6 @@
 package ru.naumen.bot.service;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import ru.naumen.bot.data.dao.inMemory.InMemoryUserDao;
 import ru.naumen.bot.data.entity.ChatState;
@@ -27,7 +28,7 @@ public class UserService {
      * @param userDao         DAO для работы с пользователями.
      * @param databaseService Сервис для взаимодействия с базами данных.
      */
-    public UserService(InMemoryUserDao userDao, DatabaseService databaseService) {
+    public UserService(InMemoryUserDao userDao, @Lazy DatabaseService databaseService) {
         this.userDao = userDao;
         this.databaseService = databaseService;
     }
@@ -86,11 +87,12 @@ public class UserService {
     /**
      * Устанавливает ссылку на Google Sheets для указанного идентификатора.
      *
-     * @param chatId  идентификатор чата
-     * @param message ссылка на Google Sheets
+     * @param chatId идентификатор чата
+     * @param link   ссылка на Google Sheets
      */
-    public void setGoogleSheetLink(long chatId, String message) {
-        userDao.setGoogleSheetLink(chatId, message);
+    public void setGoogleSheetId(long chatId, String link) {
+        String googleSheetId = link.substring(link.indexOf("/d/") + 3, link.indexOf("/edit"));
+        userDao.setGoogleSheetId(chatId, googleSheetId);
     }
 
     /**
@@ -109,7 +111,7 @@ public class UserService {
      * @param chatId идентификатор чата
      * @return ссылка на Google Sheets
      */
-    public String getGoogleSheetLink(Long chatId) {
-        return userDao.getGoogleSheetLink(chatId);
+    public String getGoogleSheetId(Long chatId) {
+        return userDao.getGoogleSheetId(chatId);
     }
 }

@@ -85,17 +85,17 @@ public class CallbackQueryProcessorTest {
 
         Mockito.when(userServiceMock.getUserState(chatId)).thenReturn(ChatState.WAITING_FOR_TYPE_DB_FOR_CHANGE_DB);
         Mockito.when(userServiceMock.getDataType(chatId)).thenReturn(DataType.IN_MEMORY);
-        Mockito.when(userServiceMock.getGoogleSheetLink(chatId)).thenReturn(null);
+        Mockito.when(userServiceMock.getGoogleSheetId(chatId)).thenReturn(null);
 
         queryProcessor.processCallbackQuery(data, chatId, queryId);
 
         Mockito.verify(userServiceMock).getDataType(chatId);
-        Mockito.verify(userServiceMock).getGoogleSheetLink(chatId);
+        Mockito.verify(userServiceMock).getGoogleSheetId(chatId);
         Mockito.verify(userServiceMock).setUserState(chatId, ChatState.WAITING_FOR_GOOGLE_SHEET_LINK);
         Mockito.verify(botController).sendMessage(Mockito.contains("""
                 Давайте создадим таблицу и привяжем к ней бота:
                 1. Для создания таблицы перейдите по ссылке https://sheets.new/
-                2. Добавьте Google Account Name в качестве пользователя-редактор
+                2. Добавьте finbotaccount@celtic-house-440906-m1.iam.gserviceaccount.com в качестве пользователя-редактор
                 3. Пришлите мне ссылку на новую созданную таблицу (просто скопируйте и отправьте мне), остальное я сделаю сам
                 """), Mockito.eq(chatId));
     }
@@ -129,7 +129,7 @@ public class CallbackQueryProcessorTest {
 
         Mockito.when(userServiceMock.getUserState(chatId)).thenReturn(ChatState.WAITING_FOR_TYPE_DB_FOR_CHANGE_DB);
         Mockito.when(userServiceMock.getDataType(chatId)).thenReturn(DataType.IN_MEMORY);
-        Mockito.when(userServiceMock.getGoogleSheetLink(chatId)).thenReturn("https://example.com");
+        Mockito.when(userServiceMock.getGoogleSheetId(chatId)).thenReturn("https://example.com");
 
         queryProcessor.processCallbackQuery(data, chatId, queryId);
 

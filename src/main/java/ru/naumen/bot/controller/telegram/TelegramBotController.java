@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.configuration.ApplicationConfig;
 import ru.naumen.bot.controller.BotController;
+import ru.naumen.bot.exception.BotControllerAdvice;
+import ru.naumen.bot.exception.GoogleSheetsException;
 import ru.naumen.bot.interaction.Commands;
 import ru.naumen.bot.processor.CallbackQueryProcessor;
 import ru.naumen.bot.processor.CommandBotProcessor;
@@ -62,9 +64,11 @@ public class TelegramBotController implements BotController {
      * @param messageBotProcessor    процессор для обработки сообщений от пользователей
      * @param commandBotProcessor    процессор для обработки команд от пользователей
      * @param callbackQueryProcessor процессор для обработки callback-запросов от пользователей
+     * @param botControllerAdvice    обработчик исключений
      */
     public TelegramBotController(ApplicationConfig applicationConfig, MessageBotProcessor messageBotProcessor,
-                                 CommandBotProcessor commandBotProcessor, CallbackQueryProcessor callbackQueryProcessor) {
+                                 CommandBotProcessor commandBotProcessor, CallbackQueryProcessor callbackQueryProcessor,
+                                 BotControllerAdvice botControllerAdvice) {
         this.telegramBot = new TelegramBot(applicationConfig.telegramToken());
         this.messageBotProcessor = messageBotProcessor;
         this.commandBotProcessor = commandBotProcessor;
@@ -72,7 +76,14 @@ public class TelegramBotController implements BotController {
 
         this.telegramBot.execute(new SetMyCommands(createCommandsMenu()));
         this.telegramBot.setUpdatesListener(updates -> {
-            updates.forEach(this::processUpdate);
+            try {
+                updates.forEach(this::processUpdate);
+            } catch (Exception exception) {
+                logger.error("[Unexpected exception] :: Message: {}.", exception.getMessage());
+                if (exception instanceof GoogleSheetsException) {
+                    botControllerAdvice.handleGoogleSheetsException((GoogleSheetsException) exception);
+                }
+            }
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         }, exception -> {
             if (exception.response() != null) {
@@ -81,8 +92,6 @@ public class TelegramBotController implements BotController {
                         exception.response().errorCode(),
                         exception.response().description()
                 );
-            } else {
-                logger.error("[Unexpected exception] :: Message: {}.", exception.getMessage());
             }
         });
     }

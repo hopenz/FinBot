@@ -11,9 +11,9 @@ public class User {
     private DataType dataType;
 
     /**
-     * Ссылка на Google Sheet, для хранения данных в Google Sheet.
+     * Идентификатор Google Sheet, для хранения данных в Google Sheet.
      */
-    private String googleSheetLink;
+    private String googleSheetId;
 
     /**
      * Текущее состояние чата с пользователем.
@@ -50,21 +50,21 @@ public class User {
     }
 
     /**
-     * Возвращает ссылку на Google Sheet.
+     * Возвращает идентификатор Google Sheet.
      *
-     * @return ссылка на Google Sheet.
+     * @return идентификатор Google Sheet.
      */
-    public String getGoogleSheetLink() {
-        return googleSheetLink;
+    public String getGoogleSheetId() {
+        return googleSheetId;
     }
 
     /**
-     * Устанавливает ссылку на Google Sheet.
+     * Устанавливает идентификатор Google Sheet.
      *
-     * @param googleSheetLink новая ссылка на Google Sheet.
+     * @param googleSheetId идентификатор Google Sheet.
      */
-    public void setGoogleSheetLink(String googleSheetLink) {
-        this.googleSheetLink = googleSheetLink;
+    public void setGoogleSheetId(String googleSheetId) {
+        this.googleSheetId = googleSheetId;
     }
 
     /**

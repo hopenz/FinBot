@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.naumen.bot.data.dao.DaoProvider;
+import ru.naumen.bot.data.dao.googleSheets.GoogleSheetsDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryBalanceDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryExpenseDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryIncomeDao;
@@ -36,8 +37,10 @@ public class DatabaseServiceTest {
         incomeService = Mockito.mock(IncomeService.class);
         expenseService = Mockito.mock(ExpenseService.class);
         balanceService = Mockito.mock(BalanceService.class);
+        GoogleSheetsDao googleSheetsDao = Mockito.mock(GoogleSheetsDao.class);
 
-        databaseService = new DatabaseService(daoProvider, userService, incomeService, expenseService, balanceService);
+        databaseService = new DatabaseService(daoProvider, userService, incomeService,
+                expenseService, balanceService, googleSheetsDao);
     }
 
 

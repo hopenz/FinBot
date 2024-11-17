@@ -108,9 +108,9 @@ public class MessageBotProcessor {
      */
     private void processMessageWithGoogleSheetLink(String message, long chatId) {
         if (message.matches(GOOGLE_SHEET_LINK_PATTERN)) {
-            userService.setGoogleSheetLink(chatId, message);
+            userService.setGoogleSheetId(chatId, message);
             botController.sendMessage("Создаю страницы документа, подготавливаю к работе …\n", chatId);
-            userService.setDataType(chatId, DataType.IN_GOOGLE_SHEET);
+            databaseService.createGoogleSheetsDB(chatId);
             databaseService.changeDB(chatId, DataType.IN_GOOGLE_SHEET);
             botController.sendMessage("Бот готов к работе!", chatId);
         } else {

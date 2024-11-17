@@ -87,22 +87,22 @@ public class InMemoryUserDao {
     }
 
     /**
-     * Устанавливает ссылку на Google Sheet для указанного идентификатора.
+     * Устанавливает идентификатор Google Sheet для указанного идентификатора.
      *
-     * @param chatId          идентификатор чата, для которого необходимо установить ссылку
-     * @param googleSheetLink ссылка на Google Sheet
+     * @param chatId        идентификатор чата, для которого необходимо установить ссылку
+     * @param googleSheetId ссылка на Google Sheet
      */
-    public void setGoogleSheetLink(long chatId, String googleSheetLink) {
-        users.get(chatId).setGoogleSheetLink(googleSheetLink);
+    public void setGoogleSheetId(long chatId, String googleSheetId) {
+        users.get(chatId).setGoogleSheetId(googleSheetId);
     }
 
     /**
-     * Возвращает ссылку на Google Sheet для указанного идентификатора.
+     * Возвращает идентификатор Google Sheet для указанного идентификатора.
      *
      * @param chatId идентификатор чата, для которого необходимо получить ссылку
-     * @return ссылка на Google Sheet
+     * @return идентификатор Google Sheet
      */
-    public String getGoogleSheetLink(long chatId) {
-        return users.get(chatId).getGoogleSheetLink();
+    public String getGoogleSheetId(long chatId) {
+        return users.get(chatId).getGoogleSheetId();
     }
 }
