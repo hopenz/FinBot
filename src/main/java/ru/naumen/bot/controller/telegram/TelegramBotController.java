@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.configuration.ApplicationConfig;
 import ru.naumen.bot.controller.BotController;
-import ru.naumen.bot.exception.BotControllerAdvice;
+import ru.naumen.bot.advice.BotControllerAdvice;
 import ru.naumen.bot.exception.GoogleSheetsException;
 import ru.naumen.bot.interaction.Commands;
 import ru.naumen.bot.processor.CallbackQueryProcessor;
