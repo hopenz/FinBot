@@ -9,7 +9,6 @@ import ru.naumen.bot.data.dao.inMemory.InMemoryExpenseDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryIncomeDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryUserDao;
 import ru.naumen.bot.data.entity.DataType;
-import ru.naumen.bot.service.BalanceService;
 
 /**
  * Класс DaoProvider предоставляет доступ к DAO-объектам для работы с данными пользователей.
@@ -37,22 +36,36 @@ public class DaoProvider {
      */
     private final InMemoryIncomeDao inMemoryIncomeDao;
 
+    /**
+     * DAO для управления балансом пользователя в гугл таблице
+     */
     private final GoogleSheetsIncomeDao googleSheetsIncomeDao;
 
+    /**
+     * DAO для управления расходами пользователя в гугл таблице
+     */
     private final GoogleSheetsExpenseDao googleSheetsExpenseDao;
 
+    /**
+     * DAO для управления балансом пользователя в гугл таблице
+     */
     private final GoogleSheetsBalanceDao googleSheetsBalanceDao;
 
     /**
      * Конструктор для инициализации всех зависимостей DAO.
      *
-     * @param inMemoryUserDao    DAO для управления пользователями.
-     * @param inMemoryBalanceDao DAO для управления балансом.
-     * @param inMemoryExpenseDao DAO для управления расходами.
-     * @param inMemoryIncomeDao  DAO для управления доходами.
+     * @param inMemoryUserDao        DAO для управления пользователями.
+     * @param inMemoryBalanceDao     DAO для управления балансом.
+     * @param inMemoryExpenseDao     DAO для управления расходами.
+     * @param inMemoryIncomeDao      DAO для управления доходами.
+     * @param googleSheetsIncomeDao  DAO для управления доходами в гугл таблице
+     * @param googleSheetsExpenseDao DAO для управления расходами в гугл таблице
+     * @param googleSheetsBalanceDao DAO для управления балансом в гугл таблице
      */
     public DaoProvider(InMemoryUserDao inMemoryUserDao, InMemoryBalanceDao inMemoryBalanceDao,
-                       InMemoryExpenseDao inMemoryExpenseDao, InMemoryIncomeDao inMemoryIncomeDao, GoogleSheetsIncomeDao googleSheetsIncomeDao, GoogleSheetsExpenseDao googleSheetsExpenseDao, GoogleSheetsBalanceDao googleSheetsBalanceDao) {
+                       InMemoryExpenseDao inMemoryExpenseDao, InMemoryIncomeDao inMemoryIncomeDao,
+                       GoogleSheetsIncomeDao googleSheetsIncomeDao, GoogleSheetsExpenseDao googleSheetsExpenseDao,
+                       GoogleSheetsBalanceDao googleSheetsBalanceDao) {
         this.inMemoryUserDao = inMemoryUserDao;
         this.inMemoryBalanceDao = inMemoryBalanceDao;
         this.inMemoryExpenseDao = inMemoryExpenseDao;
@@ -124,17 +137,5 @@ public class DaoProvider {
      */
     public InMemoryIncomeDao getInMemoryIncomeDao() {
         return inMemoryIncomeDao;
-    }
-
-    public GoogleSheetsBalanceDao getGoogleSheetsBalanceDao() {
-        return googleSheetsBalanceDao;
-    }
-
-    public GoogleSheetsIncomeDao getGoogleSheetsIncomeDao() {
-        return googleSheetsIncomeDao;
-    }
-
-    public GoogleSheetsExpenseDao getGoogleSheetsExpenseDao() {
-        return googleSheetsExpenseDao;
     }
 }

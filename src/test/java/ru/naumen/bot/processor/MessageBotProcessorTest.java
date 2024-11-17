@@ -94,7 +94,7 @@ public class MessageBotProcessorTest {
 
         Mockito.verify(userServiceMock).setGoogleSheetId(chatId, googleSheetLink);
         Mockito.verify(botController).sendMessage("Создаю страницы документа, подготавливаю к работе …\n", chatId);
-        Mockito.verify(userServiceMock).setDataType(chatId, DataType.IN_GOOGLE_SHEET);
+        Mockito.verify(databaseServiceMock).createGoogleSheetsDB(chatId);
         Mockito.verify(databaseServiceMock).changeDB(chatId, DataType.IN_GOOGLE_SHEET);
         Mockito.verify(botController).sendMessage("Бот готов к работе!", chatId);
     }

@@ -1,4 +1,4 @@
-package ru.naumen.bot.service;
+package ru.naumen.bot.client;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
@@ -16,19 +16,19 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * TODO
+ * Клиент для взаимодействия с Google Sheets API
  */
 @Service
-public class GoogleSheetsService {
+public class GoogleSheetsClient {
     /**
-     * TODO
+     * Экземпляр сервиса Google Sheets
      */
     private final Sheets sheetsService;
 
     /**
-     * TODO
+     * Конструктор, который инициализирует сервис Google Sheets
      */
-    public GoogleSheetsService() throws GeneralSecurityException, IOException {
+    public GoogleSheetsClient() throws GeneralSecurityException, IOException {
         String credentialsPath = "src/main/resources/credentials.json";
         FileInputStream serviceAccountStream = new FileInputStream(credentialsPath);
 
@@ -42,37 +42,31 @@ public class GoogleSheetsService {
     }
 
     /**
-     * НАДО БУДЕТ ИЗМЕНИТЬ! ОБЕРНУТЬ В TRY CATCH!
      * Изменение название листа в гугл-таблице
      *
      * @param sheetId       идентификатор листа
      * @param newSheetTitle новое название
-     * @throws IOException ошибка ввода-вывода
      */
-    public void updateSheetTitle(int sheetId, String newSheetTitle, String spreadsheetId) {
+    public void updateSheetTitle(int sheetId, String newSheetTitle, String spreadsheetId) throws IOException {
         UpdateSheetPropertiesRequest updateRequest = new UpdateSheetPropertiesRequest()
                 .setProperties(new SheetProperties().setSheetId(sheetId).setTitle(newSheetTitle))
                 .setFields("title");
-        System.out.println(spreadsheetId);
         Request request = new Request().setUpdateSheetProperties(updateRequest);
         BatchUpdateSpreadsheetRequest batchUpdateRequest = new BatchUpdateSpreadsheetRequest()
                 .setRequests(Collections.singletonList(request));
-        try {
-            sheetsService.spreadsheets().batchUpdate(spreadsheetId, batchUpdateRequest).execute();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+
+        sheetsService.spreadsheets().batchUpdate(spreadsheetId, batchUpdateRequest).execute();
+
     }
 
     /**
-     * НАДО БУДЕТ ИЗМЕНИТЬ! ОБЕРНУТЬ В TRY CATCH!
      * Создание нового листа в таблице с названием
      *
-     * @param sheetId    идентификатор листа
-     * @param sheetTitle название листа
-     * @throws IOException ошибка ввода-вывода
+     * @param sheetId       идентификатор листа
+     * @param sheetTitle    название листа
+     * @param spreadsheetId идентификатор гугл-таблицы
      */
-    public void createNewSheet(int sheetId, String sheetTitle, String spreadsheetId)  {
+    public void createNewSheet(int sheetId, String sheetTitle, String spreadsheetId) throws IOException {
         AddSheetRequest addSheetRequest = new AddSheetRequest()
                 .setProperties(new SheetProperties().setSheetId(sheetId).setTitle(sheetTitle));
 
@@ -80,19 +74,14 @@ public class GoogleSheetsService {
         BatchUpdateSpreadsheetRequest batchUpdateRequest = new BatchUpdateSpreadsheetRequest()
                 .setRequests(Collections.singletonList(request));
 
-        try {
-            sheetsService.spreadsheets().batchUpdate(spreadsheetId, batchUpdateRequest).execute();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        sheetsService.spreadsheets().batchUpdate(spreadsheetId, batchUpdateRequest).execute();
     }
 
     /**
-     * НАДО БУДЕТ ИЗМЕНИТЬ! ОБЕРНУТЬ В TRY CATCH!
      * Изменение названия гугл-таблицы
      *
-     * @param newTitle новое название
-     * @throws IOException ошибка ввода-вывода
+     * @param newTitle      новое название
+     * @param spreadsheetId идентификатор гугл-таблицы
      */
     public void updateSpreadsheetTitle(String newTitle, String spreadsheetId) throws IOException {
         UpdateSpreadsheetPropertiesRequest updateRequest = new UpdateSpreadsheetPropertiesRequest()
@@ -104,58 +93,71 @@ public class GoogleSheetsService {
                 .setRequests(Collections.singletonList(request));
 
         sheetsService.spreadsheets().batchUpdate(spreadsheetId, batchUpdateRequest).execute();
+
     }
+
     /**
-     * НАДО БУДЕТ ИЗМЕНИТЬ! ОБЕРНУТЬ В TRY CATCH!
      * Чтение данных из таблицы
      *
-     * @param range диапазон ячеек
+     * @param range         диапазон ячеек
+     * @param spreadsheetId идентификатор гугл-таблицы
      * @return Список списков ячеек из таблицы
-     * @throws IOException ошибка ввода-вывода
      */
     public List<List<Object>> readData(String range, String spreadsheetId) throws IOException {
         ValueRange response = sheetsService.spreadsheets().values()
                 .get(spreadsheetId, range)
                 .execute();
+
         return response.getValues();
     }
 
     /**
      * Добавление данных в таблицу
      *
-     * @param range  диапазон ячеек
-     * @param values список списков динных
-     * @throws IOException ошибка ввода-вывода
+     * @param range         диапазон ячеек
+     * @param values        список списков данных
+     * @param spreadsheetId идентификатор гугл-таблицы
      */
     public void appendData(String range, List<List<Object>> values, String spreadsheetId) throws IOException {
         ValueRange body = new ValueRange().setValues(values);
-        try {
-            sheetsService.spreadsheets().values()
-                    .append(spreadsheetId, range, body)
-                    .setValueInputOption("USER_ENTERED")
-                    .setInsertDataOption("INSERT_ROWS")
-                    .setIncludeValuesInResponse(true)
-                    .execute();
-        } catch (IOException e) {
-            System.err.println("Error appending data: " + e.getMessage());
-        }
+
+        sheetsService.spreadsheets().values()
+                .append(spreadsheetId, range, body)
+                .setValueInputOption("USER_ENTERED")
+                .setInsertDataOption("INSERT_ROWS")
+                .setIncludeValuesInResponse(true)
+                .execute();
     }
 
     /**
-     * НАДО БУДЕТ ИЗМЕНИТЬ! ОБЕРНУТЬ В TRY CATCH!
      * Изменение существующих ячеек в таблице
      *
-     * @param range  диапазон ячеек
-     * @param values список списков данных
-     * @throws IOException ошибка ввода-вывода
+     * @param range         диапазон ячеек
+     * @param values        список списков данных
+     * @param spreadsheetId идентификатор гугл-таблицы
      */
     public void updateData(String range, List<List<Object>> values, String spreadsheetId) throws IOException {
         ValueRange body = new ValueRange().setValues(values);
+
 
         sheetsService.spreadsheets().values()
                 .update(spreadsheetId, range, body)
                 .setValueInputOption("RAW")
                 .execute();
+
+    }
+
+    /**
+     * Очистка листа
+     *
+     * @param range         диапазон ячеек
+     * @param spreadsheetId идентификатор гугл-таблицы
+     */
+    public void clearSheet(String range, String spreadsheetId) throws IOException {
+        ClearValuesRequest clearRequest = new ClearValuesRequest();
+
+        sheetsService.spreadsheets().values().clear(spreadsheetId, range, clearRequest).execute();
+
     }
 }
 

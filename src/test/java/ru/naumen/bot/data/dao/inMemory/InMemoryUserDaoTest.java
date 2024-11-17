@@ -99,27 +99,27 @@ public class InMemoryUserDaoTest {
 
     /**
      * Тест для установки и получения ссылки на Google Sheet. Проверяет, что ссылка
-     * корректно обновляется и возвращается методом {@link InMemoryUserDao#getGoogleSheetLink(long)}.
+     * корректно обновляется и возвращается методом {@link InMemoryUserDao#getGoogleSheetId(long)}.
      */
     @Test
-    void testSetAndGetGoogleSheetLink() {
+    void testSetAndGetGoogleSheetId() {
         String googleSheetLink = "https://docs.google.com/spreadsheets/d/123456789";
 
         userDao.openChat(chatId);
         userDao.setGoogleSheetId(chatId, googleSheetLink);
 
-        Assertions.assertThat(userDao.getGoogleSheetLink(chatId)).isEqualTo(googleSheetLink);
+        Assertions.assertThat(userDao.getGoogleSheetId(chatId)).isEqualTo(googleSheetLink);
     }
 
     /**
-     * Тест для проверки, что метод {@link InMemoryUserDao#getGoogleSheetLink(long)} возвращает
+     * Тест для проверки, что метод {@link InMemoryUserDao#getGoogleSheetId(long)} возвращает
      * null, если ссылка на Google Sheet не была установлена.
      */
     @Test
-    void testGetGoogleSheetLinkReturnsNullIfNotSet() {
+    void testGetGoogleSheetIdReturnsNullIfNotSet() {
         userDao.openChat(chatId);
 
-        Assertions.assertThat(userDao.getGoogleSheetLink(chatId)).isNull();
+        Assertions.assertThat(userDao.getGoogleSheetId(chatId)).isNull();
     }
 
 }

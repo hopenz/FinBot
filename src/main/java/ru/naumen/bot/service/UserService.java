@@ -87,11 +87,11 @@ public class UserService {
     /**
      * Устанавливает ссылку на Google Sheets для указанного идентификатора.
      *
-     * @param chatId  идентификатор чата
-     * @param message ссылка на Google Sheets
+     * @param chatId идентификатор чата
+     * @param link   ссылка на Google Sheets
      */
-    public void setGoogleSheetId(long chatId, String message) {
-        String googleSheetId = message.substring(message.indexOf("/d/") + 3, message.indexOf("/edit"));
+    public void setGoogleSheetId(long chatId, String link) {
+        String googleSheetId = link.substring(link.indexOf("/d/") + 3, link.indexOf("/edit"));
         userDao.setGoogleSheetId(chatId, googleSheetId);
     }
 
@@ -111,7 +111,7 @@ public class UserService {
      * @param chatId идентификатор чата
      * @return ссылка на Google Sheets
      */
-    public String getGoogleSheetLink(Long chatId) {
-        return userDao.getGoogleSheetLink(chatId);
+    public String getGoogleSheetId(Long chatId) {
+        return userDao.getGoogleSheetId(chatId);
     }
 }

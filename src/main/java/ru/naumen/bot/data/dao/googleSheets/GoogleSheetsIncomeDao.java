@@ -1,64 +1,93 @@
 package ru.naumen.bot.data.dao.googleSheets;
 
 import org.springframework.stereotype.Component;
+import ru.naumen.bot.client.GoogleSheetsClient;
 import ru.naumen.bot.data.dao.IncomeDao;
 import ru.naumen.bot.data.entity.Income;
-import ru.naumen.bot.service.GoogleSheetsService;
+import ru.naumen.bot.exception.GoogleSheetsException;
 import ru.naumen.bot.service.UserService;
-import ru.naumen.bot.utils.RecordConverter;
+import ru.naumen.bot.utils.GoogleSheetsConverter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
- * TODO
+ * Класс для управления доходами пользователей, хранящимся в Google Sheets
  */
 @Component
 public class GoogleSheetsIncomeDao implements IncomeDao {
 
-    private final GoogleSheetsService googleSheetsService;
+    /**
+     * Экземпляр клиента Google Sheets
+     */
+    private final GoogleSheetsClient googleSheetsClient;
 
-    private final RecordConverter recordConverter;
+    /**
+     * Конвертер для преобразования данных в формате Google Sheets
+     */
+    private final GoogleSheetsConverter googleSheetsConverter;
 
+    /**
+     * Экземпляр сервиса пользователя для получения информации о пользователе
+     */
     private final UserService userService;
 
-    public GoogleSheetsIncomeDao(GoogleSheetsService googleSheetsService, RecordConverter recordConverter, UserService userService) {
-        this.googleSheetsService = googleSheetsService;
-        this.recordConverter = recordConverter;
+    /**
+     * Конструктор класса GoogleSheetsIncomeDao
+     *
+     * @param googleSheetsClient    экземпляр клиента Google Sheets
+     * @param googleSheetsConverter экземпляр конвертера для преобразования данных
+     * @param userService           экземпляр сервиса пользователя
+     */
+    public GoogleSheetsIncomeDao(GoogleSheetsClient googleSheetsClient,
+                                 GoogleSheetsConverter googleSheetsConverter, UserService userService) {
+        this.googleSheetsClient = googleSheetsClient;
+        this.googleSheetsConverter = googleSheetsConverter;
         this.userService = userService;
     }
 
     @Override
     public List<Income> getIncomes(long chatId) {
-        return List.of();
+        List<List<Object>> data;
+        try {
+            data = googleSheetsClient.readData("Доходы!A2:C",
+                    userService.getGoogleSheetId(chatId));
+        } catch (IOException e) {
+            throw new GoogleSheetsException(e.getMessage(), chatId, "Ошибка получения доходов");
+        }
+
+        return googleSheetsConverter.sheetFormatToIncomes(data);
     }
 
     @Override
     public void addIncome(long chatId, Income newIncome) {
-        List<List<Object>> values = recordConverter.incomeToSheetFormat(newIncome);
-        String googleSheetLink = userService.getGoogleSheetLink(chatId);
+        List<List<Object>> values = googleSheetsConverter.incomeToSheetFormat(newIncome);
+        String googleSheetId = userService.getGoogleSheetId(chatId);
         try {
-            googleSheetsService.appendData("Доходы!A:C", values, googleSheetLink);
+            googleSheetsClient.appendData("Доходы!A2:C", values, googleSheetId);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new GoogleSheetsException(e.getMessage(), chatId, "Ошибка добавления дохода");
         }
     }
 
     @Override
     public void addIncomes(long chatId, List<Income> incomes) {
-        List<List<Object>> values = recordConverter.incomesToSheetFormat(incomes);
-        String googleSheetLink = userService.getGoogleSheetLink(chatId);
+        List<List<Object>> values = googleSheetsConverter.incomesToSheetFormat(incomes);
+        String googleSheetId = userService.getGoogleSheetId(chatId);
         try {
-            googleSheetsService.appendData("Доходы!A:C", values, googleSheetLink);
+            googleSheetsClient.appendData("Доходы!A2:C", values, googleSheetId);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new GoogleSheetsException(e.getMessage(), chatId, "Ошибка добавления доходов");
         }
+
     }
 
     @Override
     public void removeIncomes(long chatId) {
-
+        try {
+            googleSheetsClient.clearSheet("Доходы!A2:C", userService.getGoogleSheetId(chatId));
+        } catch (IOException e) {
+            throw new GoogleSheetsException(e.getMessage(), chatId, "Ошибка удаления доходов");
+        }
     }
 }

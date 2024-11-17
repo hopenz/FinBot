@@ -78,12 +78,13 @@ public class CallbackQueryProcessor {
             return;
         }
 
-        if (userService.getGoogleSheetLink(chatId) == null) {
-            requestGoogleSheetLink(chatId);
+        if (userService.getGoogleSheetId(chatId) == null) {
+            requestGoogleSheetId(chatId);
             return;
         }
         databaseService.changeDB(chatId, dataType);
         userService.setUserState(chatId, ChatState.NOTHING_WAITING);
+        botController.sendMessage("Теперь ваши данные хранятся в '" + data + "'!", chatId);
     }
 
     /**
@@ -94,7 +95,7 @@ public class CallbackQueryProcessor {
      */
     private void processTypeDBAfterStartCommand(String data, Long chatId) {
         if (data.equals("Гугл-таблица")) {
-            requestGoogleSheetLink(chatId);
+            requestGoogleSheetId(chatId);
         } else {
             botController.sendMessage("Теперь ваши данные хранятся в оперативной памяти!", chatId);
             userService.setUserState(chatId, ChatState.NOTHING_WAITING);
@@ -109,12 +110,12 @@ public class CallbackQueryProcessor {
      *
      * @param chatId идентификатор чата.
      */
-    private void requestGoogleSheetLink(Long chatId) {
+    private void requestGoogleSheetId(Long chatId) {
         userService.setUserState(chatId, ChatState.WAITING_FOR_GOOGLE_SHEET_LINK);
         botController.sendMessage("""
                 Давайте создадим таблицу и привяжем к ней бота:
                 1. Для создания таблицы перейдите по ссылке https://sheets.new/
-                2. Добавьте Google Account Name в качестве пользователя-редактор
+                2. Добавьте finbotaccount@celtic-house-440906-m1.iam.gserviceaccount.com в качестве пользователя-редактор
                 3. Пришлите мне ссылку на новую созданную таблицу (просто скопируйте и отправьте мне), остальное я сделаю сам
                 """, chatId);
     }
