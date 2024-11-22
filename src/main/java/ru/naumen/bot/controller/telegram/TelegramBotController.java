@@ -78,11 +78,9 @@ public class TelegramBotController implements BotController {
         this.telegramBot.setUpdatesListener(updates -> {
             try {
                 updates.forEach(this::processUpdate);
-            } catch (Exception exception) {
-                logger.error("[Unexpected exception] :: Message: {}.", exception.getMessage());
-                if (exception instanceof GoogleSheetsException) {
-                    botControllerAdvice.handleGoogleSheetsException((GoogleSheetsException) exception);
-                }
+            } catch (GoogleSheetsException exception) {
+                logger.error("[Google Sheets exception] :: Message: {}.", exception.getMessage());
+                botControllerAdvice.handleGoogleSheetsException(exception);
             }
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         }, exception -> {
@@ -92,6 +90,8 @@ public class TelegramBotController implements BotController {
                         exception.response().errorCode(),
                         exception.response().description()
                 );
+            } else {
+                logger.error("[Unexpected exception] :: Message: {}.", exception.getMessage());
             }
         });
     }
