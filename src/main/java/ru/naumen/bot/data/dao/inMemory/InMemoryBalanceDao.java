@@ -33,6 +33,6 @@ public class InMemoryBalanceDao implements BalanceDao {
 
     @Override
     public void removeBalance(long chatId) {
-        usersBalance.remove(chatId);
+        usersBalance.put(chatId, 0.0);
     }
 }

@@ -22,7 +22,7 @@ public interface BotController {
      * @param chatId  идентификатор чата, в котором будет отправлено сообщение
      * @param buttons список кнопок для инлайн-клавиатуры, которая будет отправлена с сообщением
      */
-    void sendMessageWithInlineKeyboard(String message, long chatId, List<String> buttons);
+    void sendMessage(String message, long chatId, List<String> buttons);
 
     /**
      * Отправка ответа на нажатие кнопки инлайн-клавиатуры во всплывающем сообщении
@@ -30,5 +30,5 @@ public interface BotController {
      * @param message         текст ответа
      * @param callbackQueryId идентификатор callback-запроса
      */
-    void sendAnswerCallbackQuery(String message, String callbackQueryId);
+    void sendPopUpMessage(String message, String callbackQueryId);
 }

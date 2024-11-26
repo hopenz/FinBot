@@ -12,11 +12,10 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SetMyCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.configuration.ApplicationConfig;
 import ru.naumen.bot.controller.BotController;
-import ru.naumen.bot.advice.BotControllerAdvice;
-import ru.naumen.bot.exception.GoogleSheetsException;
 import ru.naumen.bot.interaction.Commands;
 import ru.naumen.bot.processor.CallbackQueryProcessor;
 import ru.naumen.bot.processor.CommandBotProcessor;
@@ -64,11 +63,10 @@ public class TelegramBotController implements BotController {
      * @param messageBotProcessor    процессор для обработки сообщений от пользователей
      * @param commandBotProcessor    процессор для обработки команд от пользователей
      * @param callbackQueryProcessor процессор для обработки callback-запросов от пользователей
-     * @param botControllerAdvice    обработчик исключений
      */
-    public TelegramBotController(ApplicationConfig applicationConfig, MessageBotProcessor messageBotProcessor,
-                                 CommandBotProcessor commandBotProcessor, CallbackQueryProcessor callbackQueryProcessor,
-                                 BotControllerAdvice botControllerAdvice) {
+    public TelegramBotController(ApplicationConfig applicationConfig, @Lazy MessageBotProcessor messageBotProcessor,
+                                 @Lazy CommandBotProcessor commandBotProcessor,
+                                 @Lazy CallbackQueryProcessor callbackQueryProcessor) {
         this.telegramBot = new TelegramBot(applicationConfig.telegramToken());
         this.messageBotProcessor = messageBotProcessor;
         this.commandBotProcessor = commandBotProcessor;
@@ -76,22 +74,22 @@ public class TelegramBotController implements BotController {
 
         this.telegramBot.execute(new SetMyCommands(createCommandsMenu()));
         this.telegramBot.setUpdatesListener(updates -> {
-            try {
-                updates.forEach(this::processUpdate);
-            } catch (GoogleSheetsException exception) {
-                logger.error("[Google Sheets exception] :: Message: {}.", exception.getMessage());
-                botControllerAdvice.handleGoogleSheetsException(exception);
-            }
+            updates.forEach(this::processUpdate);
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         }, exception -> {
             if (exception.response() != null) {
                 logger.error(
                         "[Bot exception] :: Code: {}; Message: {}.",
                         exception.response().errorCode(),
-                        exception.response().description()
+                        exception.response().description(),
+                        exception
                 );
             } else {
-                logger.error("[Unexpected exception] :: Message: {}.", exception.getMessage());
+                logger.error(
+                        "[Unexpected exception] :: Message: {}.",
+                        exception.getMessage(),
+                        exception
+                );
             }
         });
     }
@@ -135,21 +133,26 @@ public class TelegramBotController implements BotController {
 
     @Override
     public void sendMessage(String message, long chatId) {
-        telegramBot.execute(new SendMessage(chatId, message));
+        sendMessage(message, chatId, null);
     }
 
     @Override
-    public void sendMessageWithInlineKeyboard(String message, long chatId, List<String> buttons) {
+    public void sendMessage(String message, long chatId, List<String> buttons) {
+        SendMessage sendMessage = new SendMessage(chatId, message);
+        if (buttons == null) {
+            telegramBot.execute(sendMessage);
+            return;
+        }
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup(
                 buttons.stream()
                         .map(button -> new InlineKeyboardButton(button).callbackData(button))
                         .toArray(InlineKeyboardButton[]::new)
         );
-        telegramBot.execute(new SendMessage(chatId, message).replyMarkup(keyboardMarkup));
+        telegramBot.execute(sendMessage.replyMarkup(keyboardMarkup));
     }
 
     @Override
-    public void sendAnswerCallbackQuery(String message, String callbackQueryId) {
+    public void sendPopUpMessage(String message, String callbackQueryId) {
         telegramBot.execute(new AnswerCallbackQuery(callbackQueryId).text(message));
     }
 }

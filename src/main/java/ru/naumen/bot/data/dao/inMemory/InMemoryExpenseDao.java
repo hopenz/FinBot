@@ -41,7 +41,7 @@ public class InMemoryExpenseDao implements ExpenseDao {
 
     @Override
     public void removeExpenses(long chatId) {
-        usersExpenses.remove(chatId);
+        usersExpenses.get(chatId).clear();
     }
 
     /**

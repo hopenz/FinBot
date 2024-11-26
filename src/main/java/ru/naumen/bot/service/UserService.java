@@ -1,7 +1,9 @@
 package ru.naumen.bot.service;
 
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import ru.naumen.bot.data.dao.inMemory.InMemoryBalanceDao;
+import ru.naumen.bot.data.dao.inMemory.InMemoryExpenseDao;
+import ru.naumen.bot.data.dao.inMemory.InMemoryIncomeDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryUserDao;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.DataType;
@@ -13,24 +15,49 @@ import ru.naumen.bot.data.entity.DataType;
 public class UserService {
 
     /**
+     * Начало GoogleSheets id в ссылке.
+     */
+    private static final String START_SHEET_ID = "/d/";
+
+    /**
+     * Конец GoogleSheets id в ссылке.
+     */
+    private static final String END_SHEET_ID = "/edit";
+
+    /**
      * DAO для работы с пользователями.
      */
     private final InMemoryUserDao userDao;
 
     /**
-     * Сервис для взаимодействия с базами данных.
+     * DAO для управления балансом пользователя в памяти.
      */
-    private final DatabaseService databaseService;
+    private final InMemoryBalanceDao inMemoryBalanceDao;
+
+    /**
+     * DAO для управления расходами пользователя в памяти.
+     */
+    private final InMemoryExpenseDao inMemoryExpenseDao;
+
+    /**
+     * DAO для управления доходами пользователя в памяти.
+     */
+    private final InMemoryIncomeDao inMemoryIncomeDao;
 
     /**
      * Конструктор UserService. Инициализирует сервис с объектами DAO.
      *
-     * @param userDao         DAO для работы с пользователями.
-     * @param databaseService Сервис для взаимодействия с базами данных.
+     * @param userDao            DAO для работы с пользователями.
+     * @param inMemoryBalanceDao DAO для управления балансом пользователя в памяти.
+     * @param inMemoryExpenseDao DAO для управления расходами пользователя в памяти.
+     * @param inMemoryIncomeDao  DAO для управления доходами пользователя в памяти.
      */
-    public UserService(InMemoryUserDao userDao, @Lazy DatabaseService databaseService) {
+    public UserService(InMemoryUserDao userDao, InMemoryBalanceDao inMemoryBalanceDao,
+                       InMemoryExpenseDao inMemoryExpenseDao, InMemoryIncomeDao inMemoryIncomeDao) {
         this.userDao = userDao;
-        this.databaseService = databaseService;
+        this.inMemoryBalanceDao = inMemoryBalanceDao;
+        this.inMemoryExpenseDao = inMemoryExpenseDao;
+        this.inMemoryIncomeDao = inMemoryIncomeDao;
     }
 
     /**
@@ -50,7 +77,9 @@ public class UserService {
      */
     public void openChat(long chatId) {
         userDao.openChat(chatId);
-        databaseService.createInMemoryDB(chatId);
+        inMemoryBalanceDao.setBalance(chatId, 0.0);
+        inMemoryExpenseDao.createUserList(chatId);
+        inMemoryIncomeDao.createUserList(chatId);
         userDao.setChatState(chatId, ChatState.WAITING_FOR_TYPE_DB);
     }
 
@@ -91,7 +120,8 @@ public class UserService {
      * @param link   ссылка на Google Sheets
      */
     public void setGoogleSheetId(long chatId, String link) {
-        String googleSheetId = link.substring(link.indexOf("/d/") + 3, link.indexOf("/edit"));
+        String googleSheetId = link.substring(link.indexOf(START_SHEET_ID) + START_SHEET_ID.length(),
+                link.indexOf(END_SHEET_ID));
         userDao.setGoogleSheetId(chatId, googleSheetId);
     }
 
