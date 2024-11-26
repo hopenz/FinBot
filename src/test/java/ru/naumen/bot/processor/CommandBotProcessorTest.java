@@ -4,16 +4,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.naumen.bot.controller.BotController;
+import ru.naumen.bot.data.dao.googleSheets.exception.GoogleSheetsException;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.Income;
-import ru.naumen.bot.exception.GoogleSheetsException;
+import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.interaction.Commands;
 import ru.naumen.bot.interaction.keyboards.TypeDBKeyboard;
 import ru.naumen.bot.processor.exception.handler.GoogleSheetsExceptionHandler;
-import ru.naumen.bot.service.BalanceService;
-import ru.naumen.bot.service.ExpenseService;
-import ru.naumen.bot.service.IncomeService;
+import ru.naumen.bot.service.FinanceDataService;
 import ru.naumen.bot.service.UserService;
 
 import java.time.LocalDate;
@@ -36,19 +35,9 @@ public class CommandBotProcessorTest {
     private UserService userServiceMock;
 
     /**
-     * Мок-объект для {@link IncomeService}, используемый для работы с доходами пользователя.
+     * Мок-объект для {@link FinanceDataService}, используемый для взаимодействия с данными о финансах.
      */
-    private IncomeService incomeServiceMock;
-
-    /**
-     * Мок-объект для {@link ExpenseService}, используемый для работы с расходами пользователя.
-     */
-    private ExpenseService expenseServiceMock;
-
-    /**
-     * Мок-объект для {@link BalanceService}, используемый для управления балансом пользователя.
-     */
-    private BalanceService balanceServiceMock;
+    private FinanceDataService financeDataService;
 
     /**
      * Мок-объект для {@link GoogleSheetsExceptionHandler}, используемый для обработки исключений Google Sheets.
@@ -72,13 +61,11 @@ public class CommandBotProcessorTest {
     void setUp() {
         botController = Mockito.mock(BotController.class);
         userServiceMock = Mockito.mock(UserService.class);
-        incomeServiceMock = Mockito.mock(IncomeService.class);
-        expenseServiceMock = Mockito.mock(ExpenseService.class);
-        balanceServiceMock = Mockito.mock(BalanceService.class);
+        financeDataService = Mockito.mock(FinanceDataService.class);
         exceptionHandler = Mockito.mock(GoogleSheetsExceptionHandler.class);
 
-        commandBotProcessor = new CommandBotProcessor(botController, userServiceMock, balanceServiceMock,
-                incomeServiceMock, expenseServiceMock, exceptionHandler);
+        commandBotProcessor = new CommandBotProcessor(botController, userServiceMock,
+                financeDataService, exceptionHandler);
     }
 
     /**
@@ -103,12 +90,12 @@ public class CommandBotProcessorTest {
      * Тест для обработки команды INCOME_COMMAND. Проверяет, что бот отправляет список доходов пользователя.
      */
     @Test
-    void testProcessIncomeCommand() {
+    void testProcessIncomeCommand() throws DaoException {
         Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(true);
         List<Income> incomeList = Arrays.asList(
                 new Income("income1", 100.0, LocalDate.of(2024, 1, 1)),
                 new Income("income2", 200.0, LocalDate.of(2024, 2, 2)));
-        Mockito.when(incomeServiceMock.getIncomes(chatId)).thenReturn(incomeList);
+        Mockito.when(financeDataService.getIncomes(chatId)).thenReturn(incomeList);
 
         commandBotProcessor.processCommand(Commands.INCOMES_COMMAND.getCommand(), chatId);
 
@@ -120,10 +107,10 @@ public class CommandBotProcessorTest {
      * Проверяет, что бот отправляет сообщение об ошибке и вызывает обработчик исключений.
      */
     @Test
-    void testProcessIncomeCommandWithGoogleSheetsException() {
+    void testProcessIncomeCommandWithGoogleSheetsException() throws DaoException {
         Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(true);
         GoogleSheetsException exception = new GoogleSheetsException(new Exception());
-        Mockito.when(incomeServiceMock.getIncomes(chatId)).thenThrow(exception);
+        Mockito.when(financeDataService.getIncomes(chatId)).thenThrow(exception);
 
         commandBotProcessor.processCommand(Commands.INCOMES_COMMAND.getCommand(), chatId);
 
@@ -135,12 +122,12 @@ public class CommandBotProcessorTest {
      * Тест для обработки команды EXPENSES_COMMAND. Проверяет, что бот отправляет список расходов пользователя.
      */
     @Test
-    void testProcessExpensesCommand() {
+    void testProcessExpensesCommand() throws DaoException {
         Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(true);
         List<Expense> expenseList = Arrays.asList(
                 new Expense("expense1", 100.0, LocalDate.of(2024, 1, 1)),
                 new Expense("expense2", 200.0, LocalDate.of(2024, 2, 2)));
-        Mockito.when(expenseServiceMock.getExpenses(chatId)).thenReturn(expenseList);
+        Mockito.when(financeDataService.getExpenses(chatId)).thenReturn(expenseList);
 
         commandBotProcessor.processCommand(Commands.EXPENSES_COMMAND.getCommand(), chatId);
 
@@ -153,10 +140,10 @@ public class CommandBotProcessorTest {
      * Проверяет, что бот отправляет сообщение об ошибке и вызывает обработчик исключений.
      */
     @Test
-    void testProcessExpensesCommandWithGoogleSheetsException() {
+    void testProcessExpensesCommandWithGoogleSheetsException() throws DaoException {
         Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(true);
         GoogleSheetsException exception = new GoogleSheetsException(new Exception());
-        Mockito.when(expenseServiceMock.getExpenses(chatId)).thenThrow(exception);
+        Mockito.when(financeDataService.getExpenses(chatId)).thenThrow(exception);
 
         commandBotProcessor.processCommand(Commands.EXPENSES_COMMAND.getCommand(), chatId);
 
@@ -168,9 +155,9 @@ public class CommandBotProcessorTest {
      * Тест для обработки команды BALANCE_COMMAND. Проверяет, что бот отправляет текущий баланс пользователя.
      */
     @Test
-    void testProcessBalanceCommand() {
+    void testProcessBalanceCommand() throws DaoException {
         Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(true);
-        Mockito.when(balanceServiceMock.getBalance(chatId)).thenReturn(100.0);
+        Mockito.when(financeDataService.getBalance(chatId)).thenReturn(100.0);
 
         commandBotProcessor.processCommand(Commands.BALANCE_COMMAND.getCommand(), chatId);
 
@@ -182,10 +169,10 @@ public class CommandBotProcessorTest {
      * Проверяет, что бот отправляет сообщение об ошибке и вызывает обработчик исключений.
      */
     @Test
-    void testProcessBalanceCommandWithGoogleSheetsException() {
+    void testProcessBalanceCommandWithGoogleSheetsException() throws DaoException {
         Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(true);
         GoogleSheetsException exception = new GoogleSheetsException(new Exception());
-        Mockito.when(balanceServiceMock.getBalance(chatId)).thenThrow(exception);
+        Mockito.when(financeDataService.getBalance(chatId)).thenThrow(exception);
 
         commandBotProcessor.processCommand(Commands.BALANCE_COMMAND.getCommand(), chatId);
 

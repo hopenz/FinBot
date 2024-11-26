@@ -24,7 +24,7 @@ public class DaoProvider {
     /**
      * Конструктор класса DaoProvider, инициализирующий компоненты для операций в оперативной памяти и в Google Sheets.
      *
-     * @param inMemoryDaoGroup компонент с DAO для операций в оперативной памяти
+     * @param inMemoryDaoGroup     компонент с DAO для операций в оперативной памяти
      * @param googleSheetsDaoGroup компонент с DAO для операций с Google Sheets
      */
     public DaoProvider(InMemoryDaoGroup inMemoryDaoGroup, GoogleSheetsDaoGroup googleSheetsDaoGroup) {

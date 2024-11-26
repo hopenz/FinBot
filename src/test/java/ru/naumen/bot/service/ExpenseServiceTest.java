@@ -8,6 +8,7 @@ import ru.naumen.bot.data.dao.BalanceDao;
 import ru.naumen.bot.data.dao.DaoProvider;
 import ru.naumen.bot.data.dao.ExpenseDao;
 import ru.naumen.bot.data.entity.Expense;
+import ru.naumen.bot.exception.DaoException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -55,7 +56,7 @@ public class ExpenseServiceTest {
      * Проверяет, что метод возвращает корректный список расходов.
      */
     @Test
-    void testGetExpenses() {
+    void testGetExpenses() throws DaoException {
         List<Expense> expectedExpenses = List.of(
                 new Expense("Расход 1", 50.0, LocalDate.now()),
                 new Expense("Расход 2", 20.0, LocalDate.now())
@@ -73,7 +74,7 @@ public class ExpenseServiceTest {
      * Проверяет, что расход добавляется в хранилище и баланс обновляется корректно.
      */
     @Test
-    void testAddExpense() {
+    void testAddExpense() throws DaoException {
         String expenseMessage = "- 30 Расход 1";
         Mockito.when(balanceDaoMock.getBalance(chatId)).thenReturn(100.0);
 
@@ -89,7 +90,7 @@ public class ExpenseServiceTest {
      * Проверяет, что список расходов добавляется в хранилище.
      */
     @Test
-    void testAddExpenses() {
+    void testAddExpenses() throws DaoException {
         List<Expense> expenses = List.of(
                 new Expense("Расход 1", 50.0, LocalDate.now()),
                 new Expense("Расход 2", 20.0, LocalDate.now())
@@ -105,7 +106,7 @@ public class ExpenseServiceTest {
      * Проверяет, что расходы удаляются из хранилища.
      */
     @Test
-    void testRemoveExpenses() {
+    void testRemoveExpenses() throws DaoException {
         expenseService.removeExpenses(chatId);
 
         Mockito.verify(expenseDaoMock).removeExpenses(chatId);

@@ -1,17 +1,18 @@
 package ru.naumen.bot.processor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.controller.BotController;
+import ru.naumen.bot.data.dao.googleSheets.exception.GoogleSheetsException;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.Income;
-import ru.naumen.bot.exception.GoogleSheetsException;
+import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.interaction.Commands;
 import ru.naumen.bot.interaction.keyboards.TypeDBKeyboard;
 import ru.naumen.bot.processor.exception.handler.GoogleSheetsExceptionHandler;
-import ru.naumen.bot.service.BalanceService;
-import ru.naumen.bot.service.ExpenseService;
-import ru.naumen.bot.service.IncomeService;
+import ru.naumen.bot.service.FinanceDataService;
 import ru.naumen.bot.service.UserService;
 
 import java.util.Arrays;
@@ -37,24 +38,19 @@ public class CommandBotProcessor {
     private final UserService userService;
 
     /**
-     * Сервис для взаимодействия с балансом.
+     * Сервис для взаимодействия с данными о финансах.
      */
-    private final BalanceService balanceService;
-
-    /**
-     * Сервис для взаимодействия с доходами.
-     */
-    private final IncomeService incomeService;
-
-    /**
-     * Сервис для взаимодействия с расходами.
-     */
-    private final ExpenseService expenseService;
+    private final FinanceDataService financeDataService;
 
     /**
      * Сервис для обработки исключений при работе с Google Sheets.
      */
     private final GoogleSheetsExceptionHandler exceptionHandler;
+
+    /**
+     * Логгер для записи сообщений об ошибках
+     */
+    private final Logger logger = LoggerFactory.getLogger(CommandBotProcessor.class);
 
     /**
      * Map для хранения команд, где ключ это текст команды, а значение соответствующий экземпляр {@link Commands}
@@ -64,21 +60,16 @@ public class CommandBotProcessor {
     /**
      * Конструктор CommandBotProcessor.
      *
-     * @param botController    сервис для взаимодействия с ботом.
-     * @param userService      сервис для взаимодействия с данными пользователя.
-     * @param balanceService   сервис для взаимодействия с балансом.
-     * @param incomeService    сервис для взаимодействия с доходами.
-     * @param expenseService   сервис для взаимодействия с расходами.
-     * @param exceptionHandler сервис для обработки исключений Google Sheets.
+     * @param botController      сервис для взаимодействия с ботом.
+     * @param userService        сервис для взаимодействия с данными пользователя.
+     * @param financeDataService сервис для взаимодействия с данными о финансах.
+     * @param exceptionHandler   сервис для обработки исключений Google Sheets.
      */
     public CommandBotProcessor(BotController botController, UserService userService,
-                               BalanceService balanceService, IncomeService incomeService,
-                               ExpenseService expenseService, GoogleSheetsExceptionHandler exceptionHandler) {
+                               FinanceDataService financeDataService, GoogleSheetsExceptionHandler exceptionHandler) {
         this.botController = botController;
+        this.financeDataService = financeDataService;
         this.userService = userService;
-        this.balanceService = balanceService;
-        this.incomeService = incomeService;
-        this.expenseService = expenseService;
         this.exceptionHandler = exceptionHandler;
 
         for (Commands command : Commands.values()) {
@@ -148,10 +139,13 @@ public class CommandBotProcessor {
     private void processBalanceCommand(long chatId) {
         Double balance;
         try {
-            balance = balanceService.getBalance(chatId);
+            balance = financeDataService.getBalance(chatId);
         } catch (GoogleSheetsException exception) {
             botController.sendMessage("Во время отправки баланса произошла ошибка", chatId);
             exceptionHandler.handleGoogleSheetsException(exception, chatId);
+            return;
+        } catch (DaoException exception) {
+            logger.error(exception.getMessage(), exception);
             return;
         }
 
@@ -183,10 +177,13 @@ public class CommandBotProcessor {
     private void processIncomesCommand(long chatId) {
         List<Income> incomeList;
         try {
-            incomeList = incomeService.getIncomes(chatId);
+            incomeList = financeDataService.getIncomes(chatId);
         } catch (GoogleSheetsException exception) {
             botController.sendMessage("Во время отправки доходов произошла ошибка", chatId);
             exceptionHandler.handleGoogleSheetsException(exception, chatId);
+            return;
+        } catch (DaoException exception) {
+            logger.error(exception.getMessage(), exception);
             return;
         }
         StringBuilder sb = new StringBuilder();
@@ -205,10 +202,13 @@ public class CommandBotProcessor {
     private void processExpensesCommand(long chatId) {
         List<Expense> expenseList;
         try {
-            expenseList = expenseService.getExpenses(chatId);
+            expenseList = financeDataService.getExpenses(chatId);
         } catch (GoogleSheetsException exception) {
             botController.sendMessage("Во время отправки расходов произошла ошибка", chatId);
             exceptionHandler.handleGoogleSheetsException(exception, chatId);
+            return;
+        } catch (DaoException exception) {
+            logger.error(exception.getMessage(), exception);
             return;
         }
         StringBuilder sb = new StringBuilder();

@@ -1,6 +1,7 @@
 package ru.naumen.bot.data.dao;
 
 import ru.naumen.bot.data.entity.Expense;
+import ru.naumen.bot.exception.DaoException;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public interface ExpenseDao {
      * @param chatId идентификатор чата, для которого нужно получить расходы.
      * @return список объектов {@link Expense}, представляющих расходы пользователя.
      */
-    List<Expense> getExpenses(long chatId);
+    List<Expense> getExpenses(long chatId) throws DaoException;
 
     /**
      * Добавляет расход для указанного идентификатора чата.
@@ -23,7 +24,7 @@ public interface ExpenseDao {
      * @param chatId     идентификатор чата, для которого нужно добавить расход.
      * @param newExpense новый расход.
      */
-    void addExpense(long chatId, Expense newExpense);
+    void addExpense(long chatId, Expense newExpense) throws DaoException;
 
     /**
      * Добавляет расходы для указанного идентификатора чата.
@@ -31,12 +32,12 @@ public interface ExpenseDao {
      * @param chatId   идентификатор чата, для которого нужно добавить расходы.
      * @param expenses список расходов.
      */
-    void addExpenses(long chatId, List<Expense> expenses);
+    void addExpenses(long chatId, List<Expense> expenses) throws DaoException;
 
     /**
      * Удаляет расходы для указанного идентификатора чата.
      *
      * @param chatId идентификатор чата, для которого нужно удалить расходы.
      */
-    void removeExpenses(long chatId);
+    void removeExpenses(long chatId) throws DaoException;
 }

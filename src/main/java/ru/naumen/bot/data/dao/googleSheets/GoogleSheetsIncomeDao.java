@@ -3,8 +3,8 @@ package ru.naumen.bot.data.dao.googleSheets;
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.client.GoogleSheetsClient;
 import ru.naumen.bot.data.dao.IncomeDao;
+import ru.naumen.bot.data.dao.googleSheets.exception.GoogleSheetsException;
 import ru.naumen.bot.data.entity.Income;
-import ru.naumen.bot.exception.GoogleSheetsException;
 import ru.naumen.bot.service.UserService;
 import ru.naumen.bot.utils.GoogleSheetsConverter;
 
@@ -47,7 +47,7 @@ public class GoogleSheetsIncomeDao implements IncomeDao {
     }
 
     @Override
-    public List<Income> getIncomes(long chatId) {
+    public List<Income> getIncomes(long chatId) throws GoogleSheetsException {
         List<List<Object>> data;
         try {
             data = googleSheetsClient.readData("Доходы!A2:C",
@@ -60,7 +60,7 @@ public class GoogleSheetsIncomeDao implements IncomeDao {
     }
 
     @Override
-    public void addIncome(long chatId, Income newIncome) {
+    public void addIncome(long chatId, Income newIncome) throws GoogleSheetsException {
         List<List<Object>> values = googleSheetsConverter.incomeToSheetFormat(newIncome);
         String googleSheetId = userService.getGoogleSheetId(chatId);
         try {
@@ -71,7 +71,7 @@ public class GoogleSheetsIncomeDao implements IncomeDao {
     }
 
     @Override
-    public void addIncomes(long chatId, List<Income> incomes) {
+    public void addIncomes(long chatId, List<Income> incomes) throws GoogleSheetsException {
         List<List<Object>> values = googleSheetsConverter.incomesToSheetFormat(incomes);
         String googleSheetId = userService.getGoogleSheetId(chatId);
         try {
@@ -83,7 +83,7 @@ public class GoogleSheetsIncomeDao implements IncomeDao {
     }
 
     @Override
-    public void removeIncomes(long chatId) {
+    public void removeIncomes(long chatId) throws GoogleSheetsException {
         try {
             googleSheetsClient.clearSheet("Доходы!A2:C", userService.getGoogleSheetId(chatId));
         } catch (IOException e) {

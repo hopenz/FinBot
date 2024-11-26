@@ -1,15 +1,17 @@
 package ru.naumen.bot.processor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.controller.BotController;
+import ru.naumen.bot.data.dao.googleSheets.exception.GoogleSheetsException;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.DataType;
-import ru.naumen.bot.exception.GoogleSheetsException;
+import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.interaction.Commands;
 import ru.naumen.bot.processor.exception.handler.GoogleSheetsExceptionHandler;
 import ru.naumen.bot.service.DatabaseService;
-import ru.naumen.bot.service.ExpenseService;
-import ru.naumen.bot.service.IncomeService;
+import ru.naumen.bot.service.FinanceDataService;
 import ru.naumen.bot.service.UserService;
 
 /**
@@ -40,14 +42,9 @@ public class MessageBotProcessor {
     private final BotController botController;
 
     /**
-     * Сервис для взаимодействия с доходами.
+     * Сервис для взаимодействия с данными о финансах.
      */
-    private final IncomeService incomeService;
-
-    /**
-     * Сервис для взаимодействия с расходами.
-     */
-    private final ExpenseService expenseService;
+    private final FinanceDataService financeDataService;
 
     /**
      * Сервис для взаимодействия с данными о пользователях.
@@ -65,21 +62,24 @@ public class MessageBotProcessor {
     private final GoogleSheetsExceptionHandler exceptionHandler;
 
     /**
+     * Логгер для записи сообщений об ошибках
+     */
+    private final Logger logger = LoggerFactory.getLogger(MessageBotProcessor.class);
+
+
+    /**
      * Конструктор MessageBotProcessor.
      *
-     * @param botController    сервис для взаимодействия с ботом.
-     * @param incomeService    сервис для взаимодействия с доходами.
-     * @param expenseService   сервис для взаимодействия с расходами.
-     * @param userService      сервис для взаимодействия с данными о пользователях.
-     * @param databaseService  сервис для взаимодействия с базами данных.
-     * @param exceptionHandler сервис для обработки исключений Google Sheets.
+     * @param botController      сервис для взаимодействия с ботом.
+     * @param financeDataService сервис для взаимодействия с данными о финансах.
+     * @param userService        сервис для взаимодействия с данными о пользователях.
+     * @param databaseService    сервис для взаимодействия с базами данных.
+     * @param exceptionHandler   сервис для обработки исключений Google Sheets.
      */
-    public MessageBotProcessor(BotController botController, IncomeService incomeService,
-                               ExpenseService expenseService, UserService userService,
+    public MessageBotProcessor(BotController botController, FinanceDataService financeDataService, UserService userService,
                                DatabaseService databaseService, GoogleSheetsExceptionHandler exceptionHandler) {
         this.botController = botController;
-        this.incomeService = incomeService;
-        this.expenseService = expenseService;
+        this.financeDataService = financeDataService;
         this.userService = userService;
         this.databaseService = databaseService;
         this.exceptionHandler = exceptionHandler;
@@ -124,6 +124,9 @@ public class MessageBotProcessor {
                 botController.sendMessage("Во время инициализации таблицы произошла ошибка", chatId);
                 exceptionHandler.handleGoogleSheetsException(exception, chatId);
                 return;
+            } catch (DaoException exception) {
+                logger.error(exception.getMessage(), exception);
+                return;
             }
             botController.sendMessage("Бот готов к работе!", chatId);
         } else {
@@ -140,19 +143,25 @@ public class MessageBotProcessor {
     private void processSimpleMessage(String message, long chatId) {
         if (message.matches(EXPENSES_PATTERN)) {
             try {
-                expenseService.addExpense(message, chatId);
+                financeDataService.addExpense(message, chatId);
             } catch (GoogleSheetsException exception) {
                 botController.sendMessage("Во время добавления расхода произошла ошибка", chatId);
                 exceptionHandler.handleGoogleSheetsException(exception, chatId);
+                return;
+            } catch (DaoException exception) {
+                logger.error(exception.getMessage(), exception);
                 return;
             }
             botController.sendMessage("Расход успешно добавлен!", chatId);
         } else if (message.matches(INCOMES_PATTERN)) {
             try {
-                incomeService.addIncome(message, chatId);
+                financeDataService.addIncome(message, chatId);
             } catch (GoogleSheetsException exception) {
                 botController.sendMessage("Во время добавления дохода произошла ошибка", chatId);
                 exceptionHandler.handleGoogleSheetsException(exception, chatId);
+                return;
+            } catch (DaoException exception) {
+                logger.error(exception.getMessage(), exception);
                 return;
             }
             botController.sendMessage("Доход успешно добавлен!", chatId);

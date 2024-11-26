@@ -1,9 +1,11 @@
-package ru.naumen.bot.exception;
+package ru.naumen.bot.data.dao.googleSheets.exception;
+
+import ru.naumen.bot.exception.DaoException;
 
 /**
  * Исключение, возникающее при ошибках, связанных с работой с Google Sheets
  */
-public class GoogleSheetsException extends RuntimeException {
+public class GoogleSheetsException extends DaoException {
 
     /**
      * Конструктор исключения

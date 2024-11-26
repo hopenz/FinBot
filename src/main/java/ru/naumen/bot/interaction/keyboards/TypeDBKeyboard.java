@@ -22,6 +22,7 @@ public enum TypeDBKeyboard {
 
     /**
      * Конструктор
+     *
      * @param data значение кнопки
      */
     TypeDBKeyboard(String data) {
@@ -30,6 +31,7 @@ public enum TypeDBKeyboard {
 
     /**
      * Возвращение значения кнопки
+     *
      * @return значение кнопки
      */
     public String getData() {

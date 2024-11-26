@@ -3,6 +3,7 @@ package ru.naumen.bot.service;
 import org.springframework.stereotype.Service;
 import ru.naumen.bot.data.dao.BalanceDao;
 import ru.naumen.bot.data.dao.DaoProvider;
+import ru.naumen.bot.exception.DaoException;
 
 /**
  * Сервис BalanceService предоставляет методы для работы с балансом.
@@ -29,7 +30,7 @@ public class BalanceService {
      *
      * @return текущий баланс пользователя.
      */
-    public Double getBalance(long chatId) {
+    public Double getBalance(long chatId) throws DaoException {
         BalanceDao balanceDao = daoProvider.getBalanceDaoForUser(chatId);
         return balanceDao.getBalance(chatId);
     }
@@ -40,7 +41,7 @@ public class BalanceService {
      * @param chatId  идентификатор чата
      * @param balance сумма установленного баланса
      */
-    public void setBalance(long chatId, Double balance) {
+    public void setBalance(long chatId, Double balance) throws DaoException {
         BalanceDao balanceDao = daoProvider.getBalanceDaoForUser(chatId);
         balanceDao.setBalance(chatId, balance);
     }
@@ -50,7 +51,7 @@ public class BalanceService {
      *
      * @param chatId идентификатор чата
      */
-    public void removeBalance(long chatId) {
+    public void removeBalance(long chatId) throws DaoException {
         BalanceDao balanceDao = daoProvider.getBalanceDaoForUser(chatId);
         balanceDao.removeBalance(chatId);
     }
