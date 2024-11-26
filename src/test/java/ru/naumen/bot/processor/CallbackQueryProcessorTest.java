@@ -6,6 +6,8 @@ import org.mockito.Mockito;
 import ru.naumen.bot.controller.BotController;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.DataType;
+import ru.naumen.bot.exception.GoogleSheetsException;
+import ru.naumen.bot.processor.exception.handler.GoogleSheetsExceptionHandler;
 import ru.naumen.bot.service.DatabaseService;
 import ru.naumen.bot.service.UserService;
 
@@ -31,6 +33,11 @@ public class CallbackQueryProcessorTest {
     private DatabaseService databaseServiceMock;
 
     /**
+     * Мок-объект для {@link GoogleSheetsExceptionHandler}, используемый для обработки исключений Google Sheets.
+     */
+    private GoogleSheetsExceptionHandler exceptionHandler;
+
+    /**
      * Тестируемый объект {@link CallbackQueryProcessor}, который проверяется в данном тестовом классе.
      */
     private CallbackQueryProcessor queryProcessor;
@@ -48,8 +55,9 @@ public class CallbackQueryProcessorTest {
         botController = Mockito.mock(BotController.class);
         userServiceMock = Mockito.mock(UserService.class);
         databaseServiceMock = Mockito.mock(DatabaseService.class);
+        exceptionHandler = Mockito.mock(GoogleSheetsExceptionHandler.class);
 
-        queryProcessor = new CallbackQueryProcessor(botController, userServiceMock, databaseServiceMock);
+        queryProcessor = new CallbackQueryProcessor(botController, userServiceMock, databaseServiceMock, exceptionHandler);
     }
 
     /**
@@ -69,7 +77,7 @@ public class CallbackQueryProcessorTest {
 
         queryProcessor.processCallbackQuery(data, chatId, queryId);
 
-        Mockito.verify(botController).sendAnswerCallbackQuery("Вы выбрали " + data, queryId);
+        Mockito.verify(botController).sendPopUpMessage("Вы выбрали " + data, queryId);
         Mockito.verify(userServiceMock).getUserState(chatId);
         Mockito.verifyNoInteractions(databaseServiceMock);
     }
@@ -135,5 +143,26 @@ public class CallbackQueryProcessorTest {
 
         Mockito.verify(databaseServiceMock).changeDB(chatId, DataType.IN_GOOGLE_SHEET);
         Mockito.verify(userServiceMock).setUserState(chatId, ChatState.NOTHING_WAITING);
+    }
+
+    /**
+     * Тест для метода {@link CallbackQueryProcessor#processCallbackQuery(String, Long, String)}.
+     * Проверяет корректную обработку GoogleSheetsException.
+     */
+    @Test
+    void testProcessCallbackQuery_ChangeDBWithGoogleSheetsException() {
+        String data = "Гугл-таблица";
+        String queryId = "queryId";
+
+        Mockito.when(userServiceMock.getUserState(chatId)).thenReturn(ChatState.WAITING_FOR_TYPE_DB_FOR_CHANGE_DB);
+        Mockito.when(userServiceMock.getDataType(chatId)).thenReturn(DataType.IN_MEMORY);
+        Mockito.when(userServiceMock.getGoogleSheetId(chatId)).thenReturn("https://example.com");
+        GoogleSheetsException exception = new GoogleSheetsException(new Exception());
+        Mockito.doThrow(exception).when(databaseServiceMock).changeDB(chatId, DataType.IN_GOOGLE_SHEET);
+
+        queryProcessor.processCallbackQuery(data, chatId, queryId);
+
+        Mockito.verify(botController).sendMessage("Во время смены базы данных произошла ошибка", chatId);
+        Mockito.verify(exceptionHandler).handleGoogleSheetsException(exception, chatId);
     }
 }

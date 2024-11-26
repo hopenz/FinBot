@@ -66,7 +66,9 @@ public class GoogleSheetsConverter {
      * @return список объектов Income
      */
     public List<Income> sheetFormatToIncomes(List<List<Object>> data) {
-        if (data == null) return List.of();
+        if (data == null) {
+            return List.of();
+        }
         List<Income> result = new ArrayList<>(data.size());
         for (List<Object> row : data) {
             result.add(new Income((String) row.get(0), Double.parseDouble((String) row.get(1)),
@@ -82,7 +84,9 @@ public class GoogleSheetsConverter {
      * @return список объектов Expense
      */
     public List<Expense> sheetFormatToExpenses(List<List<Object>> data) {
-        if (data == null) return List.of();
+        if (data == null) {
+            return List.of();
+        }
         List<Expense> result = new ArrayList<>(data.size());
         for (List<Object> row : data) {
             result.add(new Expense((String) row.get(0), Double.parseDouble((String) row.get(1)),
@@ -108,7 +112,9 @@ public class GoogleSheetsConverter {
      * @return значение типа Double
      */
     public Double sheetFormatToDouble(List<List<Object>> data) {
-        if (data == null) return 0.0;
+        if (data == null) {
+            return 0.0;
+        }
         return Double.parseDouble((String) data.getFirst().getFirst());
     }
 }

@@ -98,7 +98,7 @@ public class InMemoryExpenseDaoTest {
         expenseDao.addExpenses(chatId, expenses);
         expenseDao.removeExpenses(chatId);
 
-        Assertions.assertThat(expenseDao.getExpenses(chatId)).isNull();
+        Assertions.assertThat(expenseDao.getExpenses(chatId)).isEmpty();
     }
 
 

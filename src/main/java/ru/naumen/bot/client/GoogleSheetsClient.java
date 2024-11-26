@@ -20,6 +20,12 @@ import java.util.List;
  */
 @Service
 public class GoogleSheetsClient {
+
+    /**
+     * Путь к файлу с учетными данными Google API
+     */
+    private final static String credentialsPath = "src/main/resources/credentials.json";
+
     /**
      * Экземпляр сервиса Google Sheets
      */
@@ -29,16 +35,15 @@ public class GoogleSheetsClient {
      * Конструктор, который инициализирует сервис Google Sheets
      */
     public GoogleSheetsClient() throws GeneralSecurityException, IOException {
-        String credentialsPath = "src/main/resources/credentials.json";
-        FileInputStream serviceAccountStream = new FileInputStream(credentialsPath);
-
-        GoogleCredentials credentials = GoogleCredentials.fromStream(serviceAccountStream)
-                .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS));
-        sheetsService = new Sheets.Builder(GoogleNetHttpTransport.newTrustedTransport(),
-                GsonFactory.getDefaultInstance(),
-                new HttpCredentialsAdapter(credentials))
-                .setApplicationName("Google Sheets Integration")
-                .build();
+        try (FileInputStream serviceAccountStream = new FileInputStream(credentialsPath)) {
+            GoogleCredentials credentials = GoogleCredentials.fromStream(serviceAccountStream)
+                    .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS));
+            sheetsService = new Sheets.Builder(GoogleNetHttpTransport.newTrustedTransport(),
+                    GsonFactory.getDefaultInstance(),
+                    new HttpCredentialsAdapter(credentials))
+                    .setApplicationName("Google Sheets Integration")
+                    .build();
+        }
     }
 
     /**
@@ -93,7 +98,6 @@ public class GoogleSheetsClient {
                 .setRequests(Collections.singletonList(request));
 
         sheetsService.spreadsheets().batchUpdate(spreadsheetId, batchUpdateRequest).execute();
-
     }
 
     /**
@@ -107,7 +111,6 @@ public class GoogleSheetsClient {
         ValueRange response = sheetsService.spreadsheets().values()
                 .get(spreadsheetId, range)
                 .execute();
-
         return response.getValues();
     }
 
@@ -120,7 +123,6 @@ public class GoogleSheetsClient {
      */
     public void appendData(String range, List<List<Object>> values, String spreadsheetId) throws IOException {
         ValueRange body = new ValueRange().setValues(values);
-
         sheetsService.spreadsheets().values()
                 .append(spreadsheetId, range, body)
                 .setValueInputOption("USER_ENTERED")
@@ -138,13 +140,10 @@ public class GoogleSheetsClient {
      */
     public void updateData(String range, List<List<Object>> values, String spreadsheetId) throws IOException {
         ValueRange body = new ValueRange().setValues(values);
-
-
         sheetsService.spreadsheets().values()
                 .update(spreadsheetId, range, body)
                 .setValueInputOption("RAW")
                 .execute();
-
     }
 
     /**
@@ -155,9 +154,7 @@ public class GoogleSheetsClient {
      */
     public void clearSheet(String range, String spreadsheetId) throws IOException {
         ClearValuesRequest clearRequest = new ClearValuesRequest();
-
         sheetsService.spreadsheets().values().clear(spreadsheetId, range, clearRequest).execute();
-
     }
 }
 

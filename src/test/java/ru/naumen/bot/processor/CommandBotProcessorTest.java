@@ -7,8 +7,10 @@ import ru.naumen.bot.controller.BotController;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.Income;
+import ru.naumen.bot.exception.GoogleSheetsException;
 import ru.naumen.bot.interaction.Commands;
 import ru.naumen.bot.interaction.keyboards.TypeDBKeyboard;
+import ru.naumen.bot.processor.exception.handler.GoogleSheetsExceptionHandler;
 import ru.naumen.bot.service.BalanceService;
 import ru.naumen.bot.service.ExpenseService;
 import ru.naumen.bot.service.IncomeService;
@@ -49,6 +51,11 @@ public class CommandBotProcessorTest {
     private BalanceService balanceServiceMock;
 
     /**
+     * Мок-объект для {@link GoogleSheetsExceptionHandler}, используемый для обработки исключений Google Sheets.
+     */
+    private GoogleSheetsExceptionHandler exceptionHandler;
+
+    /**
      * Тестируемый объект {@link CommandBotProcessor}, который проверяется в данном тестовом классе.
      */
     private CommandBotProcessor commandBotProcessor;
@@ -68,8 +75,10 @@ public class CommandBotProcessorTest {
         incomeServiceMock = Mockito.mock(IncomeService.class);
         expenseServiceMock = Mockito.mock(ExpenseService.class);
         balanceServiceMock = Mockito.mock(BalanceService.class);
+        exceptionHandler = Mockito.mock(GoogleSheetsExceptionHandler.class);
+
         commandBotProcessor = new CommandBotProcessor(botController, userServiceMock, balanceServiceMock,
-                incomeServiceMock, expenseServiceMock);
+                incomeServiceMock, expenseServiceMock, exceptionHandler);
     }
 
     /**
@@ -83,7 +92,7 @@ public class CommandBotProcessorTest {
         commandBotProcessor.processCommand(Commands.START_COMMAND.getCommand(), chatId);
 
         Mockito.verify(userServiceMock).openChat(chatId);
-        Mockito.verify(botController).sendMessageWithInlineKeyboard(
+        Mockito.verify(botController).sendMessage(
                 "Здравствуйте! Как вы хотите хранить данные?", chatId,
                 Arrays.stream(TypeDBKeyboard.values())
                         .map(TypeDBKeyboard::getData)
@@ -107,6 +116,22 @@ public class CommandBotProcessorTest {
     }
 
     /**
+     * Тест для обработки команды INCOMES_COMMAND при возникновении исключения GoogleSheetsException.
+     * Проверяет, что бот отправляет сообщение об ошибке и вызывает обработчик исключений.
+     */
+    @Test
+    void testProcessIncomeCommandWithGoogleSheetsException() {
+        Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(true);
+        GoogleSheetsException exception = new GoogleSheetsException(new Exception());
+        Mockito.when(incomeServiceMock.getIncomes(chatId)).thenThrow(exception);
+
+        commandBotProcessor.processCommand(Commands.INCOMES_COMMAND.getCommand(), chatId);
+
+        Mockito.verify(botController).sendMessage("Во время отправки доходов произошла ошибка", chatId);
+        Mockito.verify(exceptionHandler).handleGoogleSheetsException(exception, chatId);
+    }
+
+    /**
      * Тест для обработки команды EXPENSES_COMMAND. Проверяет, что бот отправляет список расходов пользователя.
      */
     @Test
@@ -124,6 +149,22 @@ public class CommandBotProcessorTest {
     }
 
     /**
+     * Тест для обработки команды EXPENSES_COMMAND при возникновении исключения GoogleSheetsException.
+     * Проверяет, что бот отправляет сообщение об ошибке и вызывает обработчик исключений.
+     */
+    @Test
+    void testProcessExpensesCommandWithGoogleSheetsException() {
+        Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(true);
+        GoogleSheetsException exception = new GoogleSheetsException(new Exception());
+        Mockito.when(expenseServiceMock.getExpenses(chatId)).thenThrow(exception);
+
+        commandBotProcessor.processCommand(Commands.EXPENSES_COMMAND.getCommand(), chatId);
+
+        Mockito.verify(botController).sendMessage("Во время отправки расходов произошла ошибка", chatId);
+        Mockito.verify(exceptionHandler).handleGoogleSheetsException(exception, chatId);
+    }
+
+    /**
      * Тест для обработки команды BALANCE_COMMAND. Проверяет, что бот отправляет текущий баланс пользователя.
      */
     @Test
@@ -134,6 +175,22 @@ public class CommandBotProcessorTest {
         commandBotProcessor.processCommand(Commands.BALANCE_COMMAND.getCommand(), chatId);
 
         Mockito.verify(botController).sendMessage("Ваш баланс: 100.0", chatId);
+    }
+
+    /**
+     * Тест для обработки команды BALANCE_COMMAND при возникновении исключения GoogleSheetsException.
+     * Проверяет, что бот отправляет сообщение об ошибке и вызывает обработчик исключений.
+     */
+    @Test
+    void testProcessBalanceCommandWithGoogleSheetsException() {
+        Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(true);
+        GoogleSheetsException exception = new GoogleSheetsException(new Exception());
+        Mockito.when(balanceServiceMock.getBalance(chatId)).thenThrow(exception);
+
+        commandBotProcessor.processCommand(Commands.BALANCE_COMMAND.getCommand(), chatId);
+
+        Mockito.verify(botController).sendMessage("Во время отправки баланса произошла ошибка", chatId);
+        Mockito.verify(exceptionHandler).handleGoogleSheetsException(exception, chatId);
     }
 
     /**
@@ -148,7 +205,7 @@ public class CommandBotProcessorTest {
         commandBotProcessor.processCommand(Commands.CHANGE_DB_COMMAND.getCommand(), chatId);
 
         Mockito.verify(userServiceMock).setUserState(chatId, ChatState.WAITING_FOR_TYPE_DB_FOR_CHANGE_DB);
-        Mockito.verify(botController).sendMessageWithInlineKeyboard("Выберите базу данных", chatId,
+        Mockito.verify(botController).sendMessage("Выберите базу данных", chatId,
                 Arrays.stream(TypeDBKeyboard.values())
                         .map(TypeDBKeyboard::getData)
                         .toList());
