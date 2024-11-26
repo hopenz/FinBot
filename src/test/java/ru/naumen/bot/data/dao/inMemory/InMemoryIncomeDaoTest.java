@@ -99,6 +99,6 @@ public class InMemoryIncomeDaoTest {
         incomeDao.addIncomes(chatId, incomes);
         incomeDao.removeIncomes(chatId);
 
-        Assertions.assertThat(incomeDao.getIncomes(chatId)).isNull();
+        Assertions.assertThat(incomeDao.getIncomes(chatId)).isEmpty();
     }
 }

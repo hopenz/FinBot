@@ -6,7 +6,9 @@ import org.mockito.Mockito;
 import ru.naumen.bot.controller.BotController;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.DataType;
+import ru.naumen.bot.exception.GoogleSheetsException;
 import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.processor.exception.handler.GoogleSheetsExceptionHandler;
 import ru.naumen.bot.service.DatabaseService;
 import ru.naumen.bot.service.ExpenseService;
 import ru.naumen.bot.service.IncomeService;
@@ -43,6 +45,11 @@ public class MessageBotProcessorTest {
     private DatabaseService databaseServiceMock;
 
     /**
+     * Мок-объект для {@link GoogleSheetsExceptionHandler}, используемый для обработки исключений в Google Sheets.
+     */
+    private GoogleSheetsExceptionHandler exceptionHandler;
+
+    /**
      * Тестируемый объект {@link MessageBotProcessor}, который проверяется в данном тестовом классе.
      */
     private MessageBotProcessor messageBotProcessor;
@@ -62,8 +69,10 @@ public class MessageBotProcessorTest {
         expenseServiceMock = Mockito.mock(ExpenseService.class);
         userServiceMock = Mockito.mock(UserService.class);
         databaseServiceMock = Mockito.mock(DatabaseService.class);
+        exceptionHandler = Mockito.mock(GoogleSheetsExceptionHandler.class);
+
         messageBotProcessor = new MessageBotProcessor(botController, incomeServiceMock, expenseServiceMock,
-                userServiceMock, databaseServiceMock);
+                userServiceMock, databaseServiceMock, exceptionHandler);
     }
 
     /**
@@ -94,9 +103,29 @@ public class MessageBotProcessorTest {
 
         Mockito.verify(userServiceMock).setGoogleSheetId(chatId, googleSheetLink);
         Mockito.verify(botController).sendMessage("Создаю страницы документа, подготавливаю к работе …\n", chatId);
-        Mockito.verify(databaseServiceMock).createGoogleSheetsDB(chatId);
         Mockito.verify(databaseServiceMock).changeDB(chatId, DataType.IN_GOOGLE_SHEET);
         Mockito.verify(botController).sendMessage("Бот готов к работе!", chatId);
+    }
+
+    /**
+     * Тест для обработки сообщения с валидной ссылкой на Google Sheet, когда бот ожидает ссылку
+     * и возникает GoogleSheetsException.
+     * Проверяет, что бот отправляет сообщение об ошибке и вызывает обработчик исключений.
+     */
+    @Test
+    void testProcessMessage_withValidGoogleSheetLinkAndGoogleSheetsException() {
+        Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(true);
+        Mockito.when(userServiceMock.getUserState(chatId)).thenReturn(ChatState.WAITING_FOR_GOOGLE_SHEET_LINK);
+        GoogleSheetsException exception = new GoogleSheetsException(new Exception());
+        Mockito.doThrow(exception).when(databaseServiceMock).changeDB(chatId, DataType.IN_GOOGLE_SHEET);
+
+        String googleSheetLink = "https://docs.google.com/spreadsheets/d/validSheetID";
+        messageBotProcessor.processMessage(googleSheetLink, chatId);
+
+        Mockito.verify(userServiceMock).setGoogleSheetId(chatId, googleSheetLink);
+        Mockito.verify(botController).sendMessage("Создаю страницы документа, подготавливаю к работе …\n", chatId);
+        Mockito.verify(botController).sendMessage("Во время инициализации таблицы произошла ошибка", chatId);
+        Mockito.verify(exceptionHandler).handleGoogleSheetsException(exception, chatId);
     }
 
     /**
@@ -130,6 +159,23 @@ public class MessageBotProcessorTest {
     }
 
     /**
+     * Тест для обработки добавления дохода, при возникновении GoogleSheetsException.
+     * Проверяет, что бот отправляет сообщение об ошибке и вызывает обработчик исключений.
+     */
+    @Test
+    void testProcessAddIncomeWithGoogleSheetsException() {
+        Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(true);
+        Mockito.when(userServiceMock.getUserState(chatId)).thenReturn(ChatState.NOTHING_WAITING);
+        GoogleSheetsException exception = new GoogleSheetsException(new Exception());
+        Mockito.doThrow(exception).when(incomeServiceMock).addIncome("+ 100 чаевые", chatId);
+
+        messageBotProcessor.processMessage("+ 100 чаевые", chatId);
+
+        Mockito.verify(botController).sendMessage("Во время добавления дохода произошла ошибка", chatId);
+        Mockito.verify(exceptionHandler).handleGoogleSheetsException(exception, chatId);
+    }
+
+    /**
      * Тест для обработки добавления расхода. Проверяет, что метод
      * добавления расхода вызывается корректно и отправляется сообщение об успехе.
      */
@@ -142,6 +188,23 @@ public class MessageBotProcessorTest {
 
         Mockito.verify(expenseServiceMock).addExpense("- 100 автобус", chatId);
         Mockito.verify(botController).sendMessage("Расход успешно добавлен!", chatId);
+    }
+
+    /**
+     * Тест для обработки добавления расхода, при возникновении GoogleSheetsException.
+     * Проверяет, что бот отправляет сообщение об ошибке и вызывает обработчик исключений.
+     */
+    @Test
+    void testProcessAddExpenseWithGoogleSheetsException() {
+        Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(true);
+        Mockito.when(userServiceMock.getUserState(chatId)).thenReturn(ChatState.NOTHING_WAITING);
+        GoogleSheetsException exception = new GoogleSheetsException(new Exception());
+        Mockito.doThrow(exception).when(expenseServiceMock).addExpense("- 100 автобус", chatId);
+
+        messageBotProcessor.processMessage("- 100 автобус", chatId);
+
+        Mockito.verify(botController).sendMessage("Во время добавления расхода произошла ошибка", chatId);
+        Mockito.verify(exceptionHandler).handleGoogleSheetsException(exception, chatId);
     }
 
     /**

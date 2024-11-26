@@ -17,7 +17,6 @@ public interface BalanceDao {
      * Возвращает баланс пользователя для указанного идентификатора
      *
      * @param chatId идентификатор чата, из которого необходимо вернуть баланс
-     * @return баланс пользователя
      */
     Double getBalance(long chatId);
 
