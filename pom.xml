@@ -22,6 +22,7 @@
         <google-http-client-jackson2.version>1.45.0</google-http-client-jackson2.version>
         <spring-context.version>6.1.14</spring-context.version>
         <xmlunit-core.version>2.10.0</xmlunit-core.version>
+        <tomcat-embed-core.version>11.0.1</tomcat-embed-core.version>
     </properties>
 
     <dependencies>
@@ -119,6 +120,14 @@
                 <version>${xmlunit-core.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <!-- Зависимость для решения уязвимости spring-boot-starter-web-->
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>${tomcat-embed-core.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
