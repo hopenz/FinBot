@@ -1,10 +1,13 @@
 package ru.naumen.bot.processor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.controller.BotController;
+import ru.naumen.bot.data.dao.googleSheets.exception.GoogleSheetsException;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.DataType;
-import ru.naumen.bot.exception.GoogleSheetsException;
+import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.interaction.Commands;
 import ru.naumen.bot.interaction.keyboards.TypeDBKeyboard;
 import ru.naumen.bot.processor.exception.handler.GoogleSheetsExceptionHandler;
@@ -37,6 +40,11 @@ public class CallbackQueryProcessor {
      * Обработчик исключений Google Sheets.
      */
     private final GoogleSheetsExceptionHandler exceptionHandler;
+
+    /**
+     * Логгер для записи сообщений об ошибках
+     */
+    private final Logger logger = LoggerFactory.getLogger(CommandBotProcessor.class);
 
     /**
      * Конструктор CallbackQueryProcessor.
@@ -97,6 +105,9 @@ public class CallbackQueryProcessor {
         } catch (GoogleSheetsException exception) {
             botController.sendMessage("Во время смены базы данных произошла ошибка", chatId);
             exceptionHandler.handleGoogleSheetsException(exception, chatId);
+            return;
+        } catch (DaoException exception) {
+            logger.error(exception.getMessage(), exception);
             return;
         }
         userService.setUserState(chatId, ChatState.NOTHING_WAITING);

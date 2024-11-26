@@ -3,7 +3,7 @@ package ru.naumen.bot.data.dao.googleSheets;
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.client.GoogleSheetsClient;
 import ru.naumen.bot.data.dao.BalanceDao;
-import ru.naumen.bot.exception.GoogleSheetsException;
+import ru.naumen.bot.data.dao.googleSheets.exception.GoogleSheetsException;
 import ru.naumen.bot.service.UserService;
 import ru.naumen.bot.utils.GoogleSheetsConverter;
 
@@ -46,7 +46,7 @@ public class GoogleSheetsBalanceDao implements BalanceDao {
     }
 
     @Override
-    public void setBalance(long chatId, double newBalance) {
+    public void setBalance(long chatId, double newBalance) throws GoogleSheetsException {
         List<List<Object>> value = googleSheetsConverter.doubleToSheetFormat(newBalance);
         String googleSheetId = userService.getGoogleSheetId(chatId);
         try {
@@ -58,7 +58,7 @@ public class GoogleSheetsBalanceDao implements BalanceDao {
     }
 
     @Override
-    public Double getBalance(long chatId) {
+    public Double getBalance(long chatId) throws GoogleSheetsException {
         List<List<Object>> data;
         try {
             data = googleSheetsClient.readData("Общая информация!B1",
@@ -70,7 +70,7 @@ public class GoogleSheetsBalanceDao implements BalanceDao {
     }
 
     @Override
-    public void removeBalance(long chatId) {
+    public void removeBalance(long chatId) throws GoogleSheetsException {
         try {
             googleSheetsClient.clearSheet("Общая информация!B1", userService.getGoogleSheetId(chatId));
         } catch (IOException e) {

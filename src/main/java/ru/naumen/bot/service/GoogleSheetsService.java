@@ -2,6 +2,7 @@ package ru.naumen.bot.service;
 
 import org.springframework.stereotype.Service;
 import ru.naumen.bot.data.dao.googleSheets.GoogleSheetsDao;
+import ru.naumen.bot.exception.DaoException;
 
 /**
  * Сервис для взаимодействия с Google Sheets.
@@ -28,7 +29,7 @@ public class GoogleSheetsService {
      *
      * @param chatId идентификатор чата, для которого инициализируется таблица
      */
-    public void initGoogleSheets(long chatId) {
+    public void initGoogleSheets(long chatId) throws DaoException {
         googleSheetsDao.initGoogleSheets(chatId);
     }
 }

@@ -2,7 +2,8 @@ package ru.naumen.bot.data.dao.googleSheets;
 
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.client.GoogleSheetsClient;
-import ru.naumen.bot.exception.GoogleSheetsException;
+import ru.naumen.bot.data.dao.googleSheets.exception.GoogleSheetsException;
+import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.service.UserService;
 
 import java.io.IOException;
@@ -41,7 +42,7 @@ public class GoogleSheetsDao {
      *
      * @param chatId идентификатор чата, для которого инициализируется таблица
      */
-    public void initGoogleSheets(long chatId) {
+    public void initGoogleSheets(long chatId) throws DaoException {
         String googleSheetId = userService.getGoogleSheetId(chatId);
         try {
             googleSheetsClient.updateSpreadsheetTitle("FinBot", googleSheetId);

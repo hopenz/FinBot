@@ -5,6 +5,7 @@ import ru.naumen.bot.data.dao.BalanceDao;
 import ru.naumen.bot.data.dao.DaoProvider;
 import ru.naumen.bot.data.dao.ExpenseDao;
 import ru.naumen.bot.data.entity.Expense;
+import ru.naumen.bot.exception.DaoException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -35,7 +36,7 @@ public class ExpenseService {
      * @param chatId идентификатор чата, в котором было отправлено сообщение
      * @return список объектов {@link Expense}, представляющих расходы пользователя.
      */
-    public List<Expense> getExpenses(long chatId) {
+    public List<Expense> getExpenses(long chatId) throws DaoException {
         ExpenseDao expenseDao = daoProvider.getExpenseDaoForUser(chatId);
         return expenseDao.getExpenses(chatId);
     }
@@ -46,7 +47,7 @@ public class ExpenseService {
      * @param expense сообщение от пользователя.
      * @param chatId  идентификатор чата, в котором было отправлено сообщение
      */
-    public void addExpense(String expense, long chatId) {
+    public void addExpense(String expense, long chatId) throws DaoException {
         ExpenseDao expenseDao = daoProvider.getExpenseDaoForUser(chatId);
         BalanceDao balanceDao = daoProvider.getBalanceDaoForUser(chatId);
         String[] arrayOfStringExpense = expense.split(" ", 3);
@@ -63,7 +64,7 @@ public class ExpenseService {
      * @param chatId   идентификатор чата, в котором было отправлено сообщение
      * @param expenses список объектов {@link Expense}, представляющих расходы пользователя.
      */
-    public void addExpenses(long chatId, List<Expense> expenses) {
+    public void addExpenses(long chatId, List<Expense> expenses) throws DaoException {
         ExpenseDao expenseDao = daoProvider.getExpenseDaoForUser(chatId);
         expenseDao.addExpenses(chatId, expenses);
     }
@@ -73,7 +74,7 @@ public class ExpenseService {
      *
      * @param chatId идентификатор чата, в котором было отправлено сообщение
      */
-    public void removeExpenses(long chatId) {
+    public void removeExpenses(long chatId) throws DaoException {
         ExpenseDao expenseDao = daoProvider.getExpenseDaoForUser(chatId);
         expenseDao.removeExpenses(chatId);
     }

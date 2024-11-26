@@ -4,9 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.naumen.bot.controller.BotController;
+import ru.naumen.bot.data.dao.googleSheets.exception.GoogleSheetsException;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.DataType;
-import ru.naumen.bot.exception.GoogleSheetsException;
+import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.processor.exception.handler.GoogleSheetsExceptionHandler;
 import ru.naumen.bot.service.DatabaseService;
 import ru.naumen.bot.service.UserService;
@@ -131,7 +132,7 @@ public class CallbackQueryProcessorTest {
      * Проверяет корректную смену базы данных.
      */
     @Test
-    void testProcessCallbackQuery_ChangeDBSuccessfully() {
+    void testProcessCallbackQuery_ChangeDBSuccessfully() throws DaoException {
         String data = "Гугл-таблица";
         String queryId = "queryId";
 
@@ -150,7 +151,7 @@ public class CallbackQueryProcessorTest {
      * Проверяет корректную обработку GoogleSheetsException.
      */
     @Test
-    void testProcessCallbackQuery_ChangeDBWithGoogleSheetsException() {
+    void testProcessCallbackQuery_ChangeDBWithGoogleSheetsException() throws DaoException {
         String data = "Гугл-таблица";
         String queryId = "queryId";
 

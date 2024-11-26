@@ -8,6 +8,7 @@ import ru.naumen.bot.data.dao.BalanceDao;
 import ru.naumen.bot.data.dao.DaoProvider;
 import ru.naumen.bot.data.dao.IncomeDao;
 import ru.naumen.bot.data.entity.Income;
+import ru.naumen.bot.exception.DaoException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -55,7 +56,7 @@ public class IncomeServiceTest {
      * Проверяет, что метод возвращает корректный список доходов.
      */
     @Test
-    void testGetIncomes() {
+    void testGetIncomes() throws DaoException {
         List<Income> expectedIncomes = List.of(
                 new Income("Доход 1", 50.0, LocalDate.now()),
                 new Income("Доход 2", 20.0, LocalDate.now())
@@ -73,7 +74,7 @@ public class IncomeServiceTest {
      * Проверяет, что доход добавляется в хранилище и баланс обновляется корректно.
      */
     @Test
-    void testAddIncome() {
+    void testAddIncome() throws DaoException {
         String incomeMessage = "+ 30 Доход 1";
         Mockito.when(balanceDaoMock.getBalance(chatId)).thenReturn(100.0);
 
@@ -89,7 +90,7 @@ public class IncomeServiceTest {
      * Проверяет, что список доходов добавляется в хранилище.
      */
     @Test
-    void testAddIncomes() {
+    void testAddIncomes() throws DaoException {
         List<Income> incomes = List.of(
                 new Income("Доход 1", 50.0, LocalDate.now()),
                 new Income("Доход 2", 20.0, LocalDate.now())
@@ -105,7 +106,7 @@ public class IncomeServiceTest {
      * Проверяет, что доходы удаляются из хранилища.
      */
     @Test
-    void testRemoveIncomes() {
+    void testRemoveIncomes() throws DaoException {
         incomeService.removeIncomes(chatId);
 
         Mockito.verify(incomeDaoMock).removeIncomes(chatId);

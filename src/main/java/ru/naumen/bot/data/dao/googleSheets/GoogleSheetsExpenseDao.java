@@ -3,8 +3,8 @@ package ru.naumen.bot.data.dao.googleSheets;
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.client.GoogleSheetsClient;
 import ru.naumen.bot.data.dao.ExpenseDao;
+import ru.naumen.bot.data.dao.googleSheets.exception.GoogleSheetsException;
 import ru.naumen.bot.data.entity.Expense;
-import ru.naumen.bot.exception.GoogleSheetsException;
 import ru.naumen.bot.service.UserService;
 import ru.naumen.bot.utils.GoogleSheetsConverter;
 
@@ -48,7 +48,7 @@ public class GoogleSheetsExpenseDao implements ExpenseDao {
     }
 
     @Override
-    public List<Expense> getExpenses(long chatId) {
+    public List<Expense> getExpenses(long chatId) throws GoogleSheetsException {
         List<List<Object>> data;
         try {
             data = googleSheetsClient.readData("Расходы!A2:C",
@@ -61,7 +61,7 @@ public class GoogleSheetsExpenseDao implements ExpenseDao {
     }
 
     @Override
-    public void addExpense(long chatId, Expense newExpense) {
+    public void addExpense(long chatId, Expense newExpense) throws GoogleSheetsException {
         List<List<Object>> values = googleSheetsConverter.expenseToSheetFormat(newExpense);
         String googleSheetId = userService.getGoogleSheetId(chatId);
         try {
@@ -73,7 +73,7 @@ public class GoogleSheetsExpenseDao implements ExpenseDao {
     }
 
     @Override
-    public void addExpenses(long chatId, List<Expense> expenses) {
+    public void addExpenses(long chatId, List<Expense> expenses) throws GoogleSheetsException {
         List<List<Object>> values = googleSheetsConverter.expensesToSheetFormat(expenses);
         String googleSheetId = userService.getGoogleSheetId(chatId);
         try {
@@ -85,7 +85,7 @@ public class GoogleSheetsExpenseDao implements ExpenseDao {
     }
 
     @Override
-    public void removeExpenses(long chatId) {
+    public void removeExpenses(long chatId) throws GoogleSheetsException {
         try {
             googleSheetsClient.clearSheet("Расходы!A2:C", userService.getGoogleSheetId(chatId));
         } catch (IOException e) {

@@ -7,6 +7,7 @@ import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.DataType;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.Income;
+import ru.naumen.bot.exception.DaoException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -75,7 +76,7 @@ public class DatabaseServiceTest {
      * </ul>
      */
     @Test
-    void testChangeDBWithNewTypeInMemory() {
+    void testChangeDBWithNewTypeInMemory() throws DaoException {
         long chatId = 12345L;
         DataType newDataType = DataType.IN_MEMORY;
         List<Income> mockIncomes = List.of(new Income("Доход 1", 20.0, LocalDate.now()));
@@ -110,7 +111,7 @@ public class DatabaseServiceTest {
      * Проверяет инициализацию Google Sheets, если данные впервые переносятся в Google Sheets.
      */
     @Test
-    void testChangeDBWithNewTypeGoogleSheetAndInitTable() {
+    void testChangeDBWithNewTypeGoogleSheetAndInitTable() throws DaoException {
         long chatId = 12345L;
         DataType newDataType = DataType.IN_GOOGLE_SHEET;
         Mockito.when(userService.getUserState(chatId)).thenReturn(ChatState.WAITING_FOR_GOOGLE_SHEET_LINK);

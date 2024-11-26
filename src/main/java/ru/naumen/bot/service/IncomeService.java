@@ -5,6 +5,7 @@ import ru.naumen.bot.data.dao.BalanceDao;
 import ru.naumen.bot.data.dao.DaoProvider;
 import ru.naumen.bot.data.dao.IncomeDao;
 import ru.naumen.bot.data.entity.Income;
+import ru.naumen.bot.exception.DaoException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -35,7 +36,7 @@ public class IncomeService {
      * @param chatId идентификатор чата, в котором было отправлено сообщение
      * @return список объектов {@link Income}, представляющих доходы пользователя.
      */
-    public List<Income> getIncomes(long chatId) {
+    public List<Income> getIncomes(long chatId) throws DaoException {
         IncomeDao incomeDao = daoProvider.getIncomeDaoForUser(chatId);
         return incomeDao.getIncomes(chatId);
     }
@@ -46,7 +47,7 @@ public class IncomeService {
      * @param income сообщение от пользователя.
      * @param chatId идентификатор чата, в котором было отправлено сообщение
      */
-    public void addIncome(String income, long chatId) {
+    public void addIncome(String income, long chatId) throws DaoException {
         IncomeDao incomeDao = daoProvider.getIncomeDaoForUser(chatId);
         BalanceDao balanceDao = daoProvider.getBalanceDaoForUser(chatId);
         String[] arrayOfStringIncome = income.split(" ", 3);
@@ -63,7 +64,7 @@ public class IncomeService {
      * @param chatId  идентификатор чата, в котором было отправлено сообщение
      * @param incomes список объектов {@link Income}, представляющих расходы пользователя.
      */
-    public void addIncomes(long chatId, List<Income> incomes) {
+    public void addIncomes(long chatId, List<Income> incomes) throws DaoException {
         IncomeDao incomeDao = daoProvider.getIncomeDaoForUser(chatId);
         incomeDao.addIncomes(chatId, incomes);
     }
@@ -73,7 +74,7 @@ public class IncomeService {
      *
      * @param chatId идентификатор чата, в котором было отправлено сообщение
      */
-    public void removeIncomes(long chatId) {
+    public void removeIncomes(long chatId) throws DaoException {
         IncomeDao incomeDao = daoProvider.getIncomeDaoForUser(chatId);
         incomeDao.removeIncomes(chatId);
     }
