@@ -54,7 +54,7 @@ public class GoogleSheetsExpenseDao implements ExpenseDao {
             data = googleSheetsClient.readData("Расходы!A2:C",
                     userService.getGoogleSheetId(chatId));
         } catch (IOException e) {
-            throw new GoogleSheetsException(e.getMessage(), chatId, "Ошибка получения расходов");
+            throw new GoogleSheetsException(e);
         }
 
         return googleSheetsConverter.sheetFormatToExpenses(data);
@@ -67,7 +67,7 @@ public class GoogleSheetsExpenseDao implements ExpenseDao {
         try {
             googleSheetsClient.appendData("Расходы!A2:C", values, googleSheetId);
         } catch (IOException e) {
-            throw new GoogleSheetsException(e.getMessage(), chatId, "Ошибка добавления расхода");
+            throw new GoogleSheetsException(e);
         }
 
     }
@@ -79,7 +79,7 @@ public class GoogleSheetsExpenseDao implements ExpenseDao {
         try {
             googleSheetsClient.appendData("Расходы!A2:C", values, googleSheetId);
         } catch (IOException e) {
-            throw new GoogleSheetsException(e.getMessage(), chatId, "Ошибка добавления расходов");
+            throw new GoogleSheetsException(e);
         }
 
     }
@@ -89,7 +89,7 @@ public class GoogleSheetsExpenseDao implements ExpenseDao {
         try {
             googleSheetsClient.clearSheet("Расходы!A2:C", userService.getGoogleSheetId(chatId));
         } catch (IOException e) {
-            throw new GoogleSheetsException(e.getMessage(), chatId, "Ошибка удаления расходов");
+            throw new GoogleSheetsException(e);
         }
     }
 }

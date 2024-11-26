@@ -41,7 +41,7 @@ public class InMemoryIncomeDao implements IncomeDao {
 
     @Override
     public void removeIncomes(long chatId) {
-        usersIncomes.remove(chatId);
+        usersIncomes.get(chatId).clear();
     }
 
     /**

@@ -1,12 +1,13 @@
 package ru.naumen.bot.processor;
 
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.controller.BotController;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.DataType;
+import ru.naumen.bot.exception.GoogleSheetsException;
 import ru.naumen.bot.interaction.Commands;
 import ru.naumen.bot.interaction.keyboards.TypeDBKeyboard;
+import ru.naumen.bot.processor.exception.handler.GoogleSheetsExceptionHandler;
 import ru.naumen.bot.service.DatabaseService;
 import ru.naumen.bot.service.UserService;
 
@@ -33,17 +34,24 @@ public class CallbackQueryProcessor {
     private final DatabaseService databaseService;
 
     /**
+     * Обработчик исключений Google Sheets.
+     */
+    private final GoogleSheetsExceptionHandler exceptionHandler;
+
+    /**
      * Конструктор CallbackQueryProcessor.
      *
-     * @param botController   контроллер, отвечающий за управление ботом и взаимодействие с ним.
-     * @param userService     сервис для работы с данными о пользователях.
-     * @param databaseService сервис для управления базами данных.
+     * @param botController    контроллер, отвечающий за управление ботом и взаимодействие с ним.
+     * @param userService      сервис для работы с данными о пользователях.
+     * @param databaseService  сервис для управления базами данных.
+     * @param exceptionHandler обработчик исключений Google Sheets.
      */
-    public CallbackQueryProcessor(@Lazy BotController botController, UserService userService,
-                                  DatabaseService databaseService) {
+    public CallbackQueryProcessor(BotController botController, UserService userService,
+                                  DatabaseService databaseService, GoogleSheetsExceptionHandler exceptionHandler) {
         this.botController = botController;
         this.userService = userService;
         this.databaseService = databaseService;
+        this.exceptionHandler = exceptionHandler;
     }
 
     /**
@@ -56,7 +64,7 @@ public class CallbackQueryProcessor {
     public void processCallbackQuery(String data, Long chatId, String queryId) {
         ChatState chatState = userService.getUserState(chatId);
 
-        botController.sendAnswerCallbackQuery("Вы выбрали " + data, queryId);
+        botController.sendPopUpMessage("Вы выбрали " + data, queryId);
         switch (chatState) {
             case WAITING_FOR_TYPE_DB -> processTypeDBAfterStartCommand(data, chatId);
             case WAITING_FOR_TYPE_DB_FOR_CHANGE_DB -> processTypeDBForChangeDB(data, chatId);
@@ -83,7 +91,14 @@ public class CallbackQueryProcessor {
             requestGoogleSheetId(chatId);
             return;
         }
-        databaseService.changeDB(chatId, dataType);
+
+        try {
+            databaseService.changeDB(chatId, dataType);
+        } catch (GoogleSheetsException exception) {
+            botController.sendMessage("Во время смены базы данных произошла ошибка", chatId);
+            exceptionHandler.handleGoogleSheetsException(exception, chatId);
+            return;
+        }
         userService.setUserState(chatId, ChatState.NOTHING_WAITING);
         botController.sendMessage("Теперь ваши данные хранятся в '" + data + "'!", chatId);
     }

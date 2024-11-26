@@ -53,7 +53,7 @@ public class GoogleSheetsIncomeDao implements IncomeDao {
             data = googleSheetsClient.readData("Доходы!A2:C",
                     userService.getGoogleSheetId(chatId));
         } catch (IOException e) {
-            throw new GoogleSheetsException(e.getMessage(), chatId, "Ошибка получения доходов");
+            throw new GoogleSheetsException(e);
         }
 
         return googleSheetsConverter.sheetFormatToIncomes(data);
@@ -66,7 +66,7 @@ public class GoogleSheetsIncomeDao implements IncomeDao {
         try {
             googleSheetsClient.appendData("Доходы!A2:C", values, googleSheetId);
         } catch (IOException e) {
-            throw new GoogleSheetsException(e.getMessage(), chatId, "Ошибка добавления дохода");
+            throw new GoogleSheetsException(e);
         }
     }
 
@@ -77,7 +77,7 @@ public class GoogleSheetsIncomeDao implements IncomeDao {
         try {
             googleSheetsClient.appendData("Доходы!A2:C", values, googleSheetId);
         } catch (IOException e) {
-            throw new GoogleSheetsException(e.getMessage(), chatId, "Ошибка добавления доходов");
+            throw new GoogleSheetsException(e);
         }
 
     }
@@ -87,7 +87,7 @@ public class GoogleSheetsIncomeDao implements IncomeDao {
         try {
             googleSheetsClient.clearSheet("Доходы!A2:C", userService.getGoogleSheetId(chatId));
         } catch (IOException e) {
-            throw new GoogleSheetsException(e.getMessage(), chatId, "Ошибка удаления доходов");
+            throw new GoogleSheetsException(e);
         }
     }
 }

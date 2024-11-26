@@ -54,7 +54,7 @@ public class GoogleSheetsDao {
                     googleSheetId);
             googleSheetsClient.updateData("Общая информация!A1", List.of(List.of("Баланс:")), googleSheetId);
         } catch (IOException e) {
-            throw new GoogleSheetsException(e.getMessage(), chatId, "Ошибка инициализации таблицы");
+            throw new GoogleSheetsException(e);
         }
 
     }

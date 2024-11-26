@@ -1,13 +1,14 @@
 package ru.naumen.bot.processor;
 
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.controller.BotController;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.Income;
+import ru.naumen.bot.exception.GoogleSheetsException;
 import ru.naumen.bot.interaction.Commands;
 import ru.naumen.bot.interaction.keyboards.TypeDBKeyboard;
+import ru.naumen.bot.processor.exception.handler.GoogleSheetsExceptionHandler;
 import ru.naumen.bot.service.BalanceService;
 import ru.naumen.bot.service.ExpenseService;
 import ru.naumen.bot.service.IncomeService;
@@ -51,6 +52,11 @@ public class CommandBotProcessor {
     private final ExpenseService expenseService;
 
     /**
+     * Сервис для обработки исключений при работе с Google Sheets.
+     */
+    private final GoogleSheetsExceptionHandler exceptionHandler;
+
+    /**
      * Map для хранения команд, где ключ это текст команды, а значение соответствующий экземпляр {@link Commands}
      */
     private final Map<String, Commands> commandsMap = new Hashtable<>();
@@ -58,20 +64,22 @@ public class CommandBotProcessor {
     /**
      * Конструктор CommandBotProcessor.
      *
-     * @param botController  сервис для взаимодействия с ботом.
-     * @param userService    сервис для взаимодействия с данными пользователя.
-     * @param balanceService сервис для взаимодействия с балансом.
-     * @param incomeService  сервис для взаимодействия с доходами.
-     * @param expenseService сервис для взаимодействия с расходами.
+     * @param botController    сервис для взаимодействия с ботом.
+     * @param userService      сервис для взаимодействия с данными пользователя.
+     * @param balanceService   сервис для взаимодействия с балансом.
+     * @param incomeService    сервис для взаимодействия с доходами.
+     * @param expenseService   сервис для взаимодействия с расходами.
+     * @param exceptionHandler сервис для обработки исключений Google Sheets.
      */
-    public CommandBotProcessor(@Lazy BotController botController, UserService userService,
+    public CommandBotProcessor(BotController botController, UserService userService,
                                BalanceService balanceService, IncomeService incomeService,
-                               ExpenseService expenseService) {
+                               ExpenseService expenseService, GoogleSheetsExceptionHandler exceptionHandler) {
         this.botController = botController;
         this.userService = userService;
         this.balanceService = balanceService;
         this.incomeService = incomeService;
         this.expenseService = expenseService;
+        this.exceptionHandler = exceptionHandler;
 
         for (Commands command : Commands.values()) {
             commandsMap.put(command.getCommand(), command);
@@ -126,7 +134,7 @@ public class CommandBotProcessor {
      */
     private void processChangeDbCommand(long chatId) {
         userService.setUserState(chatId, ChatState.WAITING_FOR_TYPE_DB_FOR_CHANGE_DB);
-        botController.sendMessageWithInlineKeyboard("Выберите базу данных", chatId,
+        botController.sendMessage("Выберите базу данных", chatId,
                 Arrays.stream(TypeDBKeyboard.values())
                         .map(TypeDBKeyboard::getData)
                         .toList());
@@ -138,7 +146,15 @@ public class CommandBotProcessor {
      * @param chatId идентификатор чата, в котором была отправлена команда
      */
     private void processBalanceCommand(long chatId) {
-        Double balance = balanceService.getBalance(chatId);
+        Double balance;
+        try {
+            balance = balanceService.getBalance(chatId);
+        } catch (GoogleSheetsException exception) {
+            botController.sendMessage("Во время отправки баланса произошла ошибка", chatId);
+            exceptionHandler.handleGoogleSheetsException(exception, chatId);
+            return;
+        }
+
         botController.sendMessage("Ваш баланс: " + balance, chatId);
     }
 
@@ -165,7 +181,14 @@ public class CommandBotProcessor {
      * @param chatId идентификатор чата, в котором была отправлена команда
      */
     private void processIncomesCommand(long chatId) {
-        List<Income> incomeList = incomeService.getIncomes(chatId);
+        List<Income> incomeList;
+        try {
+            incomeList = incomeService.getIncomes(chatId);
+        } catch (GoogleSheetsException exception) {
+            botController.sendMessage("Во время отправки доходов произошла ошибка", chatId);
+            exceptionHandler.handleGoogleSheetsException(exception, chatId);
+            return;
+        }
         StringBuilder sb = new StringBuilder();
         sb.append("Ваши доходы:\n");
         for (Income income : incomeList) {
@@ -180,7 +203,14 @@ public class CommandBotProcessor {
      * @param chatId идентификатор чата, в котором была отправлена команда
      */
     private void processExpensesCommand(long chatId) {
-        List<Expense> expenseList = expenseService.getExpenses(chatId);
+        List<Expense> expenseList;
+        try {
+            expenseList = expenseService.getExpenses(chatId);
+        } catch (GoogleSheetsException exception) {
+            botController.sendMessage("Во время отправки расходов произошла ошибка", chatId);
+            exceptionHandler.handleGoogleSheetsException(exception, chatId);
+            return;
+        }
         StringBuilder sb = new StringBuilder();
         sb.append("Ваши расходы:\n");
         for (Expense expense : expenseList) {
@@ -201,7 +231,7 @@ public class CommandBotProcessor {
                             Commands.HELP_COMMAND.getCommand(), chatId);
         } else {
             userService.openChat(chatId);
-            botController.sendMessageWithInlineKeyboard(
+            botController.sendMessage(
                     "Здравствуйте! Как вы хотите хранить данные?",
                     chatId, Arrays.stream(TypeDBKeyboard.values())
                             .map(TypeDBKeyboard::getData)
