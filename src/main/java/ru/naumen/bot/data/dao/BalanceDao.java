@@ -1,24 +1,31 @@
 package ru.naumen.bot.data.dao;
 
+import ru.naumen.bot.exception.DaoException;
+
 /**
  * Интерфейс BalanceDao предоставляет методы работы с балансом пользователя.
- * Он включает в себя функционал вывода и установки текущего баланса пользователя.
  */
 public interface BalanceDao {
 
     /**
-     * Установить баланс пользователя для указанного идентификатора.
+     * Устанавливает баланс пользователя для указанного идентификатора.
      *
      * @param chatId     идентификатор чата, в котором необходимо установить баланс
      * @param newBalance сумма нового баланса
      */
-    void setBalance(long chatId, double newBalance);
+    void setBalance(long chatId, double newBalance) throws DaoException;
 
     /**
-     * Вернуть баланс пользователя для указанного идентификатора.
+     * Возвращает баланс пользователя для указанного идентификатора
      *
      * @param chatId идентификатор чата, из которого необходимо вернуть баланс
-     * @return текущий баланс пользователя
      */
-    Double getBalance(long chatId);
+    Double getBalance(long chatId) throws DaoException;
+
+    /**
+     * Удаляет баланс пользователя для указанного идентификатора
+     *
+     * @param chatId идентификатор чата, в котором необходимо удалить баланс
+     */
+    void removeBalance(long chatId) throws DaoException;
 }

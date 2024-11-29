@@ -16,6 +16,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.boot.version>3.3.4</spring.boot.version>
         <telegrambot.pengrad.version>7.9.1</telegrambot.pengrad.version>
+        <google-api-client.version>2.7.0</google-api-client.version>
+        <google-oauth-client-jetty.version>1.36.0</google-oauth-client-jetty.version>
+        <google-api-services-sheets.version>v4-rev20241008-2.0.0</google-api-services-sheets.version>
+        <google-http-client-jackson2.version>1.45.0</google-http-client-jackson2.version>
+        <spring-context.version>6.1.14</spring-context.version>
+        <xmlunit-core.version>2.10.0</xmlunit-core.version>
+        <tomcat-embed-core.version>10.1.31</tomcat-embed-core.version>
     </properties>
 
     <dependencies>
@@ -32,6 +39,26 @@
         <dependency>
             <groupId>com.github.pengrad</groupId>
             <artifactId>java-telegram-bot-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.oauth-client</groupId>
+            <artifactId>google-oauth-client-jetty</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-sheets</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client-jackson2</artifactId>
         </dependency>
     </dependencies>
 
@@ -55,6 +82,52 @@
                 <artifactId>java-telegram-bot-api</artifactId>
                 <version>${telegrambot.pengrad.version}</version>
             </dependency>
+
+            <!-- Google Sheet API -->
+            <dependency>
+                <groupId>com.google.api-client</groupId>
+                <artifactId>google-api-client</artifactId>
+                <version>${google-api-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.oauth-client</groupId>
+                <artifactId>google-oauth-client-jetty</artifactId>
+                <version>${google-oauth-client-jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.apis</groupId>
+                <artifactId>google-api-services-sheets</artifactId>
+                <version>${google-api-services-sheets.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.http-client</groupId>
+                <artifactId>google-http-client-jackson2</artifactId>
+                <version>${google-http-client-jackson2.version}</version>
+            </dependency>
+
+            <!--Зависимость для решения уязвимости spring-boot-starter-data-web-->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring-context.version}</version>
+            </dependency>
+
+            <!--Зависимость для решения уязвимости spring-boot-starter-test-->
+            <dependency>
+                <groupId>org.xmlunit</groupId>
+                <artifactId>xmlunit-core</artifactId>
+                <version>${xmlunit-core.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- Зависимость для решения уязвимости spring-boot-starter-web-->
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>${tomcat-embed-core.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

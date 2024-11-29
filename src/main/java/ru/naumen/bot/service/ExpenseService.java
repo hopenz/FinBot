@@ -2,8 +2,10 @@ package ru.naumen.bot.service;
 
 import org.springframework.stereotype.Service;
 import ru.naumen.bot.data.dao.BalanceDao;
+import ru.naumen.bot.data.dao.DaoProvider;
 import ru.naumen.bot.data.dao.ExpenseDao;
 import ru.naumen.bot.data.entity.Expense;
+import ru.naumen.bot.exception.DaoException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,25 +17,17 @@ import java.util.List;
 public class ExpenseService {
 
     /**
-     * DAO для работы с данными о расходах.
+     * Класс, предоставляющий доступ к DAO-объектам для работы с данными пользователей.
      */
-    private final ExpenseDao expenseDao;
+    private final DaoProvider daoProvider;
 
     /**
-     * Dao для работы с балансом.
-     */
-    private final BalanceDao balanceDao;
-
-
-    /**
-     * Конструктор ExpenseService. Реализует сервис с объектами DAO.
+     * Конструктор класса ExpenseService.
      *
-     * @param expenseDao DAO для работы с расходами.
-     * @param balanceDao DAO для работы с балансом.
+     * @param daoProvider объект, предоставляющий доступ к DAO-объектам для работы с данными пользователей.
      */
-    public ExpenseService(ExpenseDao expenseDao, BalanceDao balanceDao) {
-        this.expenseDao = expenseDao;
-        this.balanceDao = balanceDao;
+    public ExpenseService(DaoProvider daoProvider) {
+        this.daoProvider = daoProvider;
     }
 
     /**
@@ -42,22 +36,46 @@ public class ExpenseService {
      * @param chatId идентификатор чата, в котором было отправлено сообщение
      * @return список объектов {@link Expense}, представляющих расходы пользователя.
      */
-    public List<Expense> getExpenses(long chatId) {
+    public List<Expense> getExpenses(long chatId) throws DaoException {
+        ExpenseDao expenseDao = daoProvider.getExpenseDaoForUser(chatId);
         return expenseDao.getExpenses(chatId);
     }
 
     /**
-     * Добавляет расходы в хранилище и обновляет баланс.
+     * Добавляет расход в хранилище и обновляет баланс.
      *
      * @param expense сообщение от пользователя.
      * @param chatId  идентификатор чата, в котором было отправлено сообщение
      */
-    public void addExpense(String expense, long chatId) {
+    public void addExpense(String expense, long chatId) throws DaoException {
+        ExpenseDao expenseDao = daoProvider.getExpenseDaoForUser(chatId);
+        BalanceDao balanceDao = daoProvider.getBalanceDaoForUser(chatId);
         String[] arrayOfStringExpense = expense.split(" ", 3);
         Expense newExpense = new Expense(
                 arrayOfStringExpense[2], Double.parseDouble(arrayOfStringExpense[1]), LocalDate.now());
         expenseDao.addExpense(chatId, newExpense);
         balanceDao.setBalance(chatId,
                 balanceDao.getBalance(chatId) - Double.parseDouble(arrayOfStringExpense[1]));
+    }
+
+    /**
+     * Добавляет список расходов в хранилище и обновляет баланс.
+     *
+     * @param chatId   идентификатор чата, в котором было отправлено сообщение
+     * @param expenses список объектов {@link Expense}, представляющих расходы пользователя.
+     */
+    public void addExpenses(long chatId, List<Expense> expenses) throws DaoException {
+        ExpenseDao expenseDao = daoProvider.getExpenseDaoForUser(chatId);
+        expenseDao.addExpenses(chatId, expenses);
+    }
+
+    /**
+     * Удаляет расходы из хранилища.
+     *
+     * @param chatId идентификатор чата, в котором было отправлено сообщение
+     */
+    public void removeExpenses(long chatId) throws DaoException {
+        ExpenseDao expenseDao = daoProvider.getExpenseDaoForUser(chatId);
+        expenseDao.removeExpenses(chatId);
     }
 }

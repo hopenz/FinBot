@@ -2,8 +2,10 @@ package ru.naumen.bot.service;
 
 import org.springframework.stereotype.Service;
 import ru.naumen.bot.data.dao.BalanceDao;
+import ru.naumen.bot.data.dao.DaoProvider;
 import ru.naumen.bot.data.dao.IncomeDao;
 import ru.naumen.bot.data.entity.Income;
+import ru.naumen.bot.exception.DaoException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,25 +17,17 @@ import java.util.List;
 public class IncomeService {
 
     /**
-     * DAO для работы с данными о доходах.
+     * Класс, предоставляющий доступ к DAO-объектам для работы с данными пользователей.
      */
-    private final IncomeDao incomeDao;
+    private final DaoProvider daoProvider;
 
     /**
-     * Dao для работы с балансом.
-     */
-    private final BalanceDao balanceDao;
-
-
-    /**
-     * Конструктор IncomeService. Инициализирует сервис с объектами DAO.
+     * Конструктор класса IncomeService.
      *
-     * @param incomeDao  DAO для работы с доходами.
-     * @param balanceDao DAO для работы с балансом.
+     * @param daoProvider объект, предоставляющий доступ к DAO-объектам для работы с данными пользователей.
      */
-    public IncomeService(IncomeDao incomeDao, BalanceDao balanceDao) {
-        this.incomeDao = incomeDao;
-        this.balanceDao = balanceDao;
+    public IncomeService(DaoProvider daoProvider) {
+        this.daoProvider = daoProvider;
     }
 
     /**
@@ -42,22 +36,46 @@ public class IncomeService {
      * @param chatId идентификатор чата, в котором было отправлено сообщение
      * @return список объектов {@link Income}, представляющих доходы пользователя.
      */
-    public List<Income> getIncomes(long chatId) {
+    public List<Income> getIncomes(long chatId) throws DaoException {
+        IncomeDao incomeDao = daoProvider.getIncomeDaoForUser(chatId);
         return incomeDao.getIncomes(chatId);
     }
 
     /**
-     * Добавляет доходы в хранилище и обновляет баланс.
+     * Добавляет доход в хранилище и обновляет баланс.
      *
      * @param income сообщение от пользователя.
      * @param chatId идентификатор чата, в котором было отправлено сообщение
      */
-    public void addIncome(String income, long chatId) {
+    public void addIncome(String income, long chatId) throws DaoException {
+        IncomeDao incomeDao = daoProvider.getIncomeDaoForUser(chatId);
+        BalanceDao balanceDao = daoProvider.getBalanceDaoForUser(chatId);
         String[] arrayOfStringIncome = income.split(" ", 3);
         Income newIncome = new Income(
                 arrayOfStringIncome[2], Double.parseDouble(arrayOfStringIncome[1]), LocalDate.now());
         incomeDao.addIncome(chatId, newIncome);
         balanceDao.setBalance(chatId,
                 balanceDao.getBalance(chatId) + Double.parseDouble(arrayOfStringIncome[1]));
+    }
+
+    /**
+     * Добавляет список доходов в хранилище и обновляет баланс.
+     *
+     * @param chatId  идентификатор чата, в котором было отправлено сообщение
+     * @param incomes список объектов {@link Income}, представляющих расходы пользователя.
+     */
+    public void addIncomes(long chatId, List<Income> incomes) throws DaoException {
+        IncomeDao incomeDao = daoProvider.getIncomeDaoForUser(chatId);
+        incomeDao.addIncomes(chatId, incomes);
+    }
+
+    /**
+     * Удаляет доходы из хранилища.
+     *
+     * @param chatId идентификатор чата, в котором было отправлено сообщение
+     */
+    public void removeIncomes(long chatId) throws DaoException {
+        IncomeDao incomeDao = daoProvider.getIncomeDaoForUser(chatId);
+        incomeDao.removeIncomes(chatId);
     }
 }

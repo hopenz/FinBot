@@ -19,6 +19,11 @@ public class InMemoryExpenseDaoTest {
     private InMemoryExpenseDao expenseDao;
 
     /**
+     * Идентификатор чата, в котором происходит тестирование.
+     */
+    private final long chatId = 12345L;
+
+    /**
      * Инициализация {@link InMemoryExpenseDao} перед каждым тестом.
      */
     @BeforeEach
@@ -32,8 +37,6 @@ public class InMemoryExpenseDaoTest {
      */
     @Test
     void testGetExpensesReturnsNullForNewChat() {
-        long chatId = 12345L;
-
         Assertions.assertThat(expenseDao.getExpenses(chatId)).isNull();
     }
 
@@ -43,8 +46,6 @@ public class InMemoryExpenseDaoTest {
      */
     @Test
     void testCreateUserListInitializesEmptyExpenseList() {
-        long chatId = 12345L;
-
         expenseDao.createUserList(chatId);
 
         List<Expense> expenses = expenseDao.getExpenses(chatId);
@@ -56,8 +57,7 @@ public class InMemoryExpenseDaoTest {
      * Тест для проверки добавления расхода с помощью метода {@link InMemoryExpenseDao#addExpense(long, Expense)}.
      */
     @Test
-    void testAddExpense() {
-        long chatId = 12345L;
+    void testAddAndGetExpense() {
         Expense expense = new Expense("мяу", 15.0, LocalDate.now());
         expenseDao.createUserList(chatId);
 
@@ -66,5 +66,40 @@ public class InMemoryExpenseDaoTest {
         Assertions.assertThat(expenseDao.getExpenses(chatId)).hasSize(1);
         Assertions.assertThat(expenseDao.getExpenses(chatId)).contains(expense);
     }
+
+    /**
+     * Тест для проверки добавления расходов с помощью метода {@link InMemoryExpenseDao#addExpenses(long, List)}.
+     */
+    @Test
+    void testAddAndGetExpenses() {
+        List<Expense> expenses = List.of(
+                new Expense("Расход 1", 15.0, LocalDate.now()),
+                new Expense("Расход 2", 16.0, LocalDate.now())
+        );
+
+        expenseDao.createUserList(chatId);
+        expenseDao.addExpenses(chatId, expenses);
+
+        Assertions.assertThat(expenseDao.getExpenses(chatId)).hasSize(2);
+        Assertions.assertThat(expenseDao.getExpenses(chatId)).containsAll(expenses);
+    }
+
+    /**
+     * Тест для проверки удаления расходов с помощью метода {@link InMemoryExpenseDao#removeExpenses(long)}.
+     */
+    @Test
+    void testRemoveExpenses() {
+        List<Expense> expenses = List.of(
+                new Expense("Расход 1", 15.0, LocalDate.now()),
+                new Expense("Расход 2", 16.0, LocalDate.now())
+        );
+
+        expenseDao.createUserList(chatId);
+        expenseDao.addExpenses(chatId, expenses);
+        expenseDao.removeExpenses(chatId);
+
+        Assertions.assertThat(expenseDao.getExpenses(chatId)).isEmpty();
+    }
+
 
 }

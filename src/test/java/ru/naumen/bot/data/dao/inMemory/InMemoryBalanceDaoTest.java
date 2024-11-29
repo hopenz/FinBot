@@ -15,6 +15,11 @@ public class InMemoryBalanceDaoTest {
     private InMemoryBalanceDao balanceDao;
 
     /**
+     * Идентификатор чата, в котором происходит тестирование.
+     */
+    private final long chatId = 12345L;
+
+    /**
      * Инициализация {@link InMemoryBalanceDao} перед каждым тестом.
      */
     @BeforeEach
@@ -27,11 +32,20 @@ public class InMemoryBalanceDaoTest {
      */
     @Test
     void testSetBalanceAndGetBalance() {
-        long chatId = 12345L;
-
         Assertions.assertThat(balanceDao.getBalance(chatId)).isEqualTo(0.0);
         balanceDao.setBalance(chatId, 1.1);
 
         Assertions.assertThat(balanceDao.getBalance(chatId)).isEqualTo(1.1);
+    }
+
+    /**
+     * Тест для удаления баланса. Проверяет, что баланс корректно удаляется.
+     */
+    @Test
+    void testRemoveBalance() {
+        balanceDao.setBalance(chatId, 1.1);
+        balanceDao.removeBalance(chatId);
+
+        Assertions.assertThat(balanceDao.getBalance(chatId)).isEqualTo(0.0);
     }
 }

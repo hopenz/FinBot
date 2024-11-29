@@ -19,6 +19,12 @@ public class InMemoryIncomeDaoTest {
     private InMemoryIncomeDao incomeDao;
 
     /**
+     * Идентификатор чата, в котором происходит тестирование.
+     */
+    private final long chatId = 12345L;
+
+
+    /**
      * Инициализация {@link InMemoryIncomeDao} перед каждым тестом.
      */
     @BeforeEach
@@ -32,8 +38,6 @@ public class InMemoryIncomeDaoTest {
      */
     @Test
     void testGetIncomesReturnsNullForNewChat() {
-        long chatId = 12345L;
-
         Assertions.assertThat(incomeDao.getIncomes(chatId)).isNull();
     }
 
@@ -43,8 +47,6 @@ public class InMemoryIncomeDaoTest {
      */
     @Test
     void testCreateUserListInitializesEmptyIncomeList() {
-        long chatId = 12345L;
-
         incomeDao.createUserList(chatId);
 
         List<Income> incomes = incomeDao.getIncomes(chatId);
@@ -56,8 +58,7 @@ public class InMemoryIncomeDaoTest {
      * Тест для проверки добавления дохода с помощью метода {@link InMemoryIncomeDao#addIncome(long, Income)}.
      */
     @Test
-    void testAddIncome() {
-        long chatId = 12345L;
+    void testAddAndGetIncome() {
         Income income = new Income("мяу", 15.0, LocalDate.now());
         incomeDao.createUserList(chatId);
 
@@ -65,5 +66,39 @@ public class InMemoryIncomeDaoTest {
 
         Assertions.assertThat(incomeDao.getIncomes(chatId)).hasSize(1);
         Assertions.assertThat(incomeDao.getIncomes(chatId)).contains(income);
+    }
+
+    /**
+     * Тест для проверки добавления доходов с помощью метода {@link InMemoryIncomeDao#addIncomes(long, List)}.
+     */
+    @Test
+    void testAddAndGetIncomes() {
+        List<Income> incomes = List.of(
+                new Income("Доход 1", 15.0, LocalDate.now()),
+                new Income("Доход 2", 16.0, LocalDate.now())
+        );
+        incomeDao.createUserList(chatId);
+
+        incomeDao.addIncomes(chatId, incomes);
+
+        Assertions.assertThat(incomeDao.getIncomes(chatId)).hasSize(2);
+        Assertions.assertThat(incomeDao.getIncomes(chatId)).containsAll(incomes);
+    }
+
+    /**
+     * Тест для проверки удаления доходов с помощью метода {@link InMemoryIncomeDao#removeIncomes(long)}.
+     */
+    @Test
+    void testRemoveIncomes() {
+        List<Income> incomes = List.of(
+                new Income("Доход 1", 15.0, LocalDate.now()),
+                new Income("Доход 2", 16.0, LocalDate.now())
+        );
+
+        incomeDao.createUserList(chatId);
+        incomeDao.addIncomes(chatId, incomes);
+        incomeDao.removeIncomes(chatId);
+
+        Assertions.assertThat(incomeDao.getIncomes(chatId)).isEmpty();
     }
 }

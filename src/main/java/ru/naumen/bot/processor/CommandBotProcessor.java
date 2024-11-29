@@ -1,17 +1,24 @@
 package ru.naumen.bot.processor;
 
-import org.springframework.context.annotation.Lazy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import ru.naumen.bot.command.Commands;
 import ru.naumen.bot.controller.BotController;
+import ru.naumen.bot.data.dao.googleSheets.exception.GoogleSheetsException;
+import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.Income;
-import ru.naumen.bot.service.BalanceService;
-import ru.naumen.bot.service.ExpenseService;
-import ru.naumen.bot.service.IncomeService;
+import ru.naumen.bot.exception.DaoException;
+import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.interaction.keyboards.TypeDBKeyboard;
+import ru.naumen.bot.processor.exception.handler.GoogleSheetsExceptionHandler;
+import ru.naumen.bot.service.FinanceDataService;
 import ru.naumen.bot.service.UserService;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Класс {@link  CommandBotProcessor}, в котором происходит
@@ -31,19 +38,19 @@ public class CommandBotProcessor {
     private final UserService userService;
 
     /**
-     * Сервис для взаимодействия с балансом.
+     * Сервис для взаимодействия с данными о финансах.
      */
-    private final BalanceService balanceService;
+    private final FinanceDataService financeDataService;
 
     /**
-     * Сервис для взаимодействия с доходами.
+     * Сервис для обработки исключений при работе с Google Sheets.
      */
-    private final IncomeService incomeService;
+    private final GoogleSheetsExceptionHandler exceptionHandler;
 
     /**
-     * Сервис для взаимодействия с расходами.
+     * Логгер для записи сообщений об ошибках
      */
-    private final ExpenseService expenseService;
+    private final Logger logger = LoggerFactory.getLogger(CommandBotProcessor.class);
 
     /**
      * Map для хранения команд, где ключ это текст команды, а значение соответствующий экземпляр {@link Commands}
@@ -53,19 +60,17 @@ public class CommandBotProcessor {
     /**
      * Конструктор CommandBotProcessor.
      *
-     * @param botController  сервис для взаимодействия с ботом.
-     * @param userService    сервис для взаимодействия с данными пользователя.
-     * @param balanceService сервис для взаимодействия с балансом.
-     * @param incomeService  сервис для взаимодействия с доходами.
-     * @param expenseService сервис для взаимодействия с расходами.
+     * @param botController      сервис для взаимодействия с ботом.
+     * @param userService        сервис для взаимодействия с данными пользователя.
+     * @param financeDataService сервис для взаимодействия с данными о финансах.
+     * @param exceptionHandler   сервис для обработки исключений Google Sheets.
      */
-    public CommandBotProcessor(@Lazy BotController botController, UserService userService, BalanceService balanceService,
-                               IncomeService incomeService, ExpenseService expenseService) {
+    public CommandBotProcessor(BotController botController, UserService userService,
+                               FinanceDataService financeDataService, GoogleSheetsExceptionHandler exceptionHandler) {
         this.botController = botController;
+        this.financeDataService = financeDataService;
         this.userService = userService;
-        this.balanceService = balanceService;
-        this.incomeService = incomeService;
-        this.expenseService = expenseService;
+        this.exceptionHandler = exceptionHandler;
 
         for (Commands command : Commands.values()) {
             commandsMap.put(command.getCommand(), command);
@@ -79,10 +84,20 @@ public class CommandBotProcessor {
      * @param chatId  идентификатор чата, в котором была отправлена команда
      */
     public void processCommand(String message, long chatId) {
-        if(commandsMap.containsKey(message)){
+        if (!userService.isChatOpened(chatId)) {
+            if (!message.equals(Commands.START_COMMAND.getCommand())) {
+                botController.sendMessage("Чтобы начать работу, нажмите " + Commands.START_COMMAND.getCommand(),
+                        chatId);
+                return;
+            }
+        } else {
+            userService.setUserState(chatId, ChatState.NOTHING_WAITING);
+        }
+
+        if (commandsMap.containsKey(message)) {
             executeCommand(commandsMap.get(message), chatId);
-        }else {
-            handleOther(chatId);
+        } else {
+            processOtherCommand(chatId);
         }
     }
 
@@ -94,12 +109,26 @@ public class CommandBotProcessor {
      */
     private void executeCommand(Commands command, long chatId) {
         switch (command) {
-            case START_COMMAND -> handleStart(chatId);
-            case EXPENSES_COMMAND -> handleExpenses(chatId);
-            case INCOME_COMMAND -> handleIncome(chatId);
-            case HELP_COMMAND -> handleHelp(chatId);
-            case BALANCE_COMMAND -> handleBalance(chatId);
+            case Commands.START_COMMAND -> processStartCommand(chatId);
+            case Commands.EXPENSES_COMMAND -> processExpensesCommand(chatId);
+            case Commands.INCOMES_COMMAND -> processIncomesCommand(chatId);
+            case Commands.HELP_COMMAND -> processHelpCommand(chatId);
+            case Commands.BALANCE_COMMAND -> processBalanceCommand(chatId);
+            case Commands.CHANGE_DB_COMMAND -> processChangeDbCommand(chatId);
         }
+    }
+
+    /**
+     * Команда для изменения базы данных.
+     *
+     * @param chatId идентификатор чата, в котором была отправлена команда
+     */
+    private void processChangeDbCommand(long chatId) {
+        userService.setUserState(chatId, ChatState.WAITING_FOR_TYPE_DB_FOR_CHANGE_DB);
+        botController.sendMessage("Выберите базу данных", chatId,
+                Arrays.stream(TypeDBKeyboard.values())
+                        .map(TypeDBKeyboard::getData)
+                        .toList());
     }
 
     /**
@@ -107,8 +136,20 @@ public class CommandBotProcessor {
      *
      * @param chatId идентификатор чата, в котором была отправлена команда
      */
-    private void handleBalance(long chatId) {
-        botController.sendMessage("Ваш баланс: " + balanceService.getBalance(chatId), chatId);
+    private void processBalanceCommand(long chatId) {
+        Double balance;
+        try {
+            balance = financeDataService.getBalance(chatId);
+        } catch (GoogleSheetsException exception) {
+            botController.sendMessage("Во время отправки баланса произошла ошибка", chatId);
+            exceptionHandler.handleGoogleSheetsException(exception, chatId);
+            return;
+        } catch (DaoException exception) {
+            logger.error(exception.getMessage(), exception);
+            return;
+        }
+
+        botController.sendMessage("Ваш баланс: " + balance, chatId);
     }
 
     /**
@@ -116,9 +157,9 @@ public class CommandBotProcessor {
      *
      * @param chatId идентификатор чата, в котором была отправлена команда
      */
-    private void handleHelp(long chatId) {
+    private void processHelpCommand(long chatId) {
         Commands[] arrayOfCommand = Commands.values();
-        StringBuilder stringHelp = new StringBuilder("Справка по всем командам:\n");
+        StringBuilder stringHelp = new StringBuilder("Справка по всем командам: \n");
         for (Commands command : arrayOfCommand) {
             stringHelp.append(command.getCommand()).append(" - ")
                     .append(command.getDescription()).append("\n");
@@ -133,8 +174,18 @@ public class CommandBotProcessor {
      *
      * @param chatId идентификатор чата, в котором была отправлена команда
      */
-    private void handleIncome(long chatId) {
-        List<Income> incomeList = incomeService.getIncomes(chatId);
+    private void processIncomesCommand(long chatId) {
+        List<Income> incomeList;
+        try {
+            incomeList = financeDataService.getIncomes(chatId);
+        } catch (GoogleSheetsException exception) {
+            botController.sendMessage("Во время отправки доходов произошла ошибка", chatId);
+            exceptionHandler.handleGoogleSheetsException(exception, chatId);
+            return;
+        } catch (DaoException exception) {
+            logger.error(exception.getMessage(), exception);
+            return;
+        }
         StringBuilder sb = new StringBuilder();
         sb.append("Ваши доходы:\n");
         for (Income income : incomeList) {
@@ -148,8 +199,18 @@ public class CommandBotProcessor {
      *
      * @param chatId идентификатор чата, в котором была отправлена команда
      */
-    private void handleExpenses(long chatId) {
-        List<Expense> expenseList = expenseService.getExpenses(chatId);
+    private void processExpensesCommand(long chatId) {
+        List<Expense> expenseList;
+        try {
+            expenseList = financeDataService.getExpenses(chatId);
+        } catch (GoogleSheetsException exception) {
+            botController.sendMessage("Во время отправки расходов произошла ошибка", chatId);
+            exceptionHandler.handleGoogleSheetsException(exception, chatId);
+            return;
+        } catch (DaoException exception) {
+            logger.error(exception.getMessage(), exception);
+            return;
+        }
         StringBuilder sb = new StringBuilder();
         sb.append("Ваши расходы:\n");
         for (Expense expense : expenseList) {
@@ -163,9 +224,19 @@ public class CommandBotProcessor {
      *
      * @param chatId идентификатор чата, в котором была отправлена команда
      */
-    private void handleStart(long chatId) {
-        userService.openChat(chatId);
-        botController.sendMessage("Давайте начнём", chatId);
+    private void processStartCommand(long chatId) {
+        if (userService.isChatOpened(chatId)) {
+            botController.sendMessage(
+                    "Ещё раз здравствуйте, чтобы ознакомиться с командами - напишите " +
+                            Commands.HELP_COMMAND.getCommand(), chatId);
+        } else {
+            userService.openChat(chatId);
+            botController.sendMessage(
+                    "Здравствуйте! Как вы хотите хранить данные?",
+                    chatId, Arrays.stream(TypeDBKeyboard.values())
+                            .map(TypeDBKeyboard::getData)
+                            .toList());
+        }
     }
 
     /**
@@ -173,26 +244,8 @@ public class CommandBotProcessor {
      *
      * @param chatId идентификатор чата, в котором была отправлена команда
      */
-    private void handleOther(long chatId) {
+    private void processOtherCommand(long chatId) {
         botController.sendMessage("Неизвестная команда", chatId);
     }
 
-    /**
-     * Проверка, открыт ли чат с пользователем или будет открыт
-     * после обработки текущего сообщения(в случае, если сообщение является командой /start)
-     *
-     * @param message сообщение от пользователя
-     * @param chatId  идентификатор чата, в котором была отправлена команда
-     * @return {@code  true}, чат с пользователем открыт, либо текущее сообщение является командой /start,
-     * {@code false} в противном случае
-     */
-    public boolean isChatActiveOrStarting(String message, long chatId) {
-        if (!Commands.START_COMMAND.getCommand().equals(message) && !userService.isChatOpened(chatId)) {
-            botController.sendMessage(
-                    "Чтобы начать работу, нажмите " + Commands.START_COMMAND.getCommand(), chatId
-            );
-            return false;
-        }
-        return true;
-    }
 }
