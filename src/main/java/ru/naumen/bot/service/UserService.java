@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import ru.naumen.bot.data.dao.inMemory.InMemoryBalanceDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryExpenseDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryIncomeDao;
-import ru.naumen.bot.data.dao.inMemory.InMemoryUserDao;
+import ru.naumen.bot.data.dao.UserDao;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.DataType;
 
@@ -27,7 +27,7 @@ public class UserService {
     /**
      * DAO для работы с пользователями.
      */
-    private final InMemoryUserDao userDao;
+    private final UserDao userDao;
 
     /**
      * DAO для управления балансом пользователя в памяти.
@@ -52,7 +52,7 @@ public class UserService {
      * @param inMemoryExpenseDao DAO для управления расходами пользователя в памяти.
      * @param inMemoryIncomeDao  DAO для управления доходами пользователя в памяти.
      */
-    public UserService(InMemoryUserDao userDao, InMemoryBalanceDao inMemoryBalanceDao,
+    public UserService(UserDao userDao, InMemoryBalanceDao inMemoryBalanceDao,
                        InMemoryExpenseDao inMemoryExpenseDao, InMemoryIncomeDao inMemoryIncomeDao) {
         this.userDao = userDao;
         this.inMemoryBalanceDao = inMemoryBalanceDao;

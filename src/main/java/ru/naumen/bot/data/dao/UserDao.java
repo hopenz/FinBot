@@ -1,4 +1,4 @@
-package ru.naumen.bot.data.dao.inMemory;
+package ru.naumen.bot.data.dao;
 
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.data.entity.ChatState;
@@ -14,7 +14,7 @@ import java.util.Map;
  * <p>Использует HashMap для хранения данных пользователей.
  */
 @Component
-public class InMemoryUserDao {
+public class UserDao {
 
     /**
      * Хранилище для данных пользователей, где ключом является идентификатор чата,
