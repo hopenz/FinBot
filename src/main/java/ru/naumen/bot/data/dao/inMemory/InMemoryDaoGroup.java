@@ -1,6 +1,7 @@
 package ru.naumen.bot.data.dao.inMemory;
 
 import org.springframework.stereotype.Component;
+import ru.naumen.bot.data.dao.UserDao;
 
 /**
  * Компонент, объединяющий DAO для операций в оперативной памяти.
@@ -11,7 +12,7 @@ public class InMemoryDaoGroup {
     /**
      * DAO для управления данными о пользователях в памяти.
      */
-    private final InMemoryUserDao inMemoryUserDao;
+    private final UserDao userDao;
 
     /**
      * DAO для управления балансом пользователя в памяти.
@@ -31,14 +32,14 @@ public class InMemoryDaoGroup {
     /**
      * Конструктор для инициализации всех зависимостей DAO.
      *
-     * @param inMemoryUserDao    DAO для управления пользователями.
+     * @param userDao    DAO для управления пользователями.
      * @param inMemoryBalanceDao DAO для управления балансом.
      * @param inMemoryExpenseDao DAO для управления расходами.
      * @param inMemoryIncomeDao  DAO для управления доходами.
      */
-    public InMemoryDaoGroup(InMemoryUserDao inMemoryUserDao, InMemoryBalanceDao inMemoryBalanceDao,
+    public InMemoryDaoGroup(UserDao userDao, InMemoryBalanceDao inMemoryBalanceDao,
                             InMemoryExpenseDao inMemoryExpenseDao, InMemoryIncomeDao inMemoryIncomeDao) {
-        this.inMemoryUserDao = inMemoryUserDao;
+        this.userDao = userDao;
         this.inMemoryBalanceDao = inMemoryBalanceDao;
         this.inMemoryExpenseDao = inMemoryExpenseDao;
         this.inMemoryIncomeDao = inMemoryIncomeDao;
@@ -47,8 +48,8 @@ public class InMemoryDaoGroup {
     /**
      * Возвращает DAO для управления данными о пользователях в памяти.
      */
-    public InMemoryUserDao getInMemoryUserDao() {
-        return inMemoryUserDao;
+    public UserDao getInMemoryUserDao() {
+        return userDao;
     }
 
     /**

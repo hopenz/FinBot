@@ -24,7 +24,7 @@ public class GoogleSheetsClient {
     /**
      * Путь к файлу с учетными данными Google API
      */
-    private final static String credentialsPath = "src/main/resources/credentials.json";
+    private final static String CREDENTIALS_PATH = "src/main/resources/credentials.json";
 
     /**
      * Экземпляр сервиса Google Sheets
@@ -35,7 +35,7 @@ public class GoogleSheetsClient {
      * Конструктор, который инициализирует сервис Google Sheets
      */
     public GoogleSheetsClient() throws GeneralSecurityException, IOException {
-        try (FileInputStream serviceAccountStream = new FileInputStream(credentialsPath)) {
+        try (FileInputStream serviceAccountStream = new FileInputStream(CREDENTIALS_PATH)) {
             GoogleCredentials credentials = GoogleCredentials.fromStream(serviceAccountStream)
                     .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS));
             sheetsService = new Sheets.Builder(GoogleNetHttpTransport.newTrustedTransport(),

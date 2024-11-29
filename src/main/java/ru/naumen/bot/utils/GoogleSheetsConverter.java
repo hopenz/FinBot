@@ -33,7 +33,8 @@ public class GoogleSheetsConverter {
      */
     public List<List<Object>> incomesToSheetFormat(List<Income> incomes) {
         return incomes.stream()
-                .map(income -> List.<Object>of(income.description(), income.amount(), "'" + income.date().toString()))
+                .map(income -> List.<Object>of(income.description(),
+                        income.amount(), "'" + income.date().toString()))
                 .collect(Collectors.toList());
     }
 
@@ -55,7 +56,8 @@ public class GoogleSheetsConverter {
      */
     public List<List<Object>> expensesToSheetFormat(List<Expense> expenses) {
         return expenses.stream()
-                .map(expense -> List.<Object>of(expense.description(), expense.amount(), "'" + expense.date().toString()))
+                .map(expense -> List.<Object>of(expense.description(),
+                        expense.amount(), "'" + expense.date().toString()))
                 .collect(Collectors.toList());
     }
 

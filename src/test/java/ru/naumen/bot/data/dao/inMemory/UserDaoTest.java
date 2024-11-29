@@ -3,18 +3,19 @@ package ru.naumen.bot.data.dao.inMemory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.naumen.bot.data.dao.UserDao;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.DataType;
 
 /**
- * Тесты для класса {@link InMemoryUserDao}, проверяющие функциональность управления пользователями.
+ * Тесты для класса {@link UserDao}, проверяющие функциональность управления пользователями.
  */
-public class InMemoryUserDaoTest {
+public class UserDaoTest {
 
     /**
-     * Тестируемый объект {@link InMemoryUserDao}, который проверяется в данном тестовом классе.
+     * Тестируемый объект {@link UserDao}, который проверяется в данном тестовом классе.
      */
-    private InMemoryUserDao userDao;
+    private UserDao userDao;
 
     /**
      * Идентификатор чата, в котором происходит тестирование.
@@ -22,15 +23,15 @@ public class InMemoryUserDaoTest {
     private final long chatId = 12345L;
 
     /**
-     * Инициализация {@link InMemoryUserDao} перед каждым тестом.
+     * Инициализация {@link UserDao} перед каждым тестом.
      */
     @BeforeEach
     void setUp() {
-        userDao = new InMemoryUserDao();
+        userDao = new UserDao();
     }
 
     /**
-     * Тест для проверки, что метод {@link InMemoryUserDao#checkChat(long)} возвращает false
+     * Тест для проверки, что метод {@link UserDao#checkChat(long)} возвращает false
      * для нового чата, который ещё не был открыт.
      */
     @Test
@@ -39,7 +40,7 @@ public class InMemoryUserDaoTest {
     }
 
     /**
-     * Тест для открытия чата и проверки, что метод {@link InMemoryUserDao#checkChat(long)}
+     * Тест для открытия чата и проверки, что метод {@link UserDao#checkChat(long)}
      * возвращает true после открытия чата.
      */
     @Test
@@ -50,7 +51,7 @@ public class InMemoryUserDaoTest {
     }
 
     /**
-     * Тест для проверки, что метод {@link InMemoryUserDao#getChatState(long)}
+     * Тест для проверки, что метод {@link UserDao#getChatState(long)}
      * возвращает состояние {@link ChatState#WAITING_FOR_TYPE_DB} после открытия чата.
      */
     @Test
@@ -62,7 +63,7 @@ public class InMemoryUserDaoTest {
 
     /**
      * Тест для установки и получения состояния чата. Проверяет, что состояние
-     * корректно обновляется и возвращается методом {@link InMemoryUserDao#getChatState(long)}.
+     * корректно обновляется и возвращается методом {@link UserDao#getChatState(long)}.
      */
     @Test
     void testSetAndGetChatState() {
@@ -74,7 +75,7 @@ public class InMemoryUserDaoTest {
     }
 
     /**
-     * Тест для проверки, что метод {@link InMemoryUserDao#getDataType(long)} возвращает
+     * Тест для проверки, что метод {@link UserDao#getDataType(long)} возвращает
      * тип данных {@link DataType#IN_MEMORY} после открытия чата.
      */
     @Test
@@ -86,7 +87,7 @@ public class InMemoryUserDaoTest {
 
     /**
      * Тест для установки и получения типа данных. Проверяет, что тип данных
-     * корректно обновляется и возвращается методом {@link InMemoryUserDao#getDataType(long)}.
+     * корректно обновляется и возвращается методом {@link UserDao#getDataType(long)}.
      */
     @Test
     void testSetAndGetDataType() {
@@ -99,7 +100,7 @@ public class InMemoryUserDaoTest {
 
     /**
      * Тест для установки и получения ссылки на Google Sheet. Проверяет, что ссылка
-     * корректно обновляется и возвращается методом {@link InMemoryUserDao#getGoogleSheetId(long)}.
+     * корректно обновляется и возвращается методом {@link UserDao#getGoogleSheetId(long)}.
      */
     @Test
     void testSetAndGetGoogleSheetId() {
@@ -112,7 +113,7 @@ public class InMemoryUserDaoTest {
     }
 
     /**
-     * Тест для проверки, что метод {@link InMemoryUserDao#getGoogleSheetId(long)} возвращает
+     * Тест для проверки, что метод {@link UserDao#getGoogleSheetId(long)} возвращает
      * null, если ссылка на Google Sheet не была установлена.
      */
     @Test
