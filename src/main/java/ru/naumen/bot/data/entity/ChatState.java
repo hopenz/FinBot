@@ -34,6 +34,10 @@ public enum ChatState {
     /**
      * Состояние ожидания выбора категории для вывода расходов по категории.
      */
-    WAITING_EXPENSE_CATEGORY_FOR_OUTPUT
+    WAITING_EXPENSE_CATEGORY_FOR_OUTPUT,
 
+    /**
+     * Состояние ожидания, когда пользователь вводит лимит на день.
+     */
+    WAITING_DAILY_LIMIT
 }

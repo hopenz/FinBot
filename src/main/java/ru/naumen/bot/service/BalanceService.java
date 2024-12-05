@@ -2,7 +2,7 @@ package ru.naumen.bot.service;
 
 import org.springframework.stereotype.Service;
 import ru.naumen.bot.data.dao.BalanceDao;
-import ru.naumen.bot.data.dao.DaoProvider;
+import ru.naumen.bot.data.dao.provider.BalanceDaoProvider;
 import ru.naumen.bot.exception.DaoException;
 
 /**
@@ -12,17 +12,17 @@ import ru.naumen.bot.exception.DaoException;
 public class BalanceService {
 
     /**
-     * Класс, предоставляющий доступ к DAO-объектам для работы с данными пользователей.
+     * Провайдер DAO для работы с балансом пользователей.
      */
-    private final DaoProvider daoProvider;
+    private final BalanceDaoProvider balanceDaoProvider;
 
     /**
      * Конструктор класса BalanceService.
      *
-     * @param daoProvider объект, предоставляющий доступ к DAO-объектам для работы с данными пользователей.
+     * @param balanceDaoProvider Провайдер DAO для работы с балансом пользователей..
      */
-    public BalanceService(DaoProvider daoProvider) {
-        this.daoProvider = daoProvider;
+    public BalanceService(BalanceDaoProvider balanceDaoProvider) {
+        this.balanceDaoProvider = balanceDaoProvider;
     }
 
     /**
@@ -31,7 +31,7 @@ public class BalanceService {
      * @return текущий баланс пользователя.
      */
     public Double getBalance(long chatId) throws DaoException {
-        BalanceDao balanceDao = daoProvider.getBalanceDaoForUser(chatId);
+        BalanceDao balanceDao = balanceDaoProvider.getBalanceDaoForUser(chatId);
         return balanceDao.getBalance(chatId);
     }
 
@@ -42,7 +42,7 @@ public class BalanceService {
      * @param balance сумма установленного баланса
      */
     public void setBalance(long chatId, Double balance) throws DaoException {
-        BalanceDao balanceDao = daoProvider.getBalanceDaoForUser(chatId);
+        BalanceDao balanceDao = balanceDaoProvider.getBalanceDaoForUser(chatId);
         balanceDao.setBalance(chatId, balance);
     }
 
@@ -52,7 +52,7 @@ public class BalanceService {
      * @param chatId идентификатор чата
      */
     public void removeBalance(long chatId) throws DaoException {
-        BalanceDao balanceDao = daoProvider.getBalanceDaoForUser(chatId);
+        BalanceDao balanceDao = balanceDaoProvider.getBalanceDaoForUser(chatId);
         balanceDao.removeBalance(chatId);
     }
 }

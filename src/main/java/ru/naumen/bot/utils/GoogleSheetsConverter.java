@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.ExpenseCategory;
 import ru.naumen.bot.data.entity.Income;
+import ru.naumen.bot.data.entity.Limit;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -130,5 +131,20 @@ public class GoogleSheetsConverter {
      */
     public List<List<Object>> stringToSheetFormat(String string) {
         return List.of(List.of(string));
+    }
+
+    public List<List<Object>> limitToSheetFormat(Limit limit) {
+        if (limit == null) {
+            return List.of(List.of());
+        }
+        return List.of(List.of(limit.getDailyLimit(), limit.getDailyExpensesSum()));
+    }
+
+    public Limit sheetFormatToLimit(List<List<Object>> data) {
+        if (data == null) {
+            return null;
+        }
+        return new Limit(Double.parseDouble((String) data.getFirst().getFirst()),
+                Double.parseDouble((String) data.getFirst().get(1)));
     }
 }
