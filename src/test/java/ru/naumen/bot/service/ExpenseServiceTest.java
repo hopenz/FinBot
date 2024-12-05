@@ -8,6 +8,7 @@ import ru.naumen.bot.data.dao.BalanceDao;
 import ru.naumen.bot.data.dao.DaoProvider;
 import ru.naumen.bot.data.dao.ExpenseDao;
 import ru.naumen.bot.data.entity.Expense;
+import ru.naumen.bot.data.entity.ExpenseCategory;
 import ru.naumen.bot.exception.DaoException;
 
 import java.time.LocalDate;
@@ -58,8 +59,8 @@ public class ExpenseServiceTest {
     @Test
     void testGetExpenses() throws DaoException {
         List<Expense> expectedExpenses = List.of(
-                new Expense("Расход 1", 50.0, LocalDate.now()),
-                new Expense("Расход 2", 20.0, LocalDate.now())
+                new Expense("Расход 1", 50.0, ExpenseCategory.OTHER, LocalDate.now()),
+                new Expense("Расход 2", 20.0, ExpenseCategory.OTHER, LocalDate.now())
         );
         Mockito.when(expenseDaoMock.getExpenses(chatId)).thenReturn(expectedExpenses);
 
@@ -80,7 +81,8 @@ public class ExpenseServiceTest {
 
         expenseService.addExpense(expenseMessage, chatId);
 
-        Expense expectedExpense = new Expense("Расход 1", 30.0, LocalDate.now());
+        Expense expectedExpense =
+                new Expense("Расход 1", 30.0, ExpenseCategory.OTHER, LocalDate.now());
         Mockito.verify(expenseDaoMock).addExpense(chatId, expectedExpense);
         Mockito.verify(balanceDaoMock).setBalance(chatId, 70.0);
     }
@@ -92,8 +94,8 @@ public class ExpenseServiceTest {
     @Test
     void testAddExpenses() throws DaoException {
         List<Expense> expenses = List.of(
-                new Expense("Расход 1", 50.0, LocalDate.now()),
-                new Expense("Расход 2", 20.0, LocalDate.now())
+                new Expense("Расход 1", 50.0, ExpenseCategory.OTHER, LocalDate.now()),
+                new Expense("Расход 2", 20.0, ExpenseCategory.OTHER, LocalDate.now())
         );
 
         expenseService.addExpenses(chatId, expenses);

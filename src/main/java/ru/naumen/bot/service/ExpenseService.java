@@ -5,9 +5,11 @@ import ru.naumen.bot.data.dao.BalanceDao;
 import ru.naumen.bot.data.dao.DaoProvider;
 import ru.naumen.bot.data.dao.ExpenseDao;
 import ru.naumen.bot.data.entity.Expense;
+import ru.naumen.bot.data.entity.ExpenseCategory;
 import ru.naumen.bot.exception.DaoException;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -43,6 +45,7 @@ public class ExpenseService {
 
     /**
      * Добавляет расход в хранилище и обновляет баланс.
+     * По умолчанию установлена категория расхода "Другое".
      *
      * @param expense сообщение от пользователя.
      * @param chatId  идентификатор чата, в котором было отправлено сообщение
@@ -52,7 +55,8 @@ public class ExpenseService {
         BalanceDao balanceDao = daoProvider.getBalanceDaoForUser(chatId);
         String[] arrayOfStringExpense = expense.split(" ", 3);
         Expense newExpense = new Expense(
-                arrayOfStringExpense[2], Double.parseDouble(arrayOfStringExpense[1]), LocalDate.now());
+                arrayOfStringExpense[2], Double.parseDouble(arrayOfStringExpense[1]),
+                ExpenseCategory.OTHER, LocalDate.now());
         expenseDao.addExpense(chatId, newExpense);
         balanceDao.setBalance(chatId,
                 balanceDao.getBalance(chatId) - Double.parseDouble(arrayOfStringExpense[1]));
@@ -77,5 +81,20 @@ public class ExpenseService {
     public void removeExpenses(long chatId) throws DaoException {
         ExpenseDao expenseDao = daoProvider.getExpenseDaoForUser(chatId);
         expenseDao.removeExpenses(chatId);
+    }
+
+    /**
+     * Изменяет категорию последнего расхода для указанного чата.
+     *
+     * @param chatId   идентификатор чата пользователя, для которого требуется изменить категорию расхода.
+     * @param category строковое значение, представляющее имя категории расхода, на которую нужно изменить.
+     */
+    public void changeLastExpenseCategory(long chatId, String category) throws DaoException {
+        ExpenseDao expenseDao = daoProvider.getExpenseDaoForUser(chatId);
+        ExpenseCategory newCategory = Arrays.stream(ExpenseCategory.values())
+                .filter(expenseCategory -> expenseCategory.getName().equalsIgnoreCase(category))
+                .findFirst()
+                .orElse(ExpenseCategory.OTHER);
+        expenseDao.changeLastExpenseCategory(chatId, newCategory);
     }
 }

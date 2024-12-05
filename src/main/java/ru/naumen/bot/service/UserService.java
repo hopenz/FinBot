@@ -1,10 +1,10 @@
 package ru.naumen.bot.service;
 
 import org.springframework.stereotype.Service;
+import ru.naumen.bot.data.dao.UserDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryBalanceDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryExpenseDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryIncomeDao;
-import ru.naumen.bot.data.dao.UserDao;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.DataType;
 

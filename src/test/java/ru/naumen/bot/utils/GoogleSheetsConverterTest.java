@@ -3,6 +3,7 @@ package ru.naumen.bot.utils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.naumen.bot.data.entity.Expense;
+import ru.naumen.bot.data.entity.ExpenseCategory;
 import ru.naumen.bot.data.entity.Income;
 
 import java.time.LocalDate;
@@ -56,8 +57,9 @@ public class GoogleSheetsConverterTest {
      */
     @Test
     public void testExpenseToSheetFormat() {
-        Expense expense = new Expense("Groceries", 150.0, LocalDate.of(2023, 11, 3));
-        List<List<Object>> expected = List.of(List.of("Groceries", 150.0, "'2023-11-03"));
+        Expense expense = new Expense("Groceries", 150.0,
+                ExpenseCategory.OTHER, LocalDate.of(2023, 11, 3));
+        List<List<Object>> expected = List.of(List.of("Groceries", 150.0, "OTHER", "'2023-11-03"));
 
         List<List<Object>> result = converter.expenseToSheetFormat(expense);
 
@@ -71,13 +73,15 @@ public class GoogleSheetsConverterTest {
     @Test
     public void testExpensesToSheetFormat() {
         List<Expense> expenses = List.of(
-                new Expense("Groceries", 150.0, LocalDate.of(2023, 11, 3)),
-                new Expense("Rent", 1000.0, LocalDate.of(2023, 11, 1))
+                new Expense("Groceries", 150.0,
+                        ExpenseCategory.TRANSPORT, LocalDate.of(2023, 11, 3)),
+                new Expense("Rent", 1000.0,
+                        ExpenseCategory.OTHER, LocalDate.of(2023, 11, 1))
         );
 
         List<List<Object>> expected = List.of(
-                List.of("Groceries", 150.0, "'2023-11-03"),
-                List.of("Rent", 1000.0, "'2023-11-01")
+                List.of("Groceries", 150.0, "TRANSPORT", "'2023-11-03"),
+                List.of("Rent", 1000.0, "OTHER", "'2023-11-01")
         );
 
         List<List<Object>> result = converter.expensesToSheetFormat(expenses);
@@ -113,13 +117,15 @@ public class GoogleSheetsConverterTest {
     @Test
     public void testSheetFormatToExpenses() {
         List<List<Object>> data = List.of(
-                List.of("Groceries", "150.0", "2023-11-03"),
-                List.of("Rent", "1000.0", "2023-11-01")
+                List.of("Groceries", "150.0", "OTHER", "2023-11-03"),
+                List.of("Rent", "1000.0", "SUPERMARKET", "2023-11-01")
         );
 
         List<Expense> expected = List.of(
-                new Expense("Groceries", 150.0, LocalDate.of(2023, 11, 3)),
-                new Expense("Rent", 1000.0, LocalDate.of(2023, 11, 1))
+                new Expense("Groceries", 150.0,
+                        ExpenseCategory.OTHER, LocalDate.of(2023, 11, 3)),
+                new Expense("Rent", 1000.0,
+                        ExpenseCategory.SUPERMARKET, LocalDate.of(2023, 11, 1))
         );
 
         List<Expense> result = converter.sheetFormatToExpenses(data);
