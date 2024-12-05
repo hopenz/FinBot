@@ -1,5 +1,7 @@
 package ru.naumen.bot.controller;
 
+import ru.naumen.bot.data.entity.AnswerMessage;
+
 import java.util.List;
 
 /**
@@ -22,7 +24,7 @@ public interface BotController {
      * @param chatId  идентификатор чата, в котором будет отправлено сообщение
      * @param buttons список кнопок для инлайн-клавиатуры, которая будет отправлена с сообщением
      */
-    void sendMessage(String message, long chatId, List<String> buttons);
+    void sendMessage(String message, long chatId, List<List<String>> buttons);
 
     /**
      * Отправка ответа на нажатие кнопки инлайн-клавиатуры во всплывающем сообщении
@@ -31,4 +33,12 @@ public interface BotController {
      * @param callbackQueryId идентификатор callback-запроса
      */
     void sendPopUpMessage(String message, String callbackQueryId);
+
+    /**
+     * Отправка нескольких сообщений в указанный чат.
+     * Сообщения могут быть разного типа.
+     *
+     * @param answerMessages сообщения разного типа.
+     */
+    void sendMessages(List<AnswerMessage> answerMessages);
 }

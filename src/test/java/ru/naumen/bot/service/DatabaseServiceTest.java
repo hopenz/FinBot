@@ -3,10 +3,7 @@ package ru.naumen.bot.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import ru.naumen.bot.data.entity.ChatState;
-import ru.naumen.bot.data.entity.DataType;
-import ru.naumen.bot.data.entity.Expense;
-import ru.naumen.bot.data.entity.Income;
+import ru.naumen.bot.data.entity.*;
 import ru.naumen.bot.exception.DaoException;
 
 import java.time.LocalDate;
@@ -80,7 +77,8 @@ public class DatabaseServiceTest {
         long chatId = 12345L;
         DataType newDataType = DataType.IN_MEMORY;
         List<Income> mockIncomes = List.of(new Income("Доход 1", 20.0, LocalDate.now()));
-        List<Expense> mockExpenses = List.of(new Expense("Расход 1", 30.0, LocalDate.now()));
+        List<Expense> mockExpenses = List.of(
+                new Expense("Расход 1", 30.0, ExpenseCategory.OTHER, LocalDate.now()));
         Double mockBalance = 100.0;
 
         Mockito.when(incomeService.getIncomes(chatId)).thenReturn(mockIncomes);

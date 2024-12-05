@@ -32,7 +32,7 @@ public class InMemoryDaoGroup {
     /**
      * Конструктор для инициализации всех зависимостей DAO.
      *
-     * @param userDao    DAO для управления пользователями.
+     * @param userDao            DAO для управления пользователями.
      * @param inMemoryBalanceDao DAO для управления балансом.
      * @param inMemoryExpenseDao DAO для управления расходами.
      * @param inMemoryIncomeDao  DAO для управления доходами.
