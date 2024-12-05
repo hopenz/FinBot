@@ -65,7 +65,7 @@ public class DatabaseServiceTest {
      * <p>
      * Проверяет:
      * <ul>
-     *     <li>Правильность вызова методов для получения текущих данных (доходы, расходы, баланс).</li>
+     *     <li>Правильность вызова методов для получения текущих данных (доходы, расходы, баланс, лимит).</li>
      *     <li>Удаление данных из старой базы.</li>
      *     <li>Установку нового типа базы данных.</li>
      *     <li>Инициализация Google Sheets не происходит, так как новый тип данных - IN_MEMORY.</li>
@@ -80,10 +80,12 @@ public class DatabaseServiceTest {
         List<Expense> mockExpenses = List.of(
                 new Expense("Расход 1", 30.0, ExpenseCategory.OTHER, LocalDate.now()));
         Double mockBalance = 100.0;
+        Limit limit = new Limit(100.0, 0.0);
 
         Mockito.when(incomeService.getIncomes(chatId)).thenReturn(mockIncomes);
         Mockito.when(expenseService.getExpenses(chatId)).thenReturn(mockExpenses);
         Mockito.when(balanceService.getBalance(chatId)).thenReturn(mockBalance);
+        Mockito.when(expenseService.getExpensesLimit(chatId)).thenReturn(limit);
         Mockito.when(userService.getUserState(chatId)).thenReturn(ChatState.WAITING_FOR_TYPE_DB_FOR_CHANGE_DB);
 
         databaseService.changeDB(chatId, newDataType);
@@ -91,6 +93,7 @@ public class DatabaseServiceTest {
         Mockito.verify(incomeService).getIncomes(chatId);
         Mockito.verify(expenseService).getExpenses(chatId);
         Mockito.verify(balanceService).getBalance(chatId);
+        Mockito.verify(expenseService).getExpensesLimit(chatId);
 
         Mockito.verify(userService).setDataType(chatId, newDataType);
         Mockito.verifyNoInteractions(googleSheetsService);
@@ -98,10 +101,12 @@ public class DatabaseServiceTest {
         Mockito.verify(incomeService).removeIncomes(chatId);
         Mockito.verify(expenseService).removeExpenses(chatId);
         Mockito.verify(balanceService).removeBalance(chatId);
+        Mockito.verify(expenseService).removeExpensesLimit(chatId);
 
         Mockito.verify(incomeService).addIncomes(chatId, mockIncomes);
         Mockito.verify(expenseService).addExpenses(chatId, mockExpenses);
         Mockito.verify(balanceService).setBalance(chatId, mockBalance);
+        Mockito.verify(expenseService).setExpensesLimit(chatId, limit);
     }
 
     /**

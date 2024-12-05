@@ -7,6 +7,7 @@ import org.mockito.Mockito;
 import ru.naumen.bot.data.entity.AnswerMessage;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.exception.DaoException;
+import ru.naumen.bot.exception.ExceedingTheLimitException;
 import ru.naumen.bot.interaction.Commands;
 import ru.naumen.bot.interaction.keyboards.CategoriesKeyboard;
 import ru.naumen.bot.service.ExpenseService;
@@ -86,7 +87,7 @@ public class SimpleMessageHandlerTest {
      * Проверяет, что расход корректно добавляется, и возвращается клавиатура для выбора категории.
      */
     @Test
-    void testHandleMessageWithExpenseMessage() throws DaoException {
+    void testHandleMessageWithExpenseMessage() throws DaoException, ExceedingTheLimitException {
         List<List<String>> keyboardButtons = List.of(List.of("Категория 1", "Категория 2", "Категория 3"));
         Mockito.when(categoriesKeyboardMock.getCategoriesInGroups(3)).thenReturn(keyboardButtons);
         List<AnswerMessage> expected =
@@ -99,6 +100,32 @@ public class SimpleMessageHandlerTest {
         Mockito.verify(userServiceMock).setUserState(chatId, ChatState.WAITING_EXPENSE_CATEGORY_FOR_ADDING);
         Assertions.assertThat(response).containsAll(expected);
         Assertions.assertThat(response.size()).isEqualTo(1);
+    }
+
+    /**
+     * Тест для проверки обработки сообщения с расходом и превышением лимита.
+     * Проверяет, что расход корректно добавляется, и возвращается клавиатура для выбора категории.
+     */
+    @Test
+    void testHandleMessageWithExpenseMessageAndExceedingTheLimit() throws DaoException, ExceedingTheLimitException {
+        List<List<String>> keyboardButtons = List.of(List.of("Категория 1", "Категория 2", "Категория 3"));
+        Mockito.when(categoriesKeyboardMock.getCategoriesInGroups(3)).thenReturn(keyboardButtons);
+        Mockito.doThrow(new ExceedingTheLimitException(1000.0)).
+                when(expenseServiceMock).addExpense("- 666 Расход", chatId);
+        List<AnswerMessage> expected =
+                List.of(
+                        new AnswerMessage("Лимит расходов на день превышен!", chatId),
+                        new AnswerMessage("Сумма расходов за день составляет: 1000.0", chatId),
+                        new AnswerMessage("Выберите категорию расхода", chatId, keyboardButtons)
+                );
+
+        List<AnswerMessage> response =
+                simpleMessageHandler.handleMessage("- 666 Расход", chatId);
+
+        Mockito.verify(expenseServiceMock).addExpense("- 666 Расход", chatId);
+        Mockito.verify(userServiceMock).setUserState(chatId, ChatState.WAITING_EXPENSE_CATEGORY_FOR_ADDING);
+        Assertions.assertThat(response).containsAll(expected);
+        Assertions.assertThat(response.size()).isEqualTo(3);
     }
 
     /**

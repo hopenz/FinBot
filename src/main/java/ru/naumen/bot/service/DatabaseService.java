@@ -1,10 +1,7 @@
 package ru.naumen.bot.service;
 
 import org.springframework.stereotype.Service;
-import ru.naumen.bot.data.entity.ChatState;
-import ru.naumen.bot.data.entity.DataType;
-import ru.naumen.bot.data.entity.Expense;
-import ru.naumen.bot.data.entity.Income;
+import ru.naumen.bot.data.entity.*;
 import ru.naumen.bot.exception.DaoException;
 
 import java.util.List;
@@ -68,6 +65,7 @@ public class DatabaseService {
         List<Income> incomes = incomeService.getIncomes(chatId);
         List<Expense> expenses = expenseService.getExpenses(chatId);
         Double balance = balanceService.getBalance(chatId);
+        Limit limit = expenseService.getExpensesLimit(chatId);
 
         userService.setDataType(chatId, newDataType);
 
@@ -78,9 +76,11 @@ public class DatabaseService {
         incomeService.removeIncomes(chatId);
         expenseService.removeExpenses(chatId);
         balanceService.removeBalance(chatId);
+        expenseService.removeExpensesLimit(chatId);
 
         incomeService.addIncomes(chatId, incomes);
         expenseService.addExpenses(chatId, expenses);
         balanceService.setBalance(chatId, balance);
+        expenseService.setExpensesLimit(chatId, limit);
     }
 }

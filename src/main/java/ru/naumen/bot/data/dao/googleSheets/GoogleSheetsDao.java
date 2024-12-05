@@ -55,6 +55,10 @@ public class GoogleSheetsDao {
                     List.of(List.of("Описание", "Сумма", "Дата")), googleSheetId);
             googleSheetsClient.updateData("Общая информация!A1",
                     List.of(List.of("Баланс:")), googleSheetId);
+            googleSheetsClient.updateData("Общая информация!A3",
+                    List.of(List.of("Лимит на день:")), googleSheetId);
+            googleSheetsClient.updateData("Общая информация!B3",
+                    List.of(List.of("Сумма расходов за день:")), googleSheetId);
         } catch (IOException e) {
             throw new GoogleSheetsException(e);
         }

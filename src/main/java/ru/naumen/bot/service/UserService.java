@@ -8,6 +8,8 @@ import ru.naumen.bot.data.dao.inMemory.InMemoryIncomeDao;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.DataType;
 
+import java.util.Set;
+
 /**
  * Сервис UserService предоставляет методы для работы с данными о пользователях.
  */
@@ -143,5 +145,12 @@ public class UserService {
      */
     public String getGoogleSheetId(Long chatId) {
         return userDao.getGoogleSheetId(chatId);
+    }
+
+    /**
+     * Возвращение идентификаторов пользователей.
+     */
+    public Set<Long> getUsers() {
+        return userDao.getUsersId();
     }
 }

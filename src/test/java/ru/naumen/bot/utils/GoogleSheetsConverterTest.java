@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.ExpenseCategory;
 import ru.naumen.bot.data.entity.Income;
+import ru.naumen.bot.data.entity.Limit;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -168,5 +169,51 @@ public class GoogleSheetsConverterTest {
     @Test
     public void testSheetFormatToDoubleWithNullOrEmptyData() {
         Assertions.assertThat(converter.sheetFormatToDouble(null)).isEqualTo(0.0);
+    }
+
+    /**
+     * Тест для метода limitToSheetFormat.
+     * Проверяет правильность преобразования объекта Limit в формат таблицы.
+     */
+    @Test
+    public void testLimitToSheetFormat() {
+        Limit limit = new Limit(1000.0, 0.0);
+        List<List<Object>> expected = List.of(List.of(1000.0, 0.0));
+        List<List<Object>> result = converter.limitToSheetFormat(limit);
+        Assertions.assertThat(result).isEqualTo(expected);
+    }
+
+    /**
+     * Тест для метода limitToSheetFormat при отсутствии лимита в таблице.
+     * Проверяет, что возвращается пустой список, если входной объект равен null.
+     */
+    @Test
+    public void testLimitToSheetFormatWithNull() {
+        List<List<Object>> expected = List.of(List.of());
+        List<List<Object>> result = converter.limitToSheetFormat(null);
+        Assertions.assertThat(result).isEqualTo(expected);
+    }
+
+    /**
+     * Тест для метода sheetFormatToLimit.
+     * Проверяет правильность преобразования данных из формата таблицы в объект Limit.
+     */
+    @Test
+    public void testSheetFormatToLimit() {
+        List<List<Object>> data = List.of(List.of("1000.0", "0.0"));
+        Limit expected = new Limit(1000.0, 0.0);
+        Limit result = converter.sheetFormatToLimit(data);
+        Assertions.assertThat(result.getDailyLimit()).isEqualTo(expected.getDailyLimit());
+        Assertions.assertThat(result.getDailyExpensesSum()).isEqualTo(expected.getDailyExpensesSum());
+    }
+
+    /**
+     * Тест для метода sheetFormatToLimit при отсутствии лимита в таблице.
+     * Проверяет, что возвращается null, если входные данные равны null.
+     */
+    @Test
+    public void testSheetFormatToLimitWithNull() {
+        Limit result = converter.sheetFormatToLimit(null);
+        Assertions.assertThat(result).isNull();
     }
 }

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import ru.naumen.bot.data.entity.AnswerMessage;
 import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.exception.DaoException;
+import ru.naumen.bot.exception.ExceedingTheLimitException;
 import ru.naumen.bot.handler.message.MessageHandler;
 import ru.naumen.bot.interaction.Commands;
 import ru.naumen.bot.interaction.keyboards.CategoriesKeyboard;
@@ -11,6 +12,7 @@ import ru.naumen.bot.service.ExpenseService;
 import ru.naumen.bot.service.IncomeService;
 import ru.naumen.bot.service.UserService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -77,15 +79,23 @@ public class SimpleMessageHandler implements MessageHandler {
 
     @Override
     public List<AnswerMessage> handleMessage(String message, long chatId) throws DaoException {
+        List<AnswerMessage> answerMessages = new ArrayList<>();
         if (message.matches(INCOMES_PATTERN)) {
             incomeService.addIncome(message, chatId);
             return List.of(new AnswerMessage("Доход успешно добавлен!", chatId));
         }
         if (message.matches(EXPENSES_PATTERN)) {
-            expenseService.addExpense(message, chatId);
+            try {
+                expenseService.addExpense(message, chatId);
+            } catch (ExceedingTheLimitException e) {
+                answerMessages.add(new AnswerMessage("Лимит расходов на день превышен!", chatId));
+                answerMessages.add(new AnswerMessage("Сумма расходов за день составляет: "
+                        + e.getDailyExpensesSum(), chatId));
+            }
             userService.setUserState(chatId, ChatState.WAITING_EXPENSE_CATEGORY_FOR_ADDING);
             List<List<String>> keyboardButtons = categoriesKeyboard.getCategoriesInGroups(COUNT_BUTTONS_AT_ROW);
-            return List.of(new AnswerMessage("Выберите категорию расхода", chatId, keyboardButtons));
+            answerMessages.add(new AnswerMessage("Выберите категорию расхода", chatId, keyboardButtons));
+            return answerMessages;
         }
         return List.of(new AnswerMessage("Я вас не понял.\nЧтобы ознакомиться с командами - напишите "
                 + Commands.HELP_COMMAND.getCommand(), chatId));

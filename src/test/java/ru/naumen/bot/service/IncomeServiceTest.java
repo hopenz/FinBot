@@ -5,8 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.naumen.bot.data.dao.BalanceDao;
-import ru.naumen.bot.data.dao.DaoProvider;
 import ru.naumen.bot.data.dao.IncomeDao;
+import ru.naumen.bot.data.dao.provider.BalanceDaoProvider;
+import ru.naumen.bot.data.dao.provider.IncomeDaoProvider;
 import ru.naumen.bot.data.entity.Income;
 import ru.naumen.bot.exception.DaoException;
 
@@ -43,12 +44,13 @@ public class IncomeServiceTest {
      */
     @BeforeEach
     void setUp() {
-        DaoProvider daoProviderMock = Mockito.mock(DaoProvider.class);
+        IncomeDaoProvider incomeDaoProviderMock = Mockito.mock(IncomeDaoProvider.class);
+        BalanceDaoProvider balanceDaoProviderMock = Mockito.mock(BalanceDaoProvider.class);
         incomeDaoMock = Mockito.mock(IncomeDao.class);
         balanceDaoMock = Mockito.mock(BalanceDao.class);
-        Mockito.when(daoProviderMock.getIncomeDaoForUser(chatId)).thenReturn(incomeDaoMock);
-        Mockito.when(daoProviderMock.getBalanceDaoForUser(chatId)).thenReturn(balanceDaoMock);
-        incomeService = new IncomeService(daoProviderMock);
+        Mockito.when(incomeDaoProviderMock.getIncomeDaoForUser(chatId)).thenReturn(incomeDaoMock);
+        Mockito.when(balanceDaoProviderMock.getBalanceDaoForUser(chatId)).thenReturn(balanceDaoMock);
+        incomeService = new IncomeService(incomeDaoProviderMock, balanceDaoProviderMock);
     }
 
     /**
