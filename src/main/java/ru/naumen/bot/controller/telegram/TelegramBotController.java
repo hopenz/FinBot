@@ -158,9 +158,9 @@ public class TelegramBotController implements BotController {
     @Override
     public void sendMessages(List<AnswerMessage> answerMessages) {
         answerMessages.forEach(answerMessage -> {
-            if (answerMessage.getCallbackQueryId() != null) {
+            if (answerMessage.isPopUpMessage()) {
                 sendPopUpMessage(answerMessage.getMessage(), answerMessage.getCallbackQueryId());
-            } else if (answerMessage.getButtons() != null) {
+            } else if (answerMessage.isTextMessageWithButtons()) {
                 sendMessage(answerMessage.getMessage(), answerMessage.getChatId(), answerMessage.getButtons());
             } else {
                 sendMessage(answerMessage.getMessage(), answerMessage.getChatId());

@@ -106,6 +106,24 @@ public class AnswerMessage {
         return callbackQueryId;
     }
 
+    /**
+     * Проверяет, является ли ответ сообщением с клавиатурой.
+     *
+     * @return true, если ответ сообщение с клавиатурой, иначе false
+     */
+    public boolean isTextMessageWithButtons() {
+        return buttons != null;
+    }
+
+    /**
+     * Проверяет, является ли ответ всплывающим сообщением.
+     *
+     * @return true, если ответ всплывающее сообщение, иначе false
+     */
+    public boolean isPopUpMessage() {
+        return chatId == null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
