@@ -80,20 +80,20 @@ public class BotUpdateProcessor {
      */
     public List<AnswerMessage> processBotUpdate(BotUpdate botUpdate) {
         long chatId = botUpdate.chatId();
-        String message = botUpdate.message();
 
         if (!userService.isChatOpened(chatId)
-                && message != null
-                && !message.equals(Commands.START_COMMAND.getCommand())) {
+                && (!botUpdate.isTextMessage()
+                || !botUpdate.message().equals(Commands.START_COMMAND.getCommand()))) {
             return List.of(new AnswerMessage(
                     "Чтобы начать работу, нажмите " + Commands.START_COMMAND.getCommand(), chatId));
         }
 
         try {
-            if (botUpdate.callbackData() != null && botUpdate.callbackId() != null) {
+            if (botUpdate.isCallbackQuery()) {
                 return processCallback(botUpdate.callbackData(), botUpdate.callbackId(), chatId);
             }
-            if (message != null) {
+            if (botUpdate.isTextMessage()) {
+                String message = botUpdate.message();
                 if (message.startsWith("/")) {
                     return processCommand(message, chatId);
                 } else {
