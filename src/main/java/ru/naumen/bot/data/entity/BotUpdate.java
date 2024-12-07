@@ -9,4 +9,12 @@ package ru.naumen.bot.data.entity;
  * @param callbackId   Идентификатор callback-запроса
  */
 public record BotUpdate(Long chatId, String message, String callbackData, String callbackId) {
+
+    public boolean isTextMessage() {
+        return message != null;
+    }
+
+    public boolean isCallbackQuery() {
+        return callbackData != null && callbackId != null;
+    }
 }

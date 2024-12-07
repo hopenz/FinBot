@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * Конфигурационный класс для настройки расписания удаления суммы расходов за день.
  */
 @Configuration
-@EnableScheduling
+@EnableScheduling // Оставили аннотацию здесь, так как она должна быть в классе конфигурации (исходя из документации).
 public class SchedulingConfig {
+
 }

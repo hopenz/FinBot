@@ -207,7 +207,8 @@ public class ExpenseService {
                 }
             } catch (DaoException e) {
                 logger.error("[Dao exception] :: Message: {}", e.getMessage(), e);
-            } catch (ExceedingTheLimitException ignored) {
+            } catch (ExceedingTheLimitException e) {
+                logger.error("[ExceedingTheLimitException] :: Message: {}", e.getMessage(), e);
             }
         }
     }
