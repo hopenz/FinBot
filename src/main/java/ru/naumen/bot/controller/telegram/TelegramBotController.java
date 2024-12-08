@@ -118,7 +118,7 @@ public class TelegramBotController implements BotController {
      * @param message сообщение, которое будет отправлено
      * @param chatId  идентификатор чата, в который будет отправлено сообщение
      */
-    public void sendMessage(String message, long chatId) {
+    private void sendMessage(String message, long chatId) {
         sendMessage(message, chatId, null);
     }
 
@@ -129,7 +129,7 @@ public class TelegramBotController implements BotController {
      * @param chatId  идентификатор чата, в котором будет отправлено сообщение
      * @param buttons список кнопок для инлайн-клавиатуры, которая будет отправлена с сообщением
      */
-    public void sendMessage(String message, long chatId, List<List<String>> buttons) {
+    private void sendMessage(String message, long chatId, List<List<String>> buttons) {
         SendMessage sendMessage = new SendMessage(chatId, message);
         if (buttons == null) {
             telegramBot.execute(sendMessage);
@@ -151,7 +151,7 @@ public class TelegramBotController implements BotController {
      * @param message         текст ответа
      * @param callbackQueryId идентификатор callback-запроса
      */
-    public void sendPopUpMessage(String message, String callbackQueryId) {
+    private void sendPopUpMessage(String message, String callbackQueryId) {
         telegramBot.execute(new AnswerCallbackQuery(callbackQueryId).text(message));
     }
 
