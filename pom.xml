@@ -20,7 +20,7 @@
         <google-oauth-client-jetty.version>1.36.0</google-oauth-client-jetty.version>
         <google-api-services-sheets.version>v4-rev20241008-2.0.0</google-api-services-sheets.version>
         <google-http-client-jackson2.version>1.45.0</google-http-client-jackson2.version>
-        <spring-context.version>6.1.14</spring-context.version>
+        <spring-framework.version>6.1.14</spring-framework.version>
         <xmlunit-core.version>2.10.0</xmlunit-core.version>
         <tomcat-embed-core.version>10.1.31</tomcat-embed-core.version>
     </properties>
@@ -106,11 +106,29 @@
                 <version>${google-http-client-jackson2.version}</version>
             </dependency>
 
-            <!--Зависимость для решения уязвимости spring-boot-starter-data-web-->
+            <!--Зависимости для решения уязвимости spring-boot-starter-data-web-->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
-                <version>${spring-context.version}</version>
+                <version>${spring-framework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${spring-framework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${spring-framework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-expression</artifactId>
+                <version>${spring-framework.version}</version>
             </dependency>
 
             <!--Зависимость для решения уязвимости spring-boot-starter-test-->

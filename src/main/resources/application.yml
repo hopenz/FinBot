@@ -5,5 +5,8 @@ spring:
 app:
   telegram-token: ${BOT_TOKEN}
 
+scheduling:
+  time-to-reset-limits: ${TIME_TO_RESET_LIMITS}
+
 server:
   port: 8080

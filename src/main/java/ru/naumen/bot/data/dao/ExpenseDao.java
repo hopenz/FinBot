@@ -1,6 +1,7 @@
 package ru.naumen.bot.data.dao;
 
 import ru.naumen.bot.data.entity.Expense;
+import ru.naumen.bot.data.entity.ExpenseCategory;
 import ru.naumen.bot.exception.DaoException;
 
 import java.util.List;
@@ -40,4 +41,12 @@ public interface ExpenseDao {
      * @param chatId идентификатор чата, для которого нужно удалить расходы.
      */
     void removeExpenses(long chatId) throws DaoException;
+
+    /**
+     * Меняет категорию последнего расхода для указанного идентификатора чата.
+     *
+     * @param chatId      идентификатор чата, для которого нужно изменить категорию расхода.
+     * @param newCategory новая категория расхода.
+     */
+    void changeLastExpenseCategory(long chatId, ExpenseCategory newCategory) throws DaoException;
 }

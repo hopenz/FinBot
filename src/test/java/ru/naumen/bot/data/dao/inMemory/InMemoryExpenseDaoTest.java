@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.naumen.bot.data.entity.Expense;
+import ru.naumen.bot.data.entity.ExpenseCategory;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -58,7 +59,7 @@ public class InMemoryExpenseDaoTest {
      */
     @Test
     void testAddAndGetExpense() {
-        Expense expense = new Expense("мяу", 15.0, LocalDate.now());
+        Expense expense = new Expense("мяу", 15.0, ExpenseCategory.CLOTHING, LocalDate.now());
         expenseDao.createUserList(chatId);
 
         expenseDao.addExpense(chatId, expense);
@@ -73,8 +74,8 @@ public class InMemoryExpenseDaoTest {
     @Test
     void testAddAndGetExpenses() {
         List<Expense> expenses = List.of(
-                new Expense("Расход 1", 15.0, LocalDate.now()),
-                new Expense("Расход 2", 16.0, LocalDate.now())
+                new Expense("Расход 1", 15.0, ExpenseCategory.CLOTHING, LocalDate.now()),
+                new Expense("Расход 2", 16.0, ExpenseCategory.TRANSFER, LocalDate.now())
         );
 
         expenseDao.createUserList(chatId);
@@ -90,8 +91,8 @@ public class InMemoryExpenseDaoTest {
     @Test
     void testRemoveExpenses() {
         List<Expense> expenses = List.of(
-                new Expense("Расход 1", 15.0, LocalDate.now()),
-                new Expense("Расход 2", 16.0, LocalDate.now())
+                new Expense("Расход 1", 15.0, ExpenseCategory.CLOTHING, LocalDate.now()),
+                new Expense("Расход 2", 16.0, ExpenseCategory.SUPERMARKET, LocalDate.now())
         );
 
         expenseDao.createUserList(chatId);

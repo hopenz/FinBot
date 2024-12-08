@@ -24,6 +24,20 @@ public enum ChatState {
     /**
      * Состояние ожидания ссылки на Google Sheet.
      */
-    WAITING_FOR_GOOGLE_SHEET_LINK
+    WAITING_FOR_GOOGLE_SHEET_LINK,
 
+    /**
+     * Состояние ожидания выбора категории для добавления расхода пользователя.
+     */
+    WAITING_EXPENSE_CATEGORY_FOR_ADDING,
+
+    /**
+     * Состояние ожидания выбора категории для вывода расходов по категории.
+     */
+    WAITING_EXPENSE_CATEGORY_FOR_OUTPUT,
+
+    /**
+     * Состояние ожидания, когда пользователь вводит лимит на день.
+     */
+    WAITING_DAILY_LIMIT
 }

@@ -7,6 +7,7 @@ import ru.naumen.bot.data.entity.User;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Класс, предоставляющий функционал для управления данными о пользователях в памяти.
@@ -104,5 +105,12 @@ public class UserDao {
      */
     public String getGoogleSheetId(long chatId) {
         return users.get(chatId).getGoogleSheetId();
+    }
+
+    /**
+     * Возвращает идентификаторы всех открытых чатов.
+     */
+    public Set<Long> getUsersId() {
+        return users.keySet();
     }
 }

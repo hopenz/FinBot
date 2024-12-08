@@ -5,6 +5,7 @@ import ru.naumen.bot.client.GoogleSheetsClient;
 import ru.naumen.bot.data.dao.ExpenseDao;
 import ru.naumen.bot.data.dao.googleSheets.exception.GoogleSheetsException;
 import ru.naumen.bot.data.entity.Expense;
+import ru.naumen.bot.data.entity.ExpenseCategory;
 import ru.naumen.bot.service.UserService;
 import ru.naumen.bot.utils.GoogleSheetsConverter;
 
@@ -51,7 +52,7 @@ public class GoogleSheetsExpenseDao implements ExpenseDao {
     public List<Expense> getExpenses(long chatId) throws GoogleSheetsException {
         List<List<Object>> data;
         try {
-            data = googleSheetsClient.readData("Расходы!A2:C",
+            data = googleSheetsClient.readData("Расходы!A2:D",
                     userService.getGoogleSheetId(chatId));
         } catch (IOException e) {
             throw new GoogleSheetsException(e);
@@ -65,7 +66,7 @@ public class GoogleSheetsExpenseDao implements ExpenseDao {
         List<List<Object>> values = googleSheetsConverter.expenseToSheetFormat(newExpense);
         String googleSheetId = userService.getGoogleSheetId(chatId);
         try {
-            googleSheetsClient.appendData("Расходы!A2:C", values, googleSheetId);
+            googleSheetsClient.appendData("Расходы!A2:D", values, googleSheetId);
         } catch (IOException e) {
             throw new GoogleSheetsException(e);
         }
@@ -77,7 +78,7 @@ public class GoogleSheetsExpenseDao implements ExpenseDao {
         List<List<Object>> values = googleSheetsConverter.expensesToSheetFormat(expenses);
         String googleSheetId = userService.getGoogleSheetId(chatId);
         try {
-            googleSheetsClient.appendData("Расходы!A2:C", values, googleSheetId);
+            googleSheetsClient.appendData("Расходы!A2:D", values, googleSheetId);
         } catch (IOException e) {
             throw new GoogleSheetsException(e);
         }
@@ -87,7 +88,21 @@ public class GoogleSheetsExpenseDao implements ExpenseDao {
     @Override
     public void removeExpenses(long chatId) throws GoogleSheetsException {
         try {
-            googleSheetsClient.clearSheet("Расходы!A2:C", userService.getGoogleSheetId(chatId));
+            googleSheetsClient.clearSheet("Расходы!A2:D", userService.getGoogleSheetId(chatId));
+        } catch (IOException e) {
+            throw new GoogleSheetsException(e);
+        }
+    }
+
+    @Override
+    public void changeLastExpenseCategory(long chatId, ExpenseCategory newCategory) throws GoogleSheetsException {
+        List<List<Object>> values = googleSheetsConverter.stringToSheetFormat(newCategory.toString());
+        String googleSheetId = userService.getGoogleSheetId(chatId);
+        try {
+            List<List<Object>> data = googleSheetsClient.
+                    readData("Расходы!A1:C", userService.getGoogleSheetId(chatId));
+
+            googleSheetsClient.updateData("Расходы!C" + data.size(), values, googleSheetId);
         } catch (IOException e) {
             throw new GoogleSheetsException(e);
         }
