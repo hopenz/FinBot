@@ -1,9 +1,9 @@
 package ru.naumen.bot.data.dao;
 
 import org.springframework.stereotype.Component;
-import ru.naumen.bot.data.entity.ChatState;
-import ru.naumen.bot.data.entity.DataType;
 import ru.naumen.bot.data.entity.User;
+import ru.naumen.bot.data.enums.ChatState;
+import ru.naumen.bot.data.enums.DataType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -110,7 +110,7 @@ public class UserDao {
     /**
      * Возвращает идентификаторы всех открытых чатов.
      */
-    public Set<Long> getUsersId() {
+    public Set<Long> getUserIds() {
         return users.keySet();
     }
 }

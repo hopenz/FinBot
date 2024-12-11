@@ -6,13 +6,13 @@ import org.springframework.stereotype.Component;
 import ru.naumen.bot.data.dao.googleSheets.exception.GoogleSheetsException;
 import ru.naumen.bot.data.entity.AnswerMessage;
 import ru.naumen.bot.data.entity.BotUpdate;
-import ru.naumen.bot.data.entity.ChatState;
-import ru.naumen.bot.data.entity.DataType;
+import ru.naumen.bot.data.enums.ChatState;
+import ru.naumen.bot.data.enums.DataType;
 import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.handler.callback.CallbackHandler;
 import ru.naumen.bot.handler.command.CommandHandler;
 import ru.naumen.bot.handler.message.MessageHandler;
-import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.interaction.CommandData;
 import ru.naumen.bot.service.UserService;
 
 import java.util.ArrayList;
@@ -83,9 +83,9 @@ public class BotUpdateProcessor {
 
         if (!userService.isChatOpened(chatId)
                 && (!botUpdate.isTextMessage()
-                || !botUpdate.message().equals(Commands.START_COMMAND.getCommand()))) {
+                || !botUpdate.message().equals(CommandData.START_COMMAND.getReadableName()))) {
             return List.of(new AnswerMessage(
-                    "Чтобы начать работу, нажмите " + Commands.START_COMMAND.getCommand(), chatId));
+                    "Чтобы начать работу, нажмите " + CommandData.START_COMMAND.getReadableName(), chatId));
         }
 
         try {

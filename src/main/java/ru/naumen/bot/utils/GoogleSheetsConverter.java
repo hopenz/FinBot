@@ -2,9 +2,9 @@ package ru.naumen.bot.utils;
 
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.data.entity.Expense;
-import ru.naumen.bot.data.entity.ExpenseCategory;
 import ru.naumen.bot.data.entity.Income;
 import ru.naumen.bot.data.entity.Limit;
+import ru.naumen.bot.data.enums.ExpenseCategory;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

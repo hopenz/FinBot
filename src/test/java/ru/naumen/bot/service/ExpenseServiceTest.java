@@ -11,8 +11,8 @@ import ru.naumen.bot.data.dao.provider.BalanceDaoProvider;
 import ru.naumen.bot.data.dao.provider.ExpenseDaoProvider;
 import ru.naumen.bot.data.dao.provider.LimitDaoProvider;
 import ru.naumen.bot.data.entity.Expense;
-import ru.naumen.bot.data.entity.ExpenseCategory;
 import ru.naumen.bot.data.entity.Limit;
+import ru.naumen.bot.data.enums.ExpenseCategory;
 import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.exception.ExceedingTheLimitException;
 
@@ -27,17 +27,41 @@ public class ExpenseServiceTest {
     /**
      * Мок-объект для {@link ExpenseDao}, используемый для работы с расходами пользователей.
      */
-    private ExpenseDao expenseDaoMock;
+    private final ExpenseDao expenseDaoMock = Mockito.mock(ExpenseDao.class);
 
     /**
      * Мок-объект для {@link BalanceDao}, используемый для работы с балансами пользователей.
      */
-    private BalanceDao balanceDaoMock;
+    private final BalanceDao balanceDaoMock = Mockito.mock(BalanceDao.class);
+
+    /**
+     * Мок-объект для {@link BalanceDaoProvider}, который предоставляет
+     * доступ к DAO-объектам для работы с балансом пользователя
+     */
+    private final BalanceDaoProvider balanceDaoProviderMock = Mockito.mock(BalanceDaoProvider.class);
+
+    /**
+     * Мок-объект для {@link ExpenseDaoProvider}, который предоставляет
+     * доступ к DAO-объектам для работы с расходами пользователя
+     */
+    private final ExpenseDaoProvider expenseDaoProviderMock = Mockito.mock(ExpenseDaoProvider.class);
+
+    /**
+     * Мок-объект для {@link LimitDaoProvider}, который предоставляет
+     * доступ к DAO-объектам для работы с лимитами пользователя
+     */
+    private final LimitDaoProvider limitDaoProviderMock = Mockito.mock(LimitDaoProvider.class);
+
+    /**
+     * Мок-объект для {@link UserService}, используемый для работы с пользователями.
+     */
+    private final UserService userServiceMock = Mockito.mock(UserService.class);
 
     /**
      * Тестируемый объект {@link ExpenseService}, который проверяется в данном тестовом классе.
      */
-    private ExpenseService expenseService;
+    private final ExpenseService expenseService = new ExpenseService(expenseDaoProviderMock, limitDaoProviderMock,
+            balanceDaoProviderMock, userServiceMock);
 
     /**
      * Идентификатор чата, в котором происходит тестирование.
@@ -47,25 +71,16 @@ public class ExpenseServiceTest {
     /**
      * Мок-объект для {@link LimitDao}, используемый для работы с лимитом пользователя.
      */
-    private LimitDao limitDaoMock;
+    private final LimitDao limitDaoMock = Mockito.mock(LimitDao.class);
 
     /**
      * Инициализация всех зависимостей и {@link ExpenseService} перед каждым тестом.
      */
     @BeforeEach
     void setUp() {
-        BalanceDaoProvider balanceDaoProviderMock = Mockito.mock(BalanceDaoProvider.class);
-        ExpenseDaoProvider expenseDaoProviderMock = Mockito.mock(ExpenseDaoProvider.class);
-        LimitDaoProvider limitDaoProviderMock = Mockito.mock(LimitDaoProvider.class);
-        UserService userServiceMock = Mockito.mock(UserService.class);
-        limitDaoMock = Mockito.mock(LimitDao.class);
-        expenseDaoMock = Mockito.mock(ExpenseDao.class);
-        balanceDaoMock = Mockito.mock(BalanceDao.class);
         Mockito.when(expenseDaoProviderMock.getExpenseDaoForUser(chatId)).thenReturn(expenseDaoMock);
         Mockito.when(balanceDaoProviderMock.getBalanceDaoForUser(chatId)).thenReturn(balanceDaoMock);
         Mockito.when(limitDaoProviderMock.getLimitDaoForUser(chatId)).thenReturn(limitDaoMock);
-        expenseService = new ExpenseService(expenseDaoProviderMock, limitDaoProviderMock,
-                balanceDaoProviderMock, userServiceMock);
     }
 
     /**
@@ -106,6 +121,26 @@ public class ExpenseServiceTest {
         Mockito.verify(limitDaoMock).setLimit(Mockito.eq(chatId), Mockito.argThat(limit1 ->
                 limit1.getDailyExpensesSum() == 30.0 && limit1.getDailyLimit() == 100.0));
     }
+
+//    @Test
+//    void testAddExpenseWithException() throws DaoException, ExceedingTheLimitException {
+//        String expenseMessage = "- 30 Расход 1";
+//        Limit limit = new Limit(100.0, 0.0);
+//        Mockito.when(balanceDaoMock.getBalance(chatId)).thenReturn(500.0);
+//        Mockito.when(limitDaoMock.getLimit(chatId)).thenReturn(limit);
+//        Mockito.doThrow(new ExceedingTheLimitException(500.0)).when(expenseService);
+//
+//        expenseService.addExpense(expenseMessage, chatId);
+//
+//        Expense expectedExpense =
+//                new Expense("Расход 1", 110.0, ExpenseCategory.OTHER, LocalDate.now());
+//        Mockito.verify(expenseDaoMock).addExpense(chatId, expectedExpense);
+//        Mockito.verify(balanceDaoMock).setBalance(chatId, 390.0);
+//        Assertions.assertThatThrownBy(() -> {
+//            expenseService.addExpense("Расход 50.0 на что-то", chatId);
+//        }).isInstanceOf(ExceedingTheLimitException.class).hasMessage("");
+//
+//    }
 
     /**
      * Тест для проверки метода {@link ExpenseService#addExpense}.

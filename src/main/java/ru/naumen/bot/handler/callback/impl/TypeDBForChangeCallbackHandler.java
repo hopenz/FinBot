@@ -2,8 +2,8 @@ package ru.naumen.bot.handler.callback.impl;
 
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
-import ru.naumen.bot.data.entity.DataType;
+import ru.naumen.bot.data.enums.ChatState;
+import ru.naumen.bot.data.enums.DataType;
 import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.handler.callback.CallbackHandler;
 import ru.naumen.bot.interaction.keyboards.TypeDBKeyboard;

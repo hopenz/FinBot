@@ -5,7 +5,7 @@ import ru.naumen.bot.data.dao.IncomeDao;
 import ru.naumen.bot.data.dao.UserDao;
 import ru.naumen.bot.data.dao.googleSheets.GoogleSheetsIncomeDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryIncomeDao;
-import ru.naumen.bot.data.entity.DataType;
+import ru.naumen.bot.data.enums.DataType;
 
 /**
  * Класс предоставляет доступ к DAO-объектам для работы с доходами пользователя.

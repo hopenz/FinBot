@@ -1,11 +1,10 @@
 package ru.naumen.bot.handler.message.impl;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
+import ru.naumen.bot.data.enums.ChatState;
 import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.service.ExpenseService;
 import ru.naumen.bot.service.UserService;
@@ -21,33 +20,23 @@ public class SetDailyLimitMessageHandlerTest {
     /**
      * Мок-объект для {@link UserService}, используемый для работы с данными пользователей.
      */
-    private UserService userServiceMock;
+    private final UserService userServiceMock = Mockito.mock(UserService.class);
 
     /**
      * Мок-объект для {@link ExpenseService}, используемый для работы с расходами пользователей.
      */
-    private ExpenseService expenseServiceMock;
+    private final ExpenseService expenseServiceMock = Mockito.mock(ExpenseService.class);
 
     /**
      * Тестируемый экземпляр {@link SetDailyLimitMessageHandler}.
      */
-    private SetDailyLimitMessageHandler setDailyLimitMessageHandler;
+    private final SetDailyLimitMessageHandler setDailyLimitMessageHandler
+            = new SetDailyLimitMessageHandler(userServiceMock, expenseServiceMock);
 
     /**
      * Идентификатор чата, используемый в тестах.
      */
     private final long chatId = 12345L;
-
-    /**
-     * Инициализация всех зависимостей.
-     */
-    @BeforeEach
-    void setUp() {
-        userServiceMock = Mockito.mock(UserService.class);
-        expenseServiceMock = Mockito.mock(ExpenseService.class);
-
-        setDailyLimitMessageHandler = new SetDailyLimitMessageHandler(userServiceMock, expenseServiceMock);
-    }
 
     /**
      * Тестирует успешное выполнение установки лимита расходов.

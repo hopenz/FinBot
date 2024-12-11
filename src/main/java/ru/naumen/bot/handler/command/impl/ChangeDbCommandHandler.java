@@ -2,9 +2,9 @@ package ru.naumen.bot.handler.command.impl;
 
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
+import ru.naumen.bot.data.enums.ChatState;
 import ru.naumen.bot.handler.command.CommandHandler;
-import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.interaction.CommandData;
 import ru.naumen.bot.interaction.keyboards.TypeDBKeyboard;
 import ru.naumen.bot.service.UserService;
 
@@ -33,7 +33,7 @@ public class ChangeDbCommandHandler implements CommandHandler {
 
     @Override
     public String getCommand() {
-        return Commands.CHANGE_DB_COMMAND.getCommand();
+        return CommandData.CHANGE_DB_COMMAND.getReadableName();
     }
 
     @Override

@@ -2,20 +2,18 @@ package ru.naumen.bot.handler.command.impl;
 
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.Expense;
-import ru.naumen.bot.data.entity.ExpenseCategory;
+import ru.naumen.bot.data.enums.ChatState;
+import ru.naumen.bot.data.enums.ExpenseCategory;
 import ru.naumen.bot.exception.DaoException;
-import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.interaction.CommandData;
 import ru.naumen.bot.service.ExpenseService;
 import ru.naumen.bot.service.UserService;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -26,28 +24,18 @@ public class ExpensesCommandHandlerTest {
     /**
      * Мок-объект для {@link UserService}, используемый для проверки статуса чата.
      */
-    private UserService userServiceMock;
+    private final UserService userServiceMock = Mockito.mock(UserService.class);
 
     /**
      * Мок-объект для {@link ExpenseService}, используемый для работы с расходами пользователя.
      */
-    private ExpenseService expenseServiceMock;
+    private final ExpenseService expenseServiceMock = Mockito.mock(ExpenseService.class);
 
     /**
      * Тестируемый объект {@link ExpensesCommandHandler}, обрабатывающий команду "/expenses".
      */
-    private ExpensesCommandHandler expensesCommandHandler;
-
-    /**
-     * Инициализация всех зависимостей и {@link ExpensesCommandHandler} перед каждым тестом.
-     */
-    @BeforeEach
-    void setUp() {
-        userServiceMock = Mockito.mock(UserService.class);
-        expenseServiceMock = Mockito.mock(ExpenseService.class);
-
-        expensesCommandHandler = new ExpensesCommandHandler(expenseServiceMock, userServiceMock);
-    }
+    private final ExpensesCommandHandler expensesCommandHandler
+            = new ExpensesCommandHandler(expenseServiceMock, userServiceMock);
 
     /**
      * Тест для обработки команды "/expenses".
@@ -56,7 +44,7 @@ public class ExpensesCommandHandlerTest {
     @Test
     void testHandleCommand() throws DaoException {
         long chatId = 12345L;
-        List<Expense> expenseList = Arrays.asList(
+        List<Expense> expenseList = List.of(
                 new Expense("expense1", 100.0,
                         ExpenseCategory.CLOTHING, LocalDate.of(2024, 1, 1)),
                 new Expense("expense2", 200.0,
@@ -70,7 +58,7 @@ public class ExpensesCommandHandlerTest {
         Mockito.when(expenseServiceMock.getExpenses(chatId)).thenReturn(expenseList);
 
         List<AnswerMessage> response =
-                expensesCommandHandler.handleCommand(Commands.EXPENSES_COMMAND.getCommand(), chatId);
+                expensesCommandHandler.handleCommand(CommandData.EXPENSES_COMMAND.getReadableName(), chatId);
 
         Mockito.verify(userServiceMock).setUserState(chatId, ChatState.NOTHING_WAITING);
         Assertions.assertThat(response).containsAll(expected);

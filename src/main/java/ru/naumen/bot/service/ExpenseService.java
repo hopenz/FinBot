@@ -11,8 +11,8 @@ import ru.naumen.bot.data.dao.provider.BalanceDaoProvider;
 import ru.naumen.bot.data.dao.provider.ExpenseDaoProvider;
 import ru.naumen.bot.data.dao.provider.LimitDaoProvider;
 import ru.naumen.bot.data.entity.Expense;
-import ru.naumen.bot.data.entity.ExpenseCategory;
 import ru.naumen.bot.data.entity.Limit;
+import ru.naumen.bot.data.enums.ExpenseCategory;
 import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.exception.ExceedingTheLimitException;
 
@@ -143,7 +143,7 @@ public class ExpenseService {
                 .filter(expenseCategory -> expenseCategory.getName().equalsIgnoreCase(category))
                 .findFirst()
                 .orElse(ExpenseCategory.OTHER);
-        expenseDao.changeLastExpenseCategory(chatId, newCategory);
+        expenseDao.setLastExpenseCategory(chatId, newCategory);
     }
 
     /**
@@ -195,7 +195,7 @@ public class ExpenseService {
      */
     @Scheduled(cron = "${scheduling.time-to-reset-limits}")
     private void resetLimits() {
-        Set<Long> usersId = userService.getUsers();
+        Set<Long> usersId = userService.getAllUserIds();
         for (Long userId : usersId) {
             LimitDao limitDao = limitDaoProvider.getLimitDaoForUser(userId);
             try {

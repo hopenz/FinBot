@@ -5,8 +5,8 @@ import ru.naumen.bot.data.dao.UserDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryBalanceDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryExpenseDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryIncomeDao;
-import ru.naumen.bot.data.entity.ChatState;
-import ru.naumen.bot.data.entity.DataType;
+import ru.naumen.bot.data.enums.ChatState;
+import ru.naumen.bot.data.enums.DataType;
 
 import java.util.Set;
 
@@ -148,9 +148,9 @@ public class UserService {
     }
 
     /**
-     * Возвращение идентификаторов пользователей.
+     * Возвращение идентификаторов всех пользователей.
      */
-    public Set<Long> getUsers() {
-        return userDao.getUsersId();
+    public Set<Long> getAllUserIds() {
+        return userDao.getUserIds();
     }
 }

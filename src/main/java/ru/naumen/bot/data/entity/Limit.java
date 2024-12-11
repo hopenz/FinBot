@@ -46,6 +46,7 @@ public class Limit {
      * Устанавливает новую сумму ежедневных расходов и проверяет, не превышает ли она лимит.
      *
      * @param dailyExpensesSum Новая сумма ежедневных расходов.
+     * @throws ExceedingTheLimitException Если новая сумма превышает лимит.
      */
     public void setDailyExpensesSum(Double dailyExpensesSum) throws ExceedingTheLimitException {
         this.dailyExpensesSum = dailyExpensesSum;

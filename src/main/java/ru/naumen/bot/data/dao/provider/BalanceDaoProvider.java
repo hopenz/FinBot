@@ -5,7 +5,7 @@ import ru.naumen.bot.data.dao.BalanceDao;
 import ru.naumen.bot.data.dao.UserDao;
 import ru.naumen.bot.data.dao.googleSheets.GoogleSheetsBalanceDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryBalanceDao;
-import ru.naumen.bot.data.entity.DataType;
+import ru.naumen.bot.data.enums.DataType;
 
 /**
  * Класс предоставляет доступ к DAO-объектам для работы с балансом пользователя.

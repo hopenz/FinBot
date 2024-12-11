@@ -2,9 +2,9 @@ package ru.naumen.bot.handler.command.impl;
 
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
+import ru.naumen.bot.data.enums.ChatState;
 import ru.naumen.bot.handler.command.CommandHandler;
-import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.interaction.CommandData;
 import ru.naumen.bot.service.UserService;
 
 import java.util.List;
@@ -31,16 +31,16 @@ public class HelpCommandHandler implements CommandHandler {
 
     @Override
     public String getCommand() {
-        return Commands.HELP_COMMAND.getCommand();
+        return CommandData.HELP_COMMAND.getReadableName();
     }
 
     @Override
     public List<AnswerMessage> handleCommand(String message, long chatId) {
         userService.setUserState(chatId, ChatState.NOTHING_WAITING);
-        Commands[] arrayOfCommand = Commands.values();
+        CommandData[] arrayOfCommand = CommandData.values();
         StringBuilder stringHelp = new StringBuilder("Справка по всем командам: \n");
-        for (Commands command : arrayOfCommand) {
-            stringHelp.append(command.getCommand()).append(" - ")
+        for (CommandData command : arrayOfCommand) {
+            stringHelp.append(command.getReadableName()).append(" - ")
                     .append(command.getDescription()).append("\n");
         }
         stringHelp.append("\nЧтобы добавить доход введите:\n+ <сумма> <описание>\n");

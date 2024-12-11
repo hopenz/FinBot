@@ -5,7 +5,7 @@ import ru.naumen.bot.data.dao.ExpenseDao;
 import ru.naumen.bot.data.dao.UserDao;
 import ru.naumen.bot.data.dao.googleSheets.GoogleSheetsExpenseDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryExpenseDao;
-import ru.naumen.bot.data.entity.DataType;
+import ru.naumen.bot.data.enums.DataType;
 
 /**
  * Класс предоставляет доступ к DAO-объектам для работы с расходами пользователя.

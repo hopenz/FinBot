@@ -1,9 +1,13 @@
 package ru.naumen.bot.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import ru.naumen.bot.data.entity.*;
+import ru.naumen.bot.data.entity.Expense;
+import ru.naumen.bot.data.entity.Income;
+import ru.naumen.bot.data.entity.Limit;
+import ru.naumen.bot.data.enums.ChatState;
+import ru.naumen.bot.data.enums.DataType;
+import ru.naumen.bot.data.enums.ExpenseCategory;
 import ru.naumen.bot.exception.DaoException;
 
 import java.time.LocalDate;
@@ -17,47 +21,33 @@ public class DatabaseServiceTest {
     /**
      * Мок-объект для {@link UserService}, используемый для проверки статуса чата.
      */
-    private UserService userService;
+    private final UserService userService = Mockito.mock(UserService.class);
 
     /**
      * Мок-объект для {@link IncomeService}, используемый для работы с доходами пользователя.
      */
-    private IncomeService incomeService;
+    private final IncomeService incomeService = Mockito.mock(IncomeService.class);
 
     /**
      * Мок-объект для {@link ExpenseService}, используемый для работы с расходами пользователя.
      */
-    private ExpenseService expenseService;
+    private final ExpenseService expenseService = Mockito.mock(ExpenseService.class);
 
     /**
      * Мок-объект для {@link BalanceService}, используемый для управления балансом пользователей.
      */
-    private BalanceService balanceService;
+    private final BalanceService balanceService = Mockito.mock(BalanceService.class);
 
     /**
      * Мок-объект для {@link GoogleSheetsService}, используемый для работы с Google Sheets.
      */
-    private GoogleSheetsService googleSheetsService;
+    private final GoogleSheetsService googleSheetsService = Mockito.mock(GoogleSheetsService.class);
 
     /**
      * Тестируемый объект {@link DatabaseService}.
      */
-    private DatabaseService databaseService;
-
-    /**
-     * Настройка зависимостей перед выполнением каждого теста.
-     */
-    @BeforeEach
-    void setUp() {
-        userService = Mockito.mock(UserService.class);
-        incomeService = Mockito.mock(IncomeService.class);
-        expenseService = Mockito.mock(ExpenseService.class);
-        balanceService = Mockito.mock(BalanceService.class);
-        googleSheetsService = Mockito.mock(GoogleSheetsService.class);
-
-        databaseService = new DatabaseService(userService, incomeService,
-                expenseService, balanceService, googleSheetsService);
-    }
+    private final DatabaseService databaseService = new DatabaseService(userService, incomeService,
+            expenseService, balanceService, googleSheetsService);
 
 
     /**

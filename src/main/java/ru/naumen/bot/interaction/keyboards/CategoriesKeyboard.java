@@ -1,7 +1,7 @@
 package ru.naumen.bot.interaction.keyboards;
 
 import org.springframework.stereotype.Component;
-import ru.naumen.bot.data.entity.ExpenseCategory;
+import ru.naumen.bot.data.enums.ExpenseCategory;
 
 import java.util.ArrayList;
 import java.util.Arrays;

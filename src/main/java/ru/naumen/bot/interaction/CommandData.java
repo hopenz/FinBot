@@ -4,7 +4,7 @@ package ru.naumen.bot.interaction;
  * Перечисление предоставляет список команд, доступных для бота.
  * Каждая команда имеет описание и текст команды.
  */
-public enum Commands {
+public enum CommandData {
     /**
      * Команда для начала работы с ботом.
      */
@@ -72,7 +72,7 @@ public enum Commands {
      * @param command     Текст команды.
      * @param description Описание команды.
      */
-    Commands(String command, String description) {
+    CommandData(String command, String description) {
         this.command = command;
         this.description = description;
     }
@@ -82,7 +82,7 @@ public enum Commands {
      *
      * @return Текст команды.
      */
-    public String getCommand() {
+    public String getReadableName() {
         return command;
     }
 

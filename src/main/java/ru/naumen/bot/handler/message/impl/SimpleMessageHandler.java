@@ -2,11 +2,11 @@ package ru.naumen.bot.handler.message.impl;
 
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
+import ru.naumen.bot.data.enums.ChatState;
 import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.exception.ExceedingTheLimitException;
 import ru.naumen.bot.handler.message.MessageHandler;
-import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.interaction.CommandData;
 import ru.naumen.bot.interaction.keyboards.CategoriesKeyboard;
 import ru.naumen.bot.service.ExpenseService;
 import ru.naumen.bot.service.IncomeService;
@@ -98,6 +98,6 @@ public class SimpleMessageHandler implements MessageHandler {
             return answerMessages;
         }
         return List.of(new AnswerMessage("Я вас не понял.\nЧтобы ознакомиться с командами - напишите "
-                + Commands.HELP_COMMAND.getCommand(), chatId));
+                + CommandData.HELP_COMMAND.getReadableName(), chatId));
     }
 }

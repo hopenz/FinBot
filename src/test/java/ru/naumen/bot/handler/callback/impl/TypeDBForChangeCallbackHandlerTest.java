@@ -1,12 +1,11 @@
 package ru.naumen.bot.handler.callback.impl;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
-import ru.naumen.bot.data.entity.DataType;
+import ru.naumen.bot.data.enums.ChatState;
+import ru.naumen.bot.data.enums.DataType;
 import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.interaction.keyboards.TypeDBKeyboard;
 import ru.naumen.bot.service.DatabaseService;
@@ -23,17 +22,18 @@ public class TypeDBForChangeCallbackHandlerTest {
     /**
      * Мок-объект для {@link UserService}, используемый для управления состоянием пользователя и данных.
      */
-    private UserService userServiceMock;
+    private final UserService userServiceMock = Mockito.mock(UserService.class);
 
     /**
      * Мок-объект для {@link DatabaseService}, используемый для изменения типа базы данных.
      */
-    private DatabaseService databaseServiceMock;
+    private final DatabaseService databaseServiceMock = Mockito.mock(DatabaseService.class);
 
     /**
      * Тестируемый обработчик коллбэков {@link TypeDBForChangeCallbackHandler}.
      */
-    private TypeDBForChangeCallbackHandler callbackHandler;
+    private final TypeDBForChangeCallbackHandler callbackHandler
+            = new TypeDBForChangeCallbackHandler(databaseServiceMock, userServiceMock);
 
     /**
      * Идентификатор чата пользователя.
@@ -44,17 +44,6 @@ public class TypeDBForChangeCallbackHandlerTest {
      * Идентификатор коллбэка.
      */
     private final String callbackId = "id";
-
-    /**
-     * Инициализация зависимостей перед каждым тестом.
-     */
-    @BeforeEach
-    void setUp() {
-        userServiceMock = Mockito.mock(UserService.class);
-        databaseServiceMock = Mockito.mock(DatabaseService.class);
-
-        callbackHandler = new TypeDBForChangeCallbackHandler(databaseServiceMock, userServiceMock);
-    }
 
     /**
      * Тест обработки коллбэка при попытке выбрать тот же тип базы данных, который уже используется.

@@ -7,13 +7,13 @@ import org.mockito.Mockito;
 import ru.naumen.bot.data.dao.googleSheets.exception.GoogleSheetsException;
 import ru.naumen.bot.data.entity.AnswerMessage;
 import ru.naumen.bot.data.entity.BotUpdate;
-import ru.naumen.bot.data.entity.ChatState;
-import ru.naumen.bot.data.entity.DataType;
+import ru.naumen.bot.data.enums.ChatState;
+import ru.naumen.bot.data.enums.DataType;
 import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.handler.callback.CallbackHandler;
 import ru.naumen.bot.handler.command.CommandHandler;
 import ru.naumen.bot.handler.message.MessageHandler;
-import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.interaction.CommandData;
 import ru.naumen.bot.service.UserService;
 
 import java.util.List;
@@ -27,22 +27,22 @@ public class BotUpdateProcessorTest {
     /**
      * Мок-объект для {@link UserService}, используемый для работы с данными пользователей.
      */
-    private UserService userServiceMock;
+    private final UserService userServiceMock = Mockito.mock(UserService.class);
 
     /**
      * Мок-объект для {@link CommandHandler}, используемый для обработки команд бота.
      */
-    private CommandHandler commandHandlerMock;
+    private final CommandHandler commandHandlerMock = Mockito.mock(CommandHandler.class);
 
     /**
      * Мок-объект для {@link CallbackHandler}, используемый для обработки коллбэков.
      */
-    private CallbackHandler callbackHandlerMock;
+    private final CallbackHandler callbackHandlerMock = Mockito.mock(CallbackHandler.class);
 
     /**
      * Мок-объект для {@link MessageHandler}, используемый для обработки сообщений.
      */
-    private MessageHandler messageHandlerMock;
+    private final MessageHandler messageHandlerMock = Mockito.mock(MessageHandler.class);
 
     /**
      * Тестируемый объект {@link BotUpdateProcessor}, который обрабатывает обновления бота.
@@ -59,12 +59,8 @@ public class BotUpdateProcessorTest {
      */
     @BeforeEach
     void setUp() {
-        userServiceMock = Mockito.mock(UserService.class);
-        commandHandlerMock = Mockito.mock(CommandHandler.class);
-        Mockito.when(commandHandlerMock.getCommand()).thenReturn(Commands.START_COMMAND.getCommand());
-        callbackHandlerMock = Mockito.mock(CallbackHandler.class);
+        Mockito.when(commandHandlerMock.getCommand()).thenReturn(CommandData.START_COMMAND.getReadableName());
         Mockito.when(callbackHandlerMock.getChatState()).thenReturn(ChatState.NOTHING_WAITING);
-        messageHandlerMock = Mockito.mock(MessageHandler.class);
         Mockito.when(messageHandlerMock.getChatState()).thenReturn(ChatState.NOTHING_WAITING);
         Mockito.when(userServiceMock.isChatOpened(chatId)).thenReturn(true);
         botUpdateProcessor = new BotUpdateProcessor(
@@ -87,7 +83,7 @@ public class BotUpdateProcessorTest {
 
         List<AnswerMessage> response = botUpdateProcessor.processBotUpdate(botUpdate);
         List<AnswerMessage> expected = List.of(new AnswerMessage(
-                "Чтобы начать работу, нажмите " + Commands.START_COMMAND.getCommand(), chatId));
+                "Чтобы начать работу, нажмите " + CommandData.START_COMMAND.getReadableName(), chatId));
 
         Assertions.assertThat(response).containsAll(expected);
         Assertions.assertThat(response.size()).isEqualTo(1);
@@ -119,8 +115,8 @@ public class BotUpdateProcessorTest {
     @Test
     void testProcessBotUpdate_WithCommand() throws DaoException {
         BotUpdate botUpdate =
-                new BotUpdate(chatId, Commands.START_COMMAND.getCommand(), null, null);
-        Mockito.when(commandHandlerMock.handleCommand(Commands.START_COMMAND.getCommand(), chatId)).
+                new BotUpdate(chatId, CommandData.START_COMMAND.getReadableName(), null, null);
+        Mockito.when(commandHandlerMock.handleCommand(CommandData.START_COMMAND.getReadableName(), chatId)).
                 thenReturn(List.of(new AnswerMessage("Start response", chatId)));
 
         List<AnswerMessage> response = botUpdateProcessor.processBotUpdate(botUpdate);
@@ -160,9 +156,9 @@ public class BotUpdateProcessorTest {
     @Test
     void testProcessBotUpdate_WithGoogleSheetsException() throws DaoException {
         BotUpdate botUpdate =
-                new BotUpdate(chatId, Commands.START_COMMAND.getCommand(), null, null);
-        Mockito.when(commandHandlerMock.handleCommand(Commands.START_COMMAND.getCommand(), chatId)).
-                thenThrow(new GoogleSheetsException(new Exception("exception")));
+                new BotUpdate(chatId, CommandData.START_COMMAND.getReadableName(), null, null);
+        Mockito.when(commandHandlerMock.handleCommand(CommandData.START_COMMAND.getReadableName(), chatId)).
+                thenThrow(new GoogleSheetsException("exception", new Exception("exception")));
 
         List<AnswerMessage> response = botUpdateProcessor.processBotUpdate(botUpdate);
         List<AnswerMessage> expected = List.of(
@@ -190,8 +186,8 @@ public class BotUpdateProcessorTest {
     @Test
     void testProcessBotUpdate_WithDaoException() throws DaoException {
         BotUpdate botUpdate =
-                new BotUpdate(chatId, Commands.START_COMMAND.getCommand(), null, null);
-        Mockito.when(commandHandlerMock.handleCommand(Commands.START_COMMAND.getCommand(), chatId)).
+                new BotUpdate(chatId, CommandData.START_COMMAND.getReadableName(), null, null);
+        Mockito.when(commandHandlerMock.handleCommand(CommandData.START_COMMAND.getReadableName(), chatId)).
                 thenThrow(new DaoException(new Exception("exception")));
 
         List<AnswerMessage> response = botUpdateProcessor.processBotUpdate(botUpdate);

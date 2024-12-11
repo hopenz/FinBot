@@ -2,9 +2,9 @@ package ru.naumen.bot.handler.command.impl;
 
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
+import ru.naumen.bot.data.enums.ChatState;
 import ru.naumen.bot.handler.command.CommandHandler;
-import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.interaction.CommandData;
 import ru.naumen.bot.interaction.keyboards.TypeDBKeyboard;
 import ru.naumen.bot.service.UserService;
 
@@ -33,7 +33,7 @@ public class StartCommandHandler implements CommandHandler {
 
     @Override
     public String getCommand() {
-        return Commands.START_COMMAND.getCommand();
+        return CommandData.START_COMMAND.getReadableName();
     }
 
     @Override
@@ -42,7 +42,7 @@ public class StartCommandHandler implements CommandHandler {
             userService.setUserState(chatId, ChatState.NOTHING_WAITING);
             return List.of(new AnswerMessage(
                     "Ещё раз здравствуйте, чтобы ознакомиться с командами - напишите " +
-                            Commands.HELP_COMMAND.getCommand(), chatId));
+                            CommandData.HELP_COMMAND.getReadableName(), chatId));
         } else {
             userService.openChat(chatId);
             List<String> keyboardButtons = Arrays.stream(TypeDBKeyboard.values())

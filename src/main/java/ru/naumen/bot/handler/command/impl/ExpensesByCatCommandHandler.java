@@ -2,10 +2,10 @@ package ru.naumen.bot.handler.command.impl;
 
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
+import ru.naumen.bot.data.enums.ChatState;
 import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.handler.command.CommandHandler;
-import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.interaction.CommandData;
 import ru.naumen.bot.interaction.keyboards.CategoriesKeyboard;
 import ru.naumen.bot.service.UserService;
 
@@ -45,7 +45,7 @@ public class ExpensesByCatCommandHandler implements CommandHandler {
 
     @Override
     public String getCommand() {
-        return Commands.EXPENSES_BY_CAT.getCommand();
+        return CommandData.EXPENSES_BY_CAT.getReadableName();
     }
 
     @Override

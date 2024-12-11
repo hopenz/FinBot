@@ -16,7 +16,7 @@ import ru.naumen.bot.configuration.ApplicationConfig;
 import ru.naumen.bot.controller.BotController;
 import ru.naumen.bot.data.entity.AnswerMessage;
 import ru.naumen.bot.data.entity.BotUpdate;
-import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.interaction.CommandData;
 import ru.naumen.bot.processor.BotUpdateProcessor;
 
 import java.util.Arrays;
@@ -82,8 +82,8 @@ public class TelegramBotController implements BotController {
      * @return массив команд
      */
     private BotCommand[] createCommandsMenu() {
-        return Arrays.stream(Commands.values())
-                .map(command -> new BotCommand(command.getCommand(), command.getDescription()))
+        return Arrays.stream(CommandData.values())
+                .map(command -> new BotCommand(command.getReadableName(), command.getDescription()))
                 .toArray(BotCommand[]::new);
     }
 

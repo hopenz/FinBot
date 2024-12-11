@@ -1,5 +1,7 @@
 package ru.naumen.bot.data.entity;
 
+import ru.naumen.bot.data.enums.ExpenseCategory;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -81,10 +83,17 @@ public class Expense {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Expense expense = (Expense) o;
-        return Objects.equals(description, expense.description) && Objects.equals(amount, expense.amount) && category == expense.category && Objects.equals(date, expense.date);
+        return Objects.equals(description, expense.description)
+                && Objects.equals(amount, expense.amount)
+                && category == expense.category
+                && Objects.equals(date, expense.date);
     }
 
     @Override

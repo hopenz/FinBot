@@ -2,9 +2,9 @@ package ru.naumen.bot.handler.callback.impl;
 
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
+import ru.naumen.bot.data.enums.ChatState;
 import ru.naumen.bot.handler.callback.CallbackHandler;
-import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.interaction.CommandData;
 import ru.naumen.bot.interaction.keyboards.TypeDBKeyboard;
 import ru.naumen.bot.service.UserService;
 
@@ -40,7 +40,7 @@ public class TypeDBForStartCallbackHandler implements CallbackHandler {
     public List<AnswerMessage> handleCallback(String callbackData, String callbackId, long chatId) {
         List<AnswerMessage> answerMessages = new ArrayList<>(List.of(
                 new AnswerMessage("Помните, вы можете поменять способ хранения данных с помощью команды " +
-                        Commands.CHANGE_DB_COMMAND.getCommand(), chatId)));
+                        CommandData.CHANGE_DB_COMMAND.getReadableName(), chatId)));
 
         if (callbackData.equals(TypeDBKeyboard.GOOGLE_SHEETS.getData())) {
             userService.setUserState(chatId, ChatState.WAITING_FOR_GOOGLE_SHEET_LINK);

@@ -3,7 +3,7 @@ package ru.naumen.bot.data.dao.inMemory;
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.data.dao.ExpenseDao;
 import ru.naumen.bot.data.entity.Expense;
-import ru.naumen.bot.data.entity.ExpenseCategory;
+import ru.naumen.bot.data.enums.ExpenseCategory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,7 +46,7 @@ public class InMemoryExpenseDao implements ExpenseDao {
     }
 
     @Override
-    public void changeLastExpenseCategory(long chatId, ExpenseCategory newCategory) {
+    public void setLastExpenseCategory(long chatId, ExpenseCategory newCategory) {
         usersExpenses.get(chatId).getLast().setCategory(newCategory);
     }
 
