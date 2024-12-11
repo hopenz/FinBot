@@ -1,12 +1,13 @@
 package ru.naumen.bot.data.dao;
 
 import org.springframework.stereotype.Component;
-import ru.naumen.bot.data.entity.ChatState;
-import ru.naumen.bot.data.entity.DataType;
 import ru.naumen.bot.data.entity.User;
+import ru.naumen.bot.data.enums.ChatState;
+import ru.naumen.bot.data.enums.DataType;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Класс, предоставляющий функционал для управления данными о пользователях в памяти.
@@ -104,5 +105,12 @@ public class UserDao {
      */
     public String getGoogleSheetId(long chatId) {
         return users.get(chatId).getGoogleSheetId();
+    }
+
+    /**
+     * Возвращает идентификаторы всех открытых чатов.
+     */
+    public Set<Long> getUserIds() {
+        return users.keySet();
     }
 }

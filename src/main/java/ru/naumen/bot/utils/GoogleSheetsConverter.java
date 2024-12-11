@@ -3,6 +3,8 @@ package ru.naumen.bot.utils;
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.Income;
+import ru.naumen.bot.data.entity.Limit;
+import ru.naumen.bot.data.enums.ExpenseCategory;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -45,7 +47,8 @@ public class GoogleSheetsConverter {
      * @return список списков, содержащий данные о расходе в формате таблицы
      */
     public List<List<Object>> expenseToSheetFormat(Expense expense) {
-        return List.of(List.of(expense.description(), expense.amount(), "'" + expense.date().toString()));
+        return List.of(List.of(expense.getDescription(), expense.getAmount(),
+                expense.getCategory().name(), "'" + expense.getDate().toString()));
     }
 
     /**
@@ -56,8 +59,8 @@ public class GoogleSheetsConverter {
      */
     public List<List<Object>> expensesToSheetFormat(List<Expense> expenses) {
         return expenses.stream()
-                .map(expense -> List.<Object>of(expense.description(),
-                        expense.amount(), "'" + expense.date().toString()))
+                .map(expense -> List.<Object>of(expense.getDescription(), expense.getAmount(),
+                        expense.getCategory().name(), "'" + expense.getDate().toString()))
                 .collect(Collectors.toList());
     }
 
@@ -92,7 +95,7 @@ public class GoogleSheetsConverter {
         List<Expense> result = new ArrayList<>(data.size());
         for (List<Object> row : data) {
             result.add(new Expense((String) row.get(0), Double.parseDouble((String) row.get(1)),
-                    LocalDate.parse((String) row.get(2))));
+                    ExpenseCategory.valueOf((String) row.get(2)), LocalDate.parse((String) row.get(3))));
         }
         return result;
     }
@@ -118,5 +121,30 @@ public class GoogleSheetsConverter {
             return 0.0;
         }
         return Double.parseDouble((String) data.getFirst().getFirst());
+    }
+
+    /**
+     * Преобразует строку в формат, подходящий для использования в Google Sheets.
+     *
+     * @param string строка, которую необходимо преобразовать в формат для таблицы.
+     * @return двумерный список, содержащий одну строку с переданным значением строки.
+     */
+    public List<List<Object>> stringToSheetFormat(String string) {
+        return List.of(List.of(string));
+    }
+
+    public List<List<Object>> limitToSheetFormat(Limit limit) {
+        if (limit == null) {
+            return List.of(List.of());
+        }
+        return List.of(List.of(limit.getDailyLimit(), limit.getDailyExpensesSum()));
+    }
+
+    public Limit sheetFormatToLimit(List<List<Object>> data) {
+        if (data == null) {
+            return null;
+        }
+        return new Limit(Double.parseDouble((String) data.getFirst().getFirst()),
+                Double.parseDouble((String) data.getFirst().get(1)));
     }
 }

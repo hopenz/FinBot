@@ -12,8 +12,8 @@ public class GoogleSheetsException extends DaoException {
      *
      * @param exception исключение, которое произошло при работе с Google Sheets
      */
-    public GoogleSheetsException(Exception exception) {
-        super(exception);
+    public GoogleSheetsException(String message, Exception exception) {
+        super(message, exception);
     }
 
 }

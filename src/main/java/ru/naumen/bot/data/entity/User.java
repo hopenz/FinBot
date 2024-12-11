@@ -1,5 +1,8 @@
 package ru.naumen.bot.data.entity;
 
+import ru.naumen.bot.data.enums.ChatState;
+import ru.naumen.bot.data.enums.DataType;
+
 /**
  * Класс User представляет пользователя бота и содержит информацию о его настройках и состоянии чата.
  */

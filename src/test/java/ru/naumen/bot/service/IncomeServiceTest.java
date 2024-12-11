@@ -5,8 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.naumen.bot.data.dao.BalanceDao;
-import ru.naumen.bot.data.dao.DaoProvider;
 import ru.naumen.bot.data.dao.IncomeDao;
+import ru.naumen.bot.data.dao.provider.BalanceDaoProvider;
+import ru.naumen.bot.data.dao.provider.IncomeDaoProvider;
 import ru.naumen.bot.data.entity.Income;
 import ru.naumen.bot.exception.DaoException;
 
@@ -21,17 +22,29 @@ public class IncomeServiceTest {
     /**
      * Мок-объект для {@link IncomeDao}, используемый для работы с доходами пользователей.
      */
-    private IncomeDao incomeDaoMock;
+    private final IncomeDao incomeDaoMock = Mockito.mock(IncomeDao.class);
 
     /**
      * Мок-объект для {@link BalanceDao}, используемый для управления балансом пользователей.
      */
-    private BalanceDao balanceDaoMock;
+    private final BalanceDao balanceDaoMock = Mockito.mock(BalanceDao.class);
+
+    /**
+     * Мок-объект для {@link IncomeDaoProvider}, который предоставляет
+     * доступ к DAO-объектам для работы с доходами пользователя
+     */
+    IncomeDaoProvider incomeDaoProviderMock = Mockito.mock(IncomeDaoProvider.class);
+
+    /**
+     * Мок-объект для {@link BalanceDaoProvider}, который предоставляет
+     * доступ к DAO-объектам для работы с балансом пользователя
+     */
+    BalanceDaoProvider balanceDaoProviderMock = Mockito.mock(BalanceDaoProvider.class);
 
     /**
      * Тестируемый объект {@link IncomeService}, который проверяется в данном тестовом классе.
      */
-    private IncomeService incomeService;
+    private final IncomeService incomeService = new IncomeService(incomeDaoProviderMock, balanceDaoProviderMock);
 
     /**
      * Идентификатор чата, в котором происходит тестирование.
@@ -43,12 +56,8 @@ public class IncomeServiceTest {
      */
     @BeforeEach
     void setUp() {
-        DaoProvider daoProviderMock = Mockito.mock(DaoProvider.class);
-        incomeDaoMock = Mockito.mock(IncomeDao.class);
-        balanceDaoMock = Mockito.mock(BalanceDao.class);
-        Mockito.when(daoProviderMock.getIncomeDaoForUser(chatId)).thenReturn(incomeDaoMock);
-        Mockito.when(daoProviderMock.getBalanceDaoForUser(chatId)).thenReturn(balanceDaoMock);
-        incomeService = new IncomeService(daoProviderMock);
+        Mockito.when(incomeDaoProviderMock.getIncomeDaoForUser(chatId)).thenReturn(incomeDaoMock);
+        Mockito.when(balanceDaoProviderMock.getBalanceDaoForUser(chatId)).thenReturn(balanceDaoMock);
     }
 
     /**

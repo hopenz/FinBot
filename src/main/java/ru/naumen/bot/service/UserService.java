@@ -1,12 +1,14 @@
 package ru.naumen.bot.service;
 
 import org.springframework.stereotype.Service;
+import ru.naumen.bot.data.dao.UserDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryBalanceDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryExpenseDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryIncomeDao;
-import ru.naumen.bot.data.dao.UserDao;
-import ru.naumen.bot.data.entity.ChatState;
-import ru.naumen.bot.data.entity.DataType;
+import ru.naumen.bot.data.enums.ChatState;
+import ru.naumen.bot.data.enums.DataType;
+
+import java.util.Set;
 
 /**
  * Сервис UserService предоставляет методы для работы с данными о пользователях.
@@ -143,5 +145,12 @@ public class UserService {
      */
     public String getGoogleSheetId(Long chatId) {
         return userDao.getGoogleSheetId(chatId);
+    }
+
+    /**
+     * Возвращение идентификаторов всех пользователей.
+     */
+    public Set<Long> getAllUserIds() {
+        return userDao.getUserIds();
     }
 }

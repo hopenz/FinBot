@@ -4,8 +4,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.naumen.bot.data.dao.UserDao;
-import ru.naumen.bot.data.entity.ChatState;
-import ru.naumen.bot.data.entity.DataType;
+import ru.naumen.bot.data.enums.ChatState;
+import ru.naumen.bot.data.enums.DataType;
 
 /**
  * Тесты для класса {@link UserDao}, проверяющие функциональность управления пользователями.

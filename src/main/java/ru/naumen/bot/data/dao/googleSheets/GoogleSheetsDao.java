@@ -49,13 +49,18 @@ public class GoogleSheetsDao {
             googleSheetsClient.updateSheetTitle(0, "Общая информация", googleSheetId);
             googleSheetsClient.createNewSheet(1, "Расходы", googleSheetId);
             googleSheetsClient.createNewSheet(2, "Доходы", googleSheetId);
-            googleSheetsClient.updateData("Расходы!A1:C1", List.of(List.of("Описание", "Сумма", "Дата")),
-                    googleSheetId);
-            googleSheetsClient.updateData("Доходы!A1:C1", List.of(List.of("Описание", "Сумма", "Дата")),
-                    googleSheetId);
-            googleSheetsClient.updateData("Общая информация!A1", List.of(List.of("Баланс:")), googleSheetId);
+            googleSheetsClient.updateData("Расходы!A1:D1",
+                    List.of(List.of("Описание", "Сумма", "Категория", "Дата")), googleSheetId);
+            googleSheetsClient.updateData("Доходы!A1:C1",
+                    List.of(List.of("Описание", "Сумма", "Дата")), googleSheetId);
+            googleSheetsClient.updateData("Общая информация!A1",
+                    List.of(List.of("Баланс:")), googleSheetId);
+            googleSheetsClient.updateData("Общая информация!A3",
+                    List.of(List.of("Лимит на день:")), googleSheetId);
+            googleSheetsClient.updateData("Общая информация!B3",
+                    List.of(List.of("Сумма расходов за день:")), googleSheetId);
         } catch (IOException e) {
-            throw new GoogleSheetsException(e);
+            throw new GoogleSheetsException("Ошибка инициализации таблицы", e);
         }
 
     }

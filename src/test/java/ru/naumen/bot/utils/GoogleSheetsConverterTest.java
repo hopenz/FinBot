@@ -4,6 +4,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.naumen.bot.data.entity.Expense;
 import ru.naumen.bot.data.entity.Income;
+import ru.naumen.bot.data.entity.Limit;
+import ru.naumen.bot.data.enums.ExpenseCategory;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -56,8 +58,9 @@ public class GoogleSheetsConverterTest {
      */
     @Test
     public void testExpenseToSheetFormat() {
-        Expense expense = new Expense("Groceries", 150.0, LocalDate.of(2023, 11, 3));
-        List<List<Object>> expected = List.of(List.of("Groceries", 150.0, "'2023-11-03"));
+        Expense expense = new Expense("Groceries", 150.0,
+                ExpenseCategory.OTHER, LocalDate.of(2023, 11, 3));
+        List<List<Object>> expected = List.of(List.of("Groceries", 150.0, "OTHER", "'2023-11-03"));
 
         List<List<Object>> result = converter.expenseToSheetFormat(expense);
 
@@ -71,13 +74,15 @@ public class GoogleSheetsConverterTest {
     @Test
     public void testExpensesToSheetFormat() {
         List<Expense> expenses = List.of(
-                new Expense("Groceries", 150.0, LocalDate.of(2023, 11, 3)),
-                new Expense("Rent", 1000.0, LocalDate.of(2023, 11, 1))
+                new Expense("Groceries", 150.0,
+                        ExpenseCategory.TRANSPORT, LocalDate.of(2023, 11, 3)),
+                new Expense("Rent", 1000.0,
+                        ExpenseCategory.OTHER, LocalDate.of(2023, 11, 1))
         );
 
         List<List<Object>> expected = List.of(
-                List.of("Groceries", 150.0, "'2023-11-03"),
-                List.of("Rent", 1000.0, "'2023-11-01")
+                List.of("Groceries", 150.0, "TRANSPORT", "'2023-11-03"),
+                List.of("Rent", 1000.0, "OTHER", "'2023-11-01")
         );
 
         List<List<Object>> result = converter.expensesToSheetFormat(expenses);
@@ -113,13 +118,15 @@ public class GoogleSheetsConverterTest {
     @Test
     public void testSheetFormatToExpenses() {
         List<List<Object>> data = List.of(
-                List.of("Groceries", "150.0", "2023-11-03"),
-                List.of("Rent", "1000.0", "2023-11-01")
+                List.of("Groceries", "150.0", "OTHER", "2023-11-03"),
+                List.of("Rent", "1000.0", "SUPERMARKET", "2023-11-01")
         );
 
         List<Expense> expected = List.of(
-                new Expense("Groceries", 150.0, LocalDate.of(2023, 11, 3)),
-                new Expense("Rent", 1000.0, LocalDate.of(2023, 11, 1))
+                new Expense("Groceries", 150.0,
+                        ExpenseCategory.OTHER, LocalDate.of(2023, 11, 3)),
+                new Expense("Rent", 1000.0,
+                        ExpenseCategory.SUPERMARKET, LocalDate.of(2023, 11, 1))
         );
 
         List<Expense> result = converter.sheetFormatToExpenses(data);
@@ -162,5 +169,51 @@ public class GoogleSheetsConverterTest {
     @Test
     public void testSheetFormatToDoubleWithNullOrEmptyData() {
         Assertions.assertThat(converter.sheetFormatToDouble(null)).isEqualTo(0.0);
+    }
+
+    /**
+     * Тест для метода limitToSheetFormat.
+     * Проверяет правильность преобразования объекта Limit в формат таблицы.
+     */
+    @Test
+    public void testLimitToSheetFormat() {
+        Limit limit = new Limit(1000.0, 0.0);
+        List<List<Object>> expected = List.of(List.of(1000.0, 0.0));
+        List<List<Object>> result = converter.limitToSheetFormat(limit);
+        Assertions.assertThat(result).isEqualTo(expected);
+    }
+
+    /**
+     * Тест для метода limitToSheetFormat при отсутствии лимита в таблице.
+     * Проверяет, что возвращается пустой список, если входной объект равен null.
+     */
+    @Test
+    public void testLimitToSheetFormatWithNull() {
+        List<List<Object>> expected = List.of(List.of());
+        List<List<Object>> result = converter.limitToSheetFormat(null);
+        Assertions.assertThat(result).isEqualTo(expected);
+    }
+
+    /**
+     * Тест для метода sheetFormatToLimit.
+     * Проверяет правильность преобразования данных из формата таблицы в объект Limit.
+     */
+    @Test
+    public void testSheetFormatToLimit() {
+        List<List<Object>> data = List.of(List.of("1000.0", "0.0"));
+        Limit expected = new Limit(1000.0, 0.0);
+        Limit result = converter.sheetFormatToLimit(data);
+        Assertions.assertThat(result.getDailyLimit()).isEqualTo(expected.getDailyLimit());
+        Assertions.assertThat(result.getDailyExpensesSum()).isEqualTo(expected.getDailyExpensesSum());
+    }
+
+    /**
+     * Тест для метода sheetFormatToLimit при отсутствии лимита в таблице.
+     * Проверяет, что возвращается null, если входные данные равны null.
+     */
+    @Test
+    public void testSheetFormatToLimitWithNull() {
+        Limit result = converter.sheetFormatToLimit(null);
+        Assertions.assertThat(result).isNull();
     }
 }
