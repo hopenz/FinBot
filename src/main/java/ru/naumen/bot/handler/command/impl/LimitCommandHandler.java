@@ -2,10 +2,10 @@ package ru.naumen.bot.handler.command.impl;
 
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
+import ru.naumen.bot.data.enums.ChatState;
 import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.handler.command.CommandHandler;
-import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.interaction.CommandData;
 import ru.naumen.bot.service.UserService;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public class LimitCommandHandler implements CommandHandler {
 
     @Override
     public String getCommand() {
-        return Commands.SET_EXPENSES_LIMIT_COMMAND.getCommand();
+        return CommandData.SET_EXPENSES_LIMIT_COMMAND.getReadableName();
     }
 
     @Override

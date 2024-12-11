@@ -1,13 +1,12 @@
 package ru.naumen.bot.handler.command.impl;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
+import ru.naumen.bot.data.enums.ChatState;
 import ru.naumen.bot.exception.DaoException;
-import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.interaction.CommandData;
 import ru.naumen.bot.interaction.keyboards.CategoriesKeyboard;
 import ru.naumen.bot.service.UserService;
 
@@ -21,28 +20,18 @@ public class ExpensesByCatCommandHandlerTest {
     /**
      * Мок-объект для {@link UserService}, используемый для управления состоянием пользователя.
      */
-    private UserService userServiceMock;
+    private final UserService userServiceMock = Mockito.mock(UserService.class);
 
     /**
      * Мок-объект для {@link CategoriesKeyboard}, используемый для формирования кнопок выбора категорий.
      */
-    private CategoriesKeyboard categoriesKeyboardMock;
+    private final CategoriesKeyboard categoriesKeyboardMock = Mockito.mock(CategoriesKeyboard.class);
 
     /**
      * Тестируемый объект {@link ExpensesByCatCommandHandler}, обрабатывающий команду "/expenses_by_cat".
      */
-    private ExpensesByCatCommandHandler expensesByCatCommandHandler;
-
-    /**
-     * Инициализация всех зависимостей и {@link ExpensesByCatCommandHandler} перед каждым тестом.
-     */
-    @BeforeEach
-    void setUp() {
-        userServiceMock = Mockito.mock(UserService.class);
-        categoriesKeyboardMock = Mockito.mock(CategoriesKeyboard.class);
-
-        expensesByCatCommandHandler = new ExpensesByCatCommandHandler(userServiceMock, categoriesKeyboardMock);
-    }
+    private final ExpensesByCatCommandHandler expensesByCatCommandHandler
+            = new ExpensesByCatCommandHandler(userServiceMock, categoriesKeyboardMock);
 
     /**
      * Тест для обработки команды "/expenses_by_cat".
@@ -57,7 +46,7 @@ public class ExpensesByCatCommandHandlerTest {
                 "Выберите категорию для просмотра расходов", chatId, keyboardButtons));
 
         List<AnswerMessage> response =
-                expensesByCatCommandHandler.handleCommand(Commands.EXPENSES_BY_CAT.getCommand(), chatId);
+                expensesByCatCommandHandler.handleCommand(CommandData.EXPENSES_BY_CAT.getReadableName(), chatId);
 
         Mockito.verify(userServiceMock).setUserState(chatId, ChatState.WAITING_EXPENSE_CATEGORY_FOR_OUTPUT);
         Assertions.assertThat(response).containsAll(expected);

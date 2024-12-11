@@ -1,12 +1,11 @@
 package ru.naumen.bot.handler.callback.impl;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
-import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.data.enums.ChatState;
+import ru.naumen.bot.interaction.CommandData;
 import ru.naumen.bot.interaction.keyboards.TypeDBKeyboard;
 import ru.naumen.bot.service.UserService;
 
@@ -21,12 +20,12 @@ public class TypeDBForStartCallbackHandlerTest {
     /**
      * Мок-объект для {@link UserService}, используемый для управления состоянием пользователя.
      */
-    private UserService userServiceMock;
+    private final UserService userServiceMock = Mockito.mock(UserService.class);
 
     /**
      * Тестируемый обработчик коллбэков {@link TypeDBForStartCallbackHandler}.
      */
-    private TypeDBForStartCallbackHandler callbackHandler;
+    private final TypeDBForStartCallbackHandler callbackHandler = new TypeDBForStartCallbackHandler(userServiceMock);
 
     /**
      * Идентификатор чата пользователя.
@@ -39,15 +38,6 @@ public class TypeDBForStartCallbackHandlerTest {
     private final String callbackId = "id";
 
     /**
-     * Инициализация зависимостей перед каждым тестом.
-     */
-    @BeforeEach
-    public void setUp() {
-        userServiceMock = Mockito.mock(UserService.class);
-        callbackHandler = new TypeDBForStartCallbackHandler(userServiceMock);
-    }
-
-    /**
      * Тест обработки коллбэка с выбором типа базы данных Google Sheets.
      * Проверяет, что бот корректно отреагирует на выбор Google Sheets и отправит правильные сообщения.
      */
@@ -56,7 +46,7 @@ public class TypeDBForStartCallbackHandlerTest {
         List<AnswerMessage> expected =
                 List.of(
                         new AnswerMessage("Помните, вы можете поменять способ хранения данных" +
-                                " с помощью команды " + Commands.CHANGE_DB_COMMAND.getCommand(), chatId),
+                                " с помощью команды " + CommandData.CHANGE_DB_COMMAND.getReadableName(), chatId),
                         new AnswerMessage("""
                                 Давайте создадим таблицу и привяжем к ней бота:
                                 1. Для создания таблицы перейдите по ссылке https://sheets.new/
@@ -80,7 +70,7 @@ public class TypeDBForStartCallbackHandlerTest {
         List<AnswerMessage> expected =
                 List.of(
                         new AnswerMessage("Помните, вы можете поменять способ хранения данных" +
-                                " с помощью команды " + Commands.CHANGE_DB_COMMAND.getCommand(), chatId),
+                                " с помощью команды " + CommandData.CHANGE_DB_COMMAND.getReadableName(), chatId),
                         new AnswerMessage("Теперь ваши данные хранятся в оперативной памяти!", chatId));
         List<AnswerMessage> response =
                 callbackHandler.handleCallback(TypeDBKeyboard.IN_MEMORY.getData(), callbackId, chatId);

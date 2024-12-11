@@ -5,7 +5,7 @@ import ru.naumen.bot.client.GoogleSheetsClient;
 import ru.naumen.bot.data.dao.ExpenseDao;
 import ru.naumen.bot.data.dao.googleSheets.exception.GoogleSheetsException;
 import ru.naumen.bot.data.entity.Expense;
-import ru.naumen.bot.data.entity.ExpenseCategory;
+import ru.naumen.bot.data.enums.ExpenseCategory;
 import ru.naumen.bot.service.UserService;
 import ru.naumen.bot.utils.GoogleSheetsConverter;
 
@@ -55,7 +55,7 @@ public class GoogleSheetsExpenseDao implements ExpenseDao {
             data = googleSheetsClient.readData("Расходы!A2:D",
                     userService.getGoogleSheetId(chatId));
         } catch (IOException e) {
-            throw new GoogleSheetsException(e);
+            throw new GoogleSheetsException("Ошибка получения расходов", e);
         }
 
         return googleSheetsConverter.sheetFormatToExpenses(data);
@@ -68,7 +68,7 @@ public class GoogleSheetsExpenseDao implements ExpenseDao {
         try {
             googleSheetsClient.appendData("Расходы!A2:D", values, googleSheetId);
         } catch (IOException e) {
-            throw new GoogleSheetsException(e);
+            throw new GoogleSheetsException("Ошибка добавления расхода", e);
         }
 
     }
@@ -80,7 +80,7 @@ public class GoogleSheetsExpenseDao implements ExpenseDao {
         try {
             googleSheetsClient.appendData("Расходы!A2:D", values, googleSheetId);
         } catch (IOException e) {
-            throw new GoogleSheetsException(e);
+            throw new GoogleSheetsException("Ошибка добавления расходов", e);
         }
 
     }
@@ -90,12 +90,12 @@ public class GoogleSheetsExpenseDao implements ExpenseDao {
         try {
             googleSheetsClient.clearSheet("Расходы!A2:D", userService.getGoogleSheetId(chatId));
         } catch (IOException e) {
-            throw new GoogleSheetsException(e);
+            throw new GoogleSheetsException("Ошибка удаления расходов", e);
         }
     }
 
     @Override
-    public void changeLastExpenseCategory(long chatId, ExpenseCategory newCategory) throws GoogleSheetsException {
+    public void setLastExpenseCategory(long chatId, ExpenseCategory newCategory) throws GoogleSheetsException {
         List<List<Object>> values = googleSheetsConverter.stringToSheetFormat(newCategory.toString());
         String googleSheetId = userService.getGoogleSheetId(chatId);
         try {
@@ -104,7 +104,7 @@ public class GoogleSheetsExpenseDao implements ExpenseDao {
 
             googleSheetsClient.updateData("Расходы!C" + data.size(), values, googleSheetId);
         } catch (IOException e) {
-            throw new GoogleSheetsException(e);
+            throw new GoogleSheetsException("Ошибка изменения категории последнего расхода", e);
         }
     }
 }

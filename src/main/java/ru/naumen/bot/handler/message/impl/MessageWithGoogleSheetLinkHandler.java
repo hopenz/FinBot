@@ -2,8 +2,8 @@ package ru.naumen.bot.handler.message.impl;
 
 import org.springframework.stereotype.Component;
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
-import ru.naumen.bot.data.entity.DataType;
+import ru.naumen.bot.data.enums.ChatState;
+import ru.naumen.bot.data.enums.DataType;
 import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.handler.message.MessageHandler;
 import ru.naumen.bot.service.DatabaseService;

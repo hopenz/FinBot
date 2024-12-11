@@ -2,15 +2,14 @@ package ru.naumen.bot.handler.command.impl;
 
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.Expense;
-import ru.naumen.bot.data.entity.ExpenseCategory;
+import ru.naumen.bot.data.enums.ChatState;
+import ru.naumen.bot.data.enums.ExpenseCategory;
 import ru.naumen.bot.exception.DaoException;
-import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.interaction.CommandData;
 import ru.naumen.bot.service.ExpenseService;
 import ru.naumen.bot.service.UserService;
 
@@ -26,28 +25,18 @@ public class AllCatOfExpensesCommandHandlerTest {
     /**
      * Мок-объект для {@link UserService}, используемый для управления состоянием чата.
      */
-    private UserService userServiceMock;
+    private final UserService userServiceMock = Mockito.mock(UserService.class);
 
     /**
      * Мок-объект для {@link ExpenseService}, предоставляющий данные о расходах.
      */
-    private ExpenseService expenseServiceMock;
+    private final ExpenseService expenseServiceMock = Mockito.mock(ExpenseService.class);
 
     /**
      * Тестируемый объект {@link AllCatOfExpensesCommandHandler}, обрабатывающий команду "/all_cat_of_expenses".
      */
-    private AllCatOfExpensesCommandHandler allCatOfExpensesCommandHandler;
-
-    /**
-     * Инициализация зависимостей перед каждым тестом.
-     */
-    @BeforeEach
-    void setUp() {
-        userServiceMock = Mockito.mock(UserService.class);
-        expenseServiceMock = Mockito.mock(ExpenseService.class);
-
-        allCatOfExpensesCommandHandler = new AllCatOfExpensesCommandHandler(expenseServiceMock, userServiceMock);
-    }
+    private final AllCatOfExpensesCommandHandler allCatOfExpensesCommandHandler
+            = new AllCatOfExpensesCommandHandler(expenseServiceMock, userServiceMock);
 
     /**
      * Тест обработки команды "/all_cat_of_expenses".
@@ -77,7 +66,7 @@ public class AllCatOfExpensesCommandHandlerTest {
                                 """.formatted(ExpenseCategory.CLOTHING.getName(), ExpenseCategory.TRANSPORT.getName())
                         , chatId));
         List<AnswerMessage> response =
-                allCatOfExpensesCommandHandler.handleCommand(Commands.ALL_CAT_OF_EXPENSES.getCommand(), chatId);
+                allCatOfExpensesCommandHandler.handleCommand(CommandData.ALL_CAT_OF_EXPENSES.getReadableName(), chatId);
 
         Mockito.verify(userServiceMock).setUserState(chatId, ChatState.NOTHING_WAITING);
         Assertions.assertThat(response).containsAll(expected);

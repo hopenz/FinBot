@@ -1,13 +1,12 @@
 package ru.naumen.bot.handler.callback.impl;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
 import ru.naumen.bot.data.entity.Expense;
-import ru.naumen.bot.data.entity.ExpenseCategory;
+import ru.naumen.bot.data.enums.ChatState;
+import ru.naumen.bot.data.enums.ExpenseCategory;
 import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.service.ExpenseService;
 import ru.naumen.bot.service.UserService;
@@ -24,27 +23,18 @@ public class ExpenseCategoryForOutputCallbackHandlerTest {
     /**
      * Мок-объект для {@link ExpenseService}, используемый для получения расходов пользователя.
      */
-    private ExpenseService expenseServiceMock;
+    private final ExpenseService expenseServiceMock = Mockito.mock(ExpenseService.class);
 
     /**
      * Мок-объект для {@link UserService}, используемый для управления состоянием пользователя.
      */
-    private UserService userServiceMock;
+    private final UserService userServiceMock = Mockito.mock(UserService.class);
 
     /**
      * Тестируемый обработчик коллбэков {@link ExpenseCategoryForOutputCallbackHandler}.
      */
-    private ExpenseCategoryForOutputCallbackHandler callbackHandler;
-
-    /**
-     * Инициализация зависимостей перед каждым тестом.
-     */
-    @BeforeEach
-    public void setUp() {
-        expenseServiceMock = Mockito.mock(ExpenseService.class);
-        userServiceMock = Mockito.mock(UserService.class);
-        callbackHandler = new ExpenseCategoryForOutputCallbackHandler(expenseServiceMock, userServiceMock);
-    }
+    private final ExpenseCategoryForOutputCallbackHandler callbackHandler
+            = new ExpenseCategoryForOutputCallbackHandler(expenseServiceMock, userServiceMock);
 
     /**
      * Тест обработки коллбэка для вывода расходов по выбранной категории.

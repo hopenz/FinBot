@@ -22,17 +22,29 @@ public class IncomeServiceTest {
     /**
      * Мок-объект для {@link IncomeDao}, используемый для работы с доходами пользователей.
      */
-    private IncomeDao incomeDaoMock;
+    private final IncomeDao incomeDaoMock = Mockito.mock(IncomeDao.class);
 
     /**
      * Мок-объект для {@link BalanceDao}, используемый для управления балансом пользователей.
      */
-    private BalanceDao balanceDaoMock;
+    private final BalanceDao balanceDaoMock = Mockito.mock(BalanceDao.class);
+
+    /**
+     * Мок-объект для {@link IncomeDaoProvider}, который предоставляет
+     * доступ к DAO-объектам для работы с доходами пользователя
+     */
+    IncomeDaoProvider incomeDaoProviderMock = Mockito.mock(IncomeDaoProvider.class);
+
+    /**
+     * Мок-объект для {@link BalanceDaoProvider}, который предоставляет
+     * доступ к DAO-объектам для работы с балансом пользователя
+     */
+    BalanceDaoProvider balanceDaoProviderMock = Mockito.mock(BalanceDaoProvider.class);
 
     /**
      * Тестируемый объект {@link IncomeService}, который проверяется в данном тестовом классе.
      */
-    private IncomeService incomeService;
+    private final IncomeService incomeService = new IncomeService(incomeDaoProviderMock, balanceDaoProviderMock);
 
     /**
      * Идентификатор чата, в котором происходит тестирование.
@@ -44,13 +56,8 @@ public class IncomeServiceTest {
      */
     @BeforeEach
     void setUp() {
-        IncomeDaoProvider incomeDaoProviderMock = Mockito.mock(IncomeDaoProvider.class);
-        BalanceDaoProvider balanceDaoProviderMock = Mockito.mock(BalanceDaoProvider.class);
-        incomeDaoMock = Mockito.mock(IncomeDao.class);
-        balanceDaoMock = Mockito.mock(BalanceDao.class);
         Mockito.when(incomeDaoProviderMock.getIncomeDaoForUser(chatId)).thenReturn(incomeDaoMock);
         Mockito.when(balanceDaoProviderMock.getBalanceDaoForUser(chatId)).thenReturn(balanceDaoMock);
-        incomeService = new IncomeService(incomeDaoProviderMock, balanceDaoProviderMock);
     }
 
     /**

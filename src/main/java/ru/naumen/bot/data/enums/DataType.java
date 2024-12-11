@@ -1,4 +1,4 @@
-package ru.naumen.bot.data.entity;
+package ru.naumen.bot.data.enums;
 
 /**
  * Перечисление DataType определяет типы хранилищ данных,

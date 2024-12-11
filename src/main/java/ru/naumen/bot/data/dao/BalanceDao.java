@@ -12,6 +12,7 @@ public interface BalanceDao {
      *
      * @param chatId     идентификатор чата, в котором необходимо установить баланс
      * @param newBalance сумма нового баланса
+     * @throws DaoException если возникает ошибка, связанная со взаимодействием с БД.
      */
     void setBalance(long chatId, double newBalance) throws DaoException;
 
@@ -19,6 +20,7 @@ public interface BalanceDao {
      * Возвращает баланс пользователя для указанного идентификатора
      *
      * @param chatId идентификатор чата, из которого необходимо вернуть баланс
+     * @throws DaoException если возникает ошибка, связанная со взаимодействием с БД.
      */
     Double getBalance(long chatId) throws DaoException;
 
@@ -26,6 +28,7 @@ public interface BalanceDao {
      * Удаляет баланс пользователя для указанного идентификатора
      *
      * @param chatId идентификатор чата, в котором необходимо удалить баланс
+     * @throws DaoException если возникает ошибка, связанная со взаимодействием с БД.
      */
     void removeBalance(long chatId) throws DaoException;
 }

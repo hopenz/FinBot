@@ -60,7 +60,7 @@ public class GoogleSheetsDao {
             googleSheetsClient.updateData("Общая информация!B3",
                     List.of(List.of("Сумма расходов за день:")), googleSheetId);
         } catch (IOException e) {
-            throw new GoogleSheetsException(e);
+            throw new GoogleSheetsException("Ошибка инициализации таблицы", e);
         }
 
     }

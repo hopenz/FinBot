@@ -1,7 +1,7 @@
 package ru.naumen.bot.handler.callback;
 
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
+import ru.naumen.bot.data.enums.ChatState;
 import ru.naumen.bot.exception.DaoException;
 
 import java.util.List;

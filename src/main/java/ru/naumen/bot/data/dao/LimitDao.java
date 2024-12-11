@@ -13,6 +13,7 @@ public interface LimitDao {
      *
      * @param chatId Идентификатор чата, для которого устанавливается лимит.
      * @param limit  Объект {@link Limit}, представляющий новый лимит расходов.
+     * @throws DaoException если возникает ошибка, связанная со взаимодействием с БД.
      */
     void setLimit(long chatId, Limit limit) throws DaoException;
 
@@ -20,6 +21,7 @@ public interface LimitDao {
      * Удаляет лимит расходов для заданного идентификатора чата.
      *
      * @param chatId Идентификатор чата, для которого удаляется лимит.
+     * @throws DaoException если возникает ошибка, связанная со взаимодействием с БД.
      */
     void removeLimit(long chatId) throws DaoException;
 
@@ -29,6 +31,7 @@ public interface LimitDao {
      * @param chatId Идентификатор чата, для которого запрашивается лимит.
      * @return Объект {@link Limit}, представляющий текущий лимит расходов,
      * или null, если лимит не установлен.
+     * @throws DaoException если возникает ошибка, связанная со взаимодействием с БД.
      */
     Limit getLimit(long chatId) throws DaoException;
 }

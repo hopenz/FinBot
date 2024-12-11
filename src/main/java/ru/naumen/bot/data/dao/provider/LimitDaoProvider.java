@@ -5,7 +5,7 @@ import ru.naumen.bot.data.dao.LimitDao;
 import ru.naumen.bot.data.dao.UserDao;
 import ru.naumen.bot.data.dao.googleSheets.GoogleSheetsLimitDao;
 import ru.naumen.bot.data.dao.inMemory.InMemoryLimitDao;
-import ru.naumen.bot.data.entity.DataType;
+import ru.naumen.bot.data.enums.DataType;
 
 /**
  * Класс предоставляет доступ к DAO-объектам для работы с лимитами пользователя.

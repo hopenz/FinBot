@@ -13,4 +13,14 @@ public class DaoException extends Exception {
     public DaoException(Exception exception) {
         super(exception);
     }
+
+    /**
+     * Конструктор, инициализирующий исключение с причиной и сообщением .
+     *
+     * @param message   сообщение об ошибке, которое описывает причину возникновения исключения
+     * @param exception исходное исключение, которое вызвало данное исключение.
+     */
+    public DaoException(String message, Exception exception) {
+        super(message, exception);
+    }
 }

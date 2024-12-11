@@ -52,7 +52,7 @@ public class GoogleSheetsBalanceDao implements BalanceDao {
         try {
             googleSheetsClient.updateData("Общая информация!B1", value, googleSheetId);
         } catch (IOException e) {
-            throw new GoogleSheetsException(e);
+            throw new GoogleSheetsException("Ошибка обновления баланса", e);
         }
 
     }
@@ -64,7 +64,7 @@ public class GoogleSheetsBalanceDao implements BalanceDao {
             data = googleSheetsClient.readData("Общая информация!B1",
                     userService.getGoogleSheetId(chatId));
         } catch (IOException e) {
-            throw new GoogleSheetsException(e);
+            throw new GoogleSheetsException("Ошибка получения баланса", e);
         }
         return googleSheetsConverter.sheetFormatToDouble(data);
     }
@@ -74,7 +74,7 @@ public class GoogleSheetsBalanceDao implements BalanceDao {
         try {
             googleSheetsClient.clearSheet("Общая информация!B1", userService.getGoogleSheetId(chatId));
         } catch (IOException e) {
-            throw new GoogleSheetsException(e);
+            throw new GoogleSheetsException("Ошибка удаления баланса", e);
         }
     }
 }

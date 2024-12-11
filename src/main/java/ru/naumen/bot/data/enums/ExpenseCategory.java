@@ -1,4 +1,4 @@
-package ru.naumen.bot.data.entity;
+package ru.naumen.bot.data.enums;
 
 /**
  * Перечисление, представляющее категории расходов.

@@ -55,7 +55,7 @@ public class GoogleSheetsLimitDao implements LimitDao {
         try {
             googleSheetsClient.updateData("Общая информация!A4:B4", value, googleSheetId);
         } catch (IOException e) {
-            throw new GoogleSheetsException(e);
+            throw new GoogleSheetsException("Ошибка установки лимита", e);
         }
     }
 
@@ -64,7 +64,7 @@ public class GoogleSheetsLimitDao implements LimitDao {
         try {
             googleSheetsClient.clearSheet("Общая информация!A4:B4", userService.getGoogleSheetId(chatId));
         } catch (IOException e) {
-            throw new GoogleSheetsException(e);
+            throw new GoogleSheetsException("Ошибка удаления лимита", e);
         }
     }
 
@@ -75,7 +75,7 @@ public class GoogleSheetsLimitDao implements LimitDao {
             data = googleSheetsClient.readData("Общая информация!A4:B4",
                     userService.getGoogleSheetId(chatId));
         } catch (IOException e) {
-            throw new GoogleSheetsException(e);
+            throw new GoogleSheetsException("Ошибка получения лимита", e);
         }
         return googleSheetsConverter.sheetFormatToLimit(data);
     }

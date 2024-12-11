@@ -1,14 +1,13 @@
 package ru.naumen.bot.handler.message.impl;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
+import ru.naumen.bot.data.enums.ChatState;
 import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.exception.ExceedingTheLimitException;
-import ru.naumen.bot.interaction.Commands;
+import ru.naumen.bot.interaction.CommandData;
 import ru.naumen.bot.interaction.keyboards.CategoriesKeyboard;
 import ru.naumen.bot.service.ExpenseService;
 import ru.naumen.bot.service.IncomeService;
@@ -24,46 +23,33 @@ public class SimpleMessageHandlerTest {
     /**
      * Мок-объект для {@link UserService}, используемый для работы с данными пользователей.
      */
-    private UserService userServiceMock;
+    private final UserService userServiceMock = Mockito.mock(UserService.class);
 
     /**
      * Мок-объект для {@link ExpenseService}, используемый для работы с расходами пользователей.
      */
-    private ExpenseService expenseServiceMock;
+    private final ExpenseService expenseServiceMock = Mockito.mock(ExpenseService.class);
 
     /**
      * Мок-объект для {@link IncomeService}, используемый для работы с доходами пользователей.
      */
-    private IncomeService incomeServiceMock;
+    private final IncomeService incomeServiceMock = Mockito.mock(IncomeService.class);
 
     /**
      * Мок-объект для {@link CategoriesKeyboard}, используемый для предоставления клавиатуры с категориями расходов.
      */
-    private CategoriesKeyboard categoriesKeyboardMock;
+    private final CategoriesKeyboard categoriesKeyboardMock = Mockito.mock(CategoriesKeyboard.class);
 
     /**
      * Тестируемый объект {@link SimpleMessageHandler}, который обрабатывает входящие сообщения.
      */
-    private SimpleMessageHandler simpleMessageHandler;
+    private final SimpleMessageHandler simpleMessageHandler = new SimpleMessageHandler(expenseServiceMock,
+            incomeServiceMock, userServiceMock, categoriesKeyboardMock);
 
     /**
      * Идентификатор чата, в котором происходит тестирование.
      */
     private final long chatId = 12345L;
-
-    /**
-     * Инициализация всех зависимостей и {@link SimpleMessageHandler} перед каждым тестом.
-     */
-    @BeforeEach
-    void setUp() {
-        userServiceMock = Mockito.mock(UserService.class);
-        expenseServiceMock = Mockito.mock(ExpenseService.class);
-        incomeServiceMock = Mockito.mock(IncomeService.class);
-        categoriesKeyboardMock = Mockito.mock(CategoriesKeyboard.class);
-
-        simpleMessageHandler = new SimpleMessageHandler(expenseServiceMock, incomeServiceMock,
-                userServiceMock, categoriesKeyboardMock);
-    }
 
     /**
      * Тест для проверки обработки сообщения с доходом.
@@ -136,7 +122,7 @@ public class SimpleMessageHandlerTest {
     void testHandleMessageWithInvalidMessage() throws DaoException {
         List<AnswerMessage> expected =
                 List.of(new AnswerMessage("Я вас не понял.\nЧтобы ознакомиться с командами - напишите "
-                        + Commands.HELP_COMMAND.getCommand(), chatId));
+                        + CommandData.HELP_COMMAND.getReadableName(), chatId));
 
         List<AnswerMessage> response =
                 simpleMessageHandler.handleMessage("+888 Доход", chatId);

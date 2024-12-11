@@ -1,12 +1,11 @@
 package ru.naumen.bot.handler.message.impl;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.naumen.bot.data.entity.AnswerMessage;
-import ru.naumen.bot.data.entity.ChatState;
-import ru.naumen.bot.data.entity.DataType;
+import ru.naumen.bot.data.enums.ChatState;
+import ru.naumen.bot.data.enums.DataType;
 import ru.naumen.bot.exception.DaoException;
 import ru.naumen.bot.service.DatabaseService;
 import ru.naumen.bot.service.UserService;
@@ -21,33 +20,23 @@ public class MessageWithGoogleSheetLinkHandlerTest {
     /**
      * Мок-объект для {@link DatabaseService}, используемый для управления источником данных.
      */
-    private DatabaseService databaseServiceMock;
+    private final DatabaseService databaseServiceMock = Mockito.mock(DatabaseService.class);
 
     /**
      * Мок-объект для {@link UserService}, используемый для работы с данными пользователей.
      */
-    private UserService userServiceMock;
+    private final UserService userServiceMock = Mockito.mock(UserService.class);
 
     /**
      * Тестируемый объект {@link MessageWithGoogleSheetLinkHandler}, который обрабатывает сообщения со ссылками.
      */
-    private MessageWithGoogleSheetLinkHandler messageWithGoogleSheetLinkHandler;
+    private final MessageWithGoogleSheetLinkHandler messageWithGoogleSheetLinkHandler
+            = new MessageWithGoogleSheetLinkHandler(databaseServiceMock, userServiceMock);
 
     /**
      * Идентификатор чата, в котором происходит тестирование.
      */
     private final long chatId = 12345L;
-
-    /**
-     * Инициализация всех зависимостей и {@link MessageWithGoogleSheetLinkHandler} перед каждым тестом.
-     */
-    @BeforeEach
-    void setUp() {
-        databaseServiceMock = Mockito.mock(DatabaseService.class);
-        userServiceMock = Mockito.mock(UserService.class);
-
-        messageWithGoogleSheetLinkHandler = new MessageWithGoogleSheetLinkHandler(databaseServiceMock, userServiceMock);
-    }
 
     /**
      * Тест для проверки обработки сообщения с корректной ссылкой на Google Sheet.
